@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>954777026389-jq5t9f3baapsv45je0qgd47e3lqr13f4.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.954777026389-jq5t9f3baapsv45je0qgd47e3lqr13f4</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>954777026389-g83fmevk1jqb0ad37ps0oe587h89k4fn.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyB9kdGr95X7FlZwDcDVFvUb0jk2lXprEAo</string>
+	<key>GCM_SENDER_ID</key>
+	<string>954777026389</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.sFactory</string>
+	<key>PROJECT_ID</key>
+	<string>fir-factory-45cec</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fir-factory-45cec.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:954777026389:ios:357c6105f0d8a8c46d79dc</string>
+</dict>
+</plist>
+
+<!-- Put me in the [my_project]/ios/Runner/Info.plist file -->
+<!-- Google Sign-in Section -->
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <!-- TODO Replace this value: -->
+      <!-- Copied from GoogleService-Info.plist key REVERSED_CLIENT_ID -->
+      <string>com.googleusercontent.apps.954777026389-jq5t9f3baapsv45je0qgd47e3lqr13f4</string>
+    </array>
+  </dict>
+</array>
+<!-- End of the Google Sign-in Section -->
