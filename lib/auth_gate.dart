@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';  // Add this import
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 
 import 'home.dart';
@@ -19,8 +20,26 @@ class AuthGate extends StatelessWidget {
           return SignInScreen(
             providers: [
               EmailAuthProvider(),
-              GoogleProvider(clientId: clientId),                         // Add this line
+              GoogleProvider(clientId: clientId),
             ],
+            actions: [
+              AuthStateChangeAction<UserCreated>((context, state) async {
+                final user = state.credential.user;
+
+                if (user != null) {
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.uid)
+                      .set({
+                    'email': user.email,
+                    'displayName': user.displayName ?? '',
+                    'role': 'user',
+                    'createdAt': FieldValue.serverTimestamp(),
+                  });
+                }
+              }),
+            ],
+
             headerBuilder: (context, constraints, shrinkOffset) {
               return Padding(
                 padding: const EdgeInsets.all(20),
