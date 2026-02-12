@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
-
-import 'home.dart';
+import 'package:s_factory/role_wrapper.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key, required this.clientId});
@@ -78,7 +77,7 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        return const HomeScreen();
+        return const RoleWrapper();
       },
     );
   }
