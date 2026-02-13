@@ -1,8 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:s_factory/features/user/widgets/bottom_nav_bar.dart';
 
 import '../../mock/machine_mock_data.dart';
 import '../../shared/widgets/machine_card.dart';
+import '../../shared/widgets/nav_bar.dart';
 
 class UserHomeScreen extends StatelessWidget {
   const UserHomeScreen({super.key});
@@ -10,21 +11,13 @@ class UserHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text('รายการเครื่องจักร'),
-          actions: [
-            IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => FirebaseAuth.instance.signOut(),
-          ),
-        ],
-      ),
+      appBar: NavBar(title: 'S.Fac'),
       body: LayoutBuilder(
         builder: (context, constraints) {
           int crossAxisCount = 1;
-          if (constraints.maxWidth > 900) {
+          if (constraints.maxWidth > 840) {
             crossAxisCount = 3;
-          } else if (constraints.maxWidth > 600) {
+          } else if (constraints.maxWidth > 420) {
             crossAxisCount = 2;
           }
 
@@ -49,6 +42,7 @@ class UserHomeScreen extends StatelessWidget {
           );
         },
       ),
+      bottomNavigationBar: BottomNavBar(),
     );
   }
 }
