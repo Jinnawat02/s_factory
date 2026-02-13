@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
-import 'package:s_factory/role_wrapper.dart';
+import 'package:s_factory/features/auth/role_wrapper.dart';
+
+import '../../shared/models/user.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key, required this.clientId});
@@ -26,19 +28,19 @@ class AuthGate extends StatelessWidget {
                 final user = state.credential.user;
 
                 if (user != null) {
+                  final initialData = UserModel.createInitialData(
+                    email: user.email ?? '',
+                    displayName: user.displayName,
+                    role: 'user',
+                  );
+
                   await FirebaseFirestore.instance
                       .collection('users')
                       .doc(user.uid)
-                      .set({
-                    'email': user.email,
-                    'displayName': user.displayName ?? '',
-                    'role': 'user',
-                    'createdAt': FieldValue.serverTimestamp(),
-                  });
+                      .set(initialData);
                 }
               }),
             ],
-
             headerBuilder: (context, constraints, shrinkOffset) {
               return Padding(
                 padding: const EdgeInsets.all(20),

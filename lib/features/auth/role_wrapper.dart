@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:s_factory/user/user.dart';
 
-import 'admin/admin.dart';
-import 'mechanic/mechanic.dart';
+import '../admin/admin.dart';
+import '../mechanic/mechanic.dart';
+import '../user/user.dart';
 
 class RoleWrapper extends StatelessWidget {
   const RoleWrapper({super.key});
