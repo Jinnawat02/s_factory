@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:s_factory/user/user.dart';
+import 'package:s_factory/widgets/machine_list_screen.dart';
 
-import 'admin/admin.dart';
-import 'mechanic/mechanic.dart';
+import 'admin/pages/admin_home.dart';
+import 'mechanic/pages/mechanic_home.dart';
+import 'user/pages/user_home.dart';
 
 class RoleWrapper extends StatelessWidget {
   const RoleWrapper({super.key});
@@ -34,7 +35,7 @@ class RoleWrapper extends StatelessWidget {
           } else if (role == 'mechanic') {
             return const MechanicHomeScreen();
           } else {
-            return const UserHomeScreen();
+            return const MachineListScreen();
           }
         }
 
