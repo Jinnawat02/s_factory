@@ -1,0 +1,164 @@
+# User Queries
+query GetUser($email: String!) {
+  user(key: {email: $email}) {
+    email
+    name
+    role
+    tel
+  }
+}
+
+query ListUsers {
+  users {
+    email
+    name
+    role
+    tel
+  }
+}
+
+# Machine Queries
+query GetMachine($id: UUID!) {
+  machine(id: $id) {
+    id
+    name
+    serialNumber
+    description
+  }
+}
+
+query ListMachines {
+  machines {
+    id
+    name
+    serialNumber
+    description
+  }
+}
+
+# Item Queries
+query GetItem($id: UUID!) {
+  item(id: $id) {
+    id
+    name
+    quantity
+    description
+  }
+}
+
+query ListItems {
+  items {
+    id
+    name
+    quantity
+    description
+  }
+}
+
+# Request Queries
+query GetRequest($id: UUID!) {
+  request(id: $id) {
+    id
+    user {
+      email
+      name
+    }
+    machine {
+      id
+      name
+    }
+    requestDate
+    description
+    status
+  }
+}
+
+query ListRequests {
+  requests {
+    id
+    user {
+      email
+      name
+    }
+    machine {
+      id
+      name
+    }
+    requestDate
+    description
+    status
+  }
+}
+
+# Routine Queries
+query GetRoutine($id: UUID!) {
+  routine(id: $id) {
+    id
+    title
+    creator {
+      email
+      name
+    }
+  }
+}
+
+query ListRoutines {
+  routines {
+    id
+    title
+    creator {
+      email
+      name
+    }
+  }
+}
+
+# RoutineLog Queries
+query GetRoutineLog($id: UUID!) {
+  routineLog(id: $id) {
+    id
+    title
+    isDone
+    routine {
+      id
+      title
+    }
+  }
+}
+
+query ListRoutineLogs {
+  routineLogs {
+    id
+    title
+    isDone
+    routine {
+      id
+      title
+    }
+  }
+}
+
+# MaintainLog Queries
+query GetMaintainLog($id: UUID!) {
+  maintainLog(id: $id) {
+    id
+    title
+    isDone
+    machine {
+      id
+      name
+    }
+  }
+}
+
+query ListMaintainLogs {
+  maintainLogs {
+    id
+    title
+    isDone
+    machine {
+      id
+      name
+    }
+  }
+}
