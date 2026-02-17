@@ -15,5 +15,10 @@ class MachineMockData {
       'description': 'ต้องการการบำรุงรักษาด่วน (Maintenance Required)',
       'imageUrl': 'https://picsum.photos/200?random=3',
     },
+    {
+      'name': 'test',
+      'description': 'test',
+      'imageUrl': 'https://picsum.photos/200?random=4',
+    },
   ];
 }

@@ -72,7 +72,7 @@ class AuthGate extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: AspectRatio(
                   aspectRatio: 1,
-                  child: Image.asset('assets/willem_dafoe_looking_up.png'),
+                  child: Image.asset('assets/logo_no_bg.png'),
                 ),
               );
             },

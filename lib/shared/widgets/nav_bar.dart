@@ -23,15 +23,13 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0.5,
 
       leadingWidth: leadingText != null ? 100 : null,
-      leading: leadingText != null
-          ? TextButton(
+      leading: leadingText != null ? TextButton(
         onPressed: onLeadingPressed ?? () => Navigator.pop(context),
         child: Text(
           leadingText!,
           style: const TextStyle(color: Colors.black),
         ),
-      )
-          : null, // for leading to previous page
+      ) : null, // for leading to previous page
 
       actions: [
         IconButton(
