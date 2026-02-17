@@ -18,8 +18,8 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(title),
       centerTitle: true,
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black,
+      backgroundColor: Colors.deepOrange,
+      foregroundColor: Colors.white,
       elevation: 0.5,
 
       leadingWidth: leadingText != null ? 100 : null,
@@ -27,13 +27,14 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: onLeadingPressed ?? () => Navigator.pop(context),
         child: Text(
           leadingText!,
-          style: const TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.white),
         ),
       ) : null, // for leading to previous page
 
       actions: [
         IconButton(
           icon: const Icon(Icons.logout),
+          color: Colors.white,
           onPressed: () => FirebaseAuth.instance.signOut(),
         ),
       ],

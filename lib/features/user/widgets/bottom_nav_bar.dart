@@ -20,6 +20,9 @@ class BottomNavBar extends StatelessWidget implements PreferredSizeWidget {
           label: 'Mechanic List',
         ),
       ],
+      selectedItemColor: Colors.grey,
+      unselectedItemColor: Colors.white,
+      backgroundColor: Colors.deepOrange,
     );
   }
 
