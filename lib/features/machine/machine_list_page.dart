@@ -9,7 +9,6 @@ class MachineListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return LayoutBuilder(
       builder: (context, constraints) {
         int crossAxisCount = 1;
