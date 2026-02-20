@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/machine_data.dart'; // import ไฟล์ข้อมูลเดิม
+import '../models/machine_data.dart';
+import '../user/pages/machine_info.dart'; // import ไฟล์ข้อมูลเดิม
 
 class MachineListScreen extends StatelessWidget {
   const MachineListScreen({super.key});
@@ -134,7 +135,12 @@ class MachineCard extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        print("Selected ${machine.name}");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MachineDetailScreen(machine: machine),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueGrey,
