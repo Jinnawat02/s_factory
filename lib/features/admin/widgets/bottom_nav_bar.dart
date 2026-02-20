@@ -16,6 +16,9 @@ class BottomNavBar extends StatelessWidget implements PreferredSizeWidget {
           label: 'Add',
         ),
       ],
+      selectedItemColor: Colors.grey,
+      unselectedItemColor: Colors.white,
+      backgroundColor: Colors.deepOrange,
     );
   }
 
