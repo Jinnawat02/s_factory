@@ -20,6 +20,9 @@ class BottomNavBar extends StatelessWidget implements PreferredSizeWidget {
           label: 'Profile',
         ),
       ],
+      selectedItemColor: Colors.grey,
+      unselectedItemColor: Colors.white,
+      backgroundColor: Colors.deepOrange,
     );
   }
 
