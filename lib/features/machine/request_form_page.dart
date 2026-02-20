@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../mock/mechanics_mock_data.dart';
 import '../../shared/widgets/nav_bar.dart';
 
 class RequestFormPage extends StatefulWidget {
@@ -25,7 +26,17 @@ class _RequestFormPageState extends State<RequestFormPage> {
   DateTime? _pickedDate;
   TimeOfDay? _pickedTime;
 
-  final List<String> _mechanics = ['ช่างสมชาย', 'ช่างวิชัย', 'ช่างมานะ'];
+  final List<String> _mechanics = [];
+
+  @override
+  initState() {
+    super.initState();
+
+    for (var item in MechanicsMockData.mechanics) {
+      _mechanics.add(item['name'].toString());
+    }
+  }
+
 
   // ฟังก์ชันเลือกวันที่
   Future<void> _selectDate(BuildContext context) async {
@@ -85,7 +96,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.person),
                 ),
-                value: _selectedMechanic,
+                initialValue: _selectedMechanic,
                 items: _mechanics.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
                 onChanged: (val) => setState(() => _selectedMechanic = val),
                 validator: (val) => val == null ? 'กรุณาเลือกช่าง' : null,
@@ -130,31 +141,38 @@ class _RequestFormPageState extends State<RequestFormPage> {
               ),
               const SizedBox(height: 40),
 
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() && _pickedDate != null && _pickedTime != null) {
-                      // ส่งข้อมูลสำเร็จ
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('ส่งข้อมูลการแจ้งซ่อมเรียบร้อยแล้ว')),
-                      );
-                      Navigator.pop(context);
-                    } else if (_pickedDate == null || _pickedTime == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('กรุณาเลือกวันและเวลาให้ครบถ้วน')),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate() && _pickedDate != null && _pickedTime != null) {
+                        // ส่งข้อมูลสำเร็จ
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('ส่งข้อมูลการแจ้งซ่อมเรียบร้อยแล้ว')),
+                        );
+                        Navigator.pop(context);
+
+                        print(_description);
+                        print( _pickedDate);
+                        print(_pickedTime);
+
+                      } else if (_pickedDate == null || _pickedTime == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('กรุณาเลือกวันและเวลาให้ครบถ้วน')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('ยืนยันส่งคำร้อง', style: TextStyle(fontSize: 16)),
                   ),
-                  child: const Text('ยืนยันส่งคำร้อง', style: TextStyle(fontSize: 16)),
                 ),
-              ),
+              )
             ],
           ),
         ),
