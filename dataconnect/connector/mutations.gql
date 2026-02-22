@@ -1,0 +1,39 @@
+mutation CreateRequest(
+  $userEmail: String!
+  $machineId: UUID!
+  $description: String!
+  $requestDate: Timestamp!
+) @auth(level: PUBLIC) {
+  request_insert(
+    data: {
+      user: { email: $userEmail }
+      machine: { id: $machineId }
+      description: $description
+      status: "Pending"
+      requestDate: $requestDate
+    }
+  )
+}
+
+mutation UpsertUser($email: String!) @auth(level: PUBLIC) {
+  user_upsert(
+    data: {
+      email: $email
+      password: "password123"
+      name: "Admin User"
+      role: "admin"
+      tel: "1234567890"
+    }
+  )
+}
+
+mutation UpsertMachine($id: UUID!) @auth(level: PUBLIC) {
+  machine_upsert(
+    data: {
+      id: $id
+      name: "Test Machine"
+      serialNumber: 1234
+      description: "Auto-generated machine"
+    }
+  )
+}

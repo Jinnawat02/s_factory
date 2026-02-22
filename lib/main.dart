@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:s_factory/dataconnect_generated/generated.dart';
+import 'package:s_factory/features/data_view.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
@@ -12,7 +14,7 @@ Future<void> main() async {
   await dotenv.load(fileName: ".env");
 
   final clientId = dotenv.env['WEB_CLIENT_ID'] ?? '';
-  final iOSClientId = dotenv.env['IOS_CLIENT_ID'] ?? '';
+  // final iOSClientId = dotenv.env['IOS_CLIENT_ID'] ?? '';
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (kDebugMode) {
@@ -21,7 +23,9 @@ Future<void> main() async {
     String host = defaultTargetPlatform == TargetPlatform.android
         ? '10.0.2.2'
         : 'localhost';
-    ConnectorConnector.instance.dataConnect.useDataConnectEmulator(host, 9399);
+    // ConnectorConnector.instance.dataConnect.useDataConnectEmulator(host, 9399);
+  }
 
-  runApp(MyApp(clientId: clientId));
+  runApp(const MaterialApp(home: DataView()));
+  // runApp(MyApp(clientId: clientId));
 }
