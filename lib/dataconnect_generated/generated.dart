@@ -5,9 +5,9 @@ import 'dart:convert';
 
 part 'create_request.dart';
 
-part 'upsert_user.dart';
+part 'insert_user.dart';
 
-part 'upsert_machine.dart';
+part 'insert_machine.dart';
 
 part 'get_user.dart';
 
@@ -51,13 +51,13 @@ class ConnectorConnector {
   }
   
   
-  UpsertUserVariablesBuilder upsertUser ({required String email, }) {
-    return UpsertUserVariablesBuilder(dataConnect, email: email,);
+  InsertUserVariablesBuilder insertUser ({required String email, required String password, required String name, required String role, required String tel, }) {
+    return InsertUserVariablesBuilder(dataConnect, email: email,password: password,name: name,role: role,tel: tel,);
   }
   
   
-  UpsertMachineVariablesBuilder upsertMachine ({required String id, }) {
-    return UpsertMachineVariablesBuilder(dataConnect, id: id,);
+  InsertMachineVariablesBuilder insertMachine ({required String id, required String name, required int serialNumber, required String description, }) {
+    return InsertMachineVariablesBuilder(dataConnect, id: id,name: name,serialNumber: serialNumber,description: description,);
   }
   
   

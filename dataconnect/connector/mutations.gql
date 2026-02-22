@@ -15,25 +15,36 @@ mutation CreateRequest(
   )
 }
 
-mutation UpsertUser($email: String!) @auth(level: PUBLIC) {
-  user_upsert(
+mutation InsertUser(
+  $email: String!
+  $password: String!
+  $name: String!
+  $role: String!
+  $tel: String!
+) @auth(level: PUBLIC) {
+  user_insert(
     data: {
       email: $email
-      password: "password123"
-      name: "Admin User"
-      role: "admin"
-      tel: "1234567890"
+      password: $password
+      name: $name
+      role: $role
+      tel: $tel
     }
   )
 }
 
-mutation UpsertMachine($id: UUID!) @auth(level: PUBLIC) {
-  machine_upsert(
+mutation InsertMachine(
+  $id: UUID!
+  $name: String!
+  $serialNumber: Int!
+  $description: String!
+) @auth(level: PUBLIC) {
+  machine_insert(
     data: {
       id: $id
-      name: "Test Machine"
-      serialNumber: 1234
-      description: "Auto-generated machine"
+      name: $name
+      serialNumber: $serialNumber
+      description: $description
     }
   )
 }

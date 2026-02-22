@@ -709,19 +709,27 @@ ref.execute();
 ```
 
 
-### UpsertUser
+### InsertUser
 #### Required Arguments
 ```dart
 String email = ...;
-ConnectorConnector.instance.upsertUser(
+String password = ...;
+String name = ...;
+String role = ...;
+String tel = ...;
+ConnectorConnector.instance.insertUser(
   email: email,
+  password: password,
+  name: name,
+  role: role,
+  tel: tel,
 ).execute();
 ```
 
 
 
 #### Return Type
-`execute()` returns a `OperationResult<UpsertUserData, UpsertUserVariables>`
+`execute()` returns a `OperationResult<InsertUserData, InsertUserVariables>`
 ```dart
 /// Result of an Operation Request (query/mutation).
 class OperationResult<Data, Variables> {
@@ -731,10 +739,14 @@ class OperationResult<Data, Variables> {
   FirebaseDataConnect dataConnect;
 }
 
-final result = await ConnectorConnector.instance.upsertUser(
+final result = await ConnectorConnector.instance.insertUser(
   email: email,
+  password: password,
+  name: name,
+  role: role,
+  tel: tel,
 );
-UpsertUserData data = result.data;
+InsertUserData data = result.data;
 final ref = result.ref;
 ```
 
@@ -743,27 +755,41 @@ Each builder returns an `execute` function, which is a helper function that crea
 An example of how to use the `Ref` object is shown below:
 ```dart
 String email = ...;
+String password = ...;
+String name = ...;
+String role = ...;
+String tel = ...;
 
-final ref = ConnectorConnector.instance.upsertUser(
+final ref = ConnectorConnector.instance.insertUser(
   email: email,
+  password: password,
+  name: name,
+  role: role,
+  tel: tel,
 ).ref();
 ref.execute();
 ```
 
 
-### UpsertMachine
+### InsertMachine
 #### Required Arguments
 ```dart
 String id = ...;
-ConnectorConnector.instance.upsertMachine(
+String name = ...;
+int serialNumber = ...;
+String description = ...;
+ConnectorConnector.instance.insertMachine(
   id: id,
+  name: name,
+  serialNumber: serialNumber,
+  description: description,
 ).execute();
 ```
 
 
 
 #### Return Type
-`execute()` returns a `OperationResult<UpsertMachineData, UpsertMachineVariables>`
+`execute()` returns a `OperationResult<InsertMachineData, InsertMachineVariables>`
 ```dart
 /// Result of an Operation Request (query/mutation).
 class OperationResult<Data, Variables> {
@@ -773,10 +799,13 @@ class OperationResult<Data, Variables> {
   FirebaseDataConnect dataConnect;
 }
 
-final result = await ConnectorConnector.instance.upsertMachine(
+final result = await ConnectorConnector.instance.insertMachine(
   id: id,
+  name: name,
+  serialNumber: serialNumber,
+  description: description,
 );
-UpsertMachineData data = result.data;
+InsertMachineData data = result.data;
 final ref = result.ref;
 ```
 
@@ -785,9 +814,15 @@ Each builder returns an `execute` function, which is a helper function that crea
 An example of how to use the `Ref` object is shown below:
 ```dart
 String id = ...;
+String name = ...;
+int serialNumber = ...;
+String description = ...;
 
-final ref = ConnectorConnector.instance.upsertMachine(
+final ref = ConnectorConnector.instance.insertMachine(
   id: id,
+  name: name,
+  serialNumber: serialNumber,
+  description: description,
 ).ref();
 ref.execute();
 ```

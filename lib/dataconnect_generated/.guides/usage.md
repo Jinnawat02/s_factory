@@ -2,8 +2,8 @@
 
 ```dart
 ConnectorConnector.instance.CreateRequest(createRequestVariables).execute();
-ConnectorConnector.instance.UpsertUser(upsertUserVariables).execute();
-ConnectorConnector.instance.UpsertMachine(upsertMachineVariables).execute();
+ConnectorConnector.instance.InsertUser(insertUserVariables).execute();
+ConnectorConnector.instance.InsertMachine(insertMachineVariables).execute();
 ConnectorConnector.instance.GetUser(getUserVariables).execute();
 ConnectorConnector.instance.ListUsers().execute();
 ConnectorConnector.instance.GetMachine(getMachineVariables).execute();
