@@ -33,7 +33,7 @@ class MechanicsList extends StatelessWidget {
             return ListView.builder(
               itemCount: mechanics.length,
               itemBuilder: (context, index) {
-                final GetMechanicsUsers mechanic = mechanics[index];
+                final dynamic mechanic = mechanics[index];
                 final name = mechanic.name ?? mechanic.email;
                 // Generate a placeholder avatar based on the name
                 final imgUrl =
@@ -48,7 +48,7 @@ class MechanicsList extends StatelessWidget {
     );
   }
 
-  Widget mechanicsContainer(BuildContext context, String name, String imgUrl, GetMechanicsUsers mechanic) {
+  Widget mechanicsContainer(BuildContext context, String name, String imgUrl, dynamic mechanic) {
     return Card(
       child: InkWell(
         onTap: () {

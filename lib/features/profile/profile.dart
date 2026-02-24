@@ -1,10 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:s_factory/shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/services/secure_storage_service.dart';
 
 class Profile extends StatefulWidget {
-  final GetMechanicsUsers user;
+  final dynamic user;
 
   const Profile({super.key, required this.user});
 
@@ -54,10 +55,10 @@ class _ProfileState extends State<Profile> {
     final user = widget.user;
 
     return Scaffold(
-      appBar: NavBar(
+      appBar: _currentRole != 'mechanic' ? NavBar(
         title: user.name ?? 'Profile',
         leadingText: 'Back',
-      ),
+      ) : null,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -109,7 +110,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildNameHeader(GetMechanicsUsers user) {
+  Widget _buildNameHeader(dynamic user) {
     return Column(
       children: [
         Text(
@@ -124,7 +125,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildInfoSection(GetMechanicsUsers user) {
+  Widget _buildInfoSection(dynamic user) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
