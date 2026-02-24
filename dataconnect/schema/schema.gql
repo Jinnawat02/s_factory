@@ -24,6 +24,7 @@ type Request @table (key: "id") {
     id: UUID! @default(expr: "uuidV4()")
     user: User!
     machine: Machine!
+    mechanic: User!
     requestDate: Timestamp!
     description: String
     status: String @default(value: "Pending")
@@ -31,15 +32,17 @@ type Request @table (key: "id") {
 
 type Routine @table (key: "id") {
     id: UUID! @default(expr: "uuidV4()")
+    machine: Machine!
     title: String
-    creator: User!
+    description: String
+    isCheck: Boolean @default(value: false)
 }
 
 type RoutineLog @table (key: "id") {
     id: UUID! @default(expr: "uuidV4()")
+    routine: Routine!
     title: String
     isDone: Boolean
-    routine: Routine!
 }
 
 type MaintainLog @table (key: "id") {
