@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:s_factory/features/machine/machine_list_page.dart';
 import 'package:s_factory/features/user/widgets/bottom_nav_bar.dart';
 import 'package:s_factory/features/user/widgets/mechanics_list.dart';
+import 'package:s_factory/features/inventory/inventory_page.dart';
 
 import '../../shared/widgets/nav_bar.dart';
 
@@ -21,6 +22,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     Center(child: Text('Request List Page (ยังไม่ได้ใส่หน้าจริง)')),
     Center(child: Text('QR Scanner Page (ยังไม่ได้ใส่หน้าจริง)')),
     MechanicsList(),
+    InventoryPage(),
   ];
 
   void _onItemTapped(int index) {

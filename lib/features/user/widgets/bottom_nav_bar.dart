@@ -36,6 +36,11 @@ class BottomNavBar extends StatelessWidget {
           label: 'Mechanic List',
           backgroundColor: Colors.deepOrange,
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.inventory_2),
+          label: 'Inventory',
+          backgroundColor: Colors.deepOrange,
+        ),
       ],
       selectedItemColor: Colors.grey,
       unselectedItemColor: Colors.white,
