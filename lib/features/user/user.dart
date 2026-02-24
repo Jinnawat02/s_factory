@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:s_factory/features/machine/machine_list_page.dart';
 import 'package:s_factory/features/user/request_list_page.dart';
 import 'package:s_factory/features/user/widgets/mechanics_list.dart';
-import 'package:s_factory/features/inventory/inventory_page.dart';
 
-import '../../shared/widgets/nav_bar.dart';
 import 'package:s_factory/shared/appbar/appbar.dart';
 import 'package:s_factory/shared/navigation/navbar.dart';
 import '../../shared/services/secure_storage_service.dart';
@@ -46,7 +44,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     const Center(child: Text('QR Scanner Page (ยังไม่ได้ใส่หน้าจริง)')),
     const RequestListPage(),
     const MechanicsList(),
-    const InventoryPage(),
   ];
 
   void _onItemTapped(int index) {
