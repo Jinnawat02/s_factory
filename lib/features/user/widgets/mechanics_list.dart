@@ -1,29 +1,47 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/profile/profile.dart';
-
-import '../../../mock/mechanics_mock_data.dart';
+import 'package:firebase_data_connect/firebase_data_connect.dart';
+import '../../../dataconnect_generated/generated.dart';
 
 class MechanicsList extends StatelessWidget {
   const MechanicsList({super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<String> mechanicListName = [];
-    List<String> mechanicListImageUrl = [];
-
-    for (var item in MechanicsMockData.mechanics) {
-      mechanicListName.add(item['name'].toString());
-      mechanicListImageUrl.add(item['imageUrl'].toString());
-    }
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
-          itemCount: mechanicListName.length,
-          itemBuilder: (context, index) {
-            return mechanicsContainer(context, mechanicListName[index], mechanicListImageUrl[index]);
+        child: FutureBuilder<QueryResult<GetMechanicsData, void>>(
+          future: ConnectorConnector.instance.getMechanics().execute(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(
+                child: Text('Error loading mechanics: ${snapshot.error}'),
+              );
+            }
+
+            final mechanics = snapshot.data?.data.users ?? [];
+
+            if (mechanics.isEmpty) {
+              return const Center(child: Text('No mechanics found.'));
+            }
+
+            return ListView.builder(
+              itemCount: mechanics.length,
+              itemBuilder: (context, index) {
+                final mechanic = mechanics[index];
+                final name = mechanic.name ?? mechanic.email;
+                // Generate a placeholder avatar based on the name
+                final imgUrl =
+                    'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=random';
+
+                return mechanicsContainer(context, name, imgUrl);
+              },
+            );
           },
         ),
       ),
@@ -37,7 +55,7 @@ class MechanicsList extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Profile(),
+              builder: (context) => const Profile(), // Add const
             ),
           );
         },
@@ -47,7 +65,7 @@ class MechanicsList extends StatelessWidget {
             borderRadius: BorderRadius.circular(5.0),
             color: Colors.blueGrey,
           ),
-          width: .infinity,
+          width: double.infinity,
           height: 100,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -55,16 +73,21 @@ class MechanicsList extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(2.5),
                 child: CircleAvatar(
-                  radius: 50,
+                  radius: 40,
                   backgroundImage: NetworkImage(imgUrl),
                 ),
               ),
-              Text(
-                name,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.0,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

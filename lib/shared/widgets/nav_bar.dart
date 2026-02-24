@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../shared/services/secure_storage_service.dart';
+
 class NavBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? leadingText;
@@ -35,7 +37,13 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.logout),
           color: Colors.white,
-          onPressed: () => FirebaseAuth.instance.signOut(),
+          onPressed: () async {
+            // 1. ล้างข้อมูล Role ที่แคชไว้ในเครื่องก่อน
+            await SecureStorageService().clearRole();
+
+            // 2. สั่งออกจากระบบ Firebase Auth
+            await FirebaseAuth.instance.signOut();
+          },
         ),
       ],
     );
