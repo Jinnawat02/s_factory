@@ -17,10 +17,15 @@ class NavConfig {
           'activeIcon': Icons.people,
           'label': 'Users',
         },
+        // {
+        //   'icon': Icons.bar_chart_outlined,
+        //   'activeIcon': Icons.bar_chart,
+        //   'label': 'Reports',
+        // },
         {
-          'icon': Icons.bar_chart_outlined,
-          'activeIcon': Icons.bar_chart,
-          'label': 'Reports',
+          'icon': Icons.inventory_2_outlined,
+          'activeIcon': Icons.inventory_2,
+          'label': 'Inventory',
         },
       ],
       'mechanic': [
