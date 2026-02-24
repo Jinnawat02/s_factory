@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/auth/role_wrapper.dart';
 
-import '../../shared/models/user.dart';
+// เนื่องจากเราจะย้ายตรรกะการดึงข้อมูลและเช็ค Role ไปไว้ที่ RoleWrapper
+// หน้านี้จึงทำหน้าที่แค่จัดการ UI การล็อกอินเท่านั้น
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key, required this.clientId});
@@ -23,24 +23,8 @@ class AuthGate extends StatelessWidget {
               EmailAuthProvider(),
               GoogleProvider(clientId: clientId),
             ],
-            actions: [
-              AuthStateChangeAction<UserCreated>((context, state) async {
-                final user = state.credential.user;
-
-                if (user != null) {
-                  final initialData = UserModel.createInitialData(
-                    email: user.email ?? '',
-                    displayName: user.displayName,
-                    role: 'user',
-                  );
-
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user.uid)
-                      .set(initialData);
-                }
-              }),
-            ],
+            // ลบ actions: [ AuthStateChangeAction<UserCreated>... ] ออกไปเลย
+            // เพราะเราไม่ต้องการให้มีการเซฟข้อมูลลงฐานข้อมูลตอนมีคนพยายามสมัคร
             headerBuilder: (context, constraints, shrinkOffset) {
               return Padding(
                 padding: const EdgeInsets.all(20),
@@ -51,19 +35,20 @@ class AuthGate extends StatelessWidget {
               );
             },
             subtitleBuilder: (context, action) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: action == AuthAction.signIn
-                    ? const Text('Welcome to FlutterFire, please sign in!')
-                    : const Text('Welcome to Flutterfire, please sign up!'),
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                // เปลี่ยนข้อความให้เหมาะสมกับระบบปิด
+                child: Text('Welcome to the system, please sign in.'),
               );
             },
             footerBuilder: (context, action) {
               return const Padding(
                 padding: EdgeInsets.only(top: 16),
                 child: Text(
-                  'By signing in, you agree to our terms and conditions.',
-                  style: TextStyle(color: Colors.grey),
+                  // แจ้งเตือนผู้ใช้ว่าเป็นระบบภายใน
+                  'Internal system only. Accounts are managed by administrators.',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  textAlign: TextAlign.center,
                 ),
               );
             },
@@ -79,6 +64,8 @@ class AuthGate extends StatelessWidget {
           );
         }
 
+        // เมื่อเข้าสู่ระบบสำเร็จ (ได้ User กลับมา)
+        // จะส่งไปให้ RoleWrapper จัดการดึงข้อมูลจาก Data Connect ต่อ
         return const RoleWrapper();
       },
     );

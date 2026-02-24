@@ -1,0 +1,27 @@
+mutation CreateRequest(
+  $userEmail: String!
+  $machineId: UUID!
+  $description: String!
+  $requestDate: Timestamp!
+  $mechanicEmail: String!
+) @auth(level: PUBLIC) {
+  request_insert(
+    data: {
+      user: { email: $userEmail }
+      machine: { id: $machineId }
+      mechanic: { email: $mechanicEmail }
+      description: $description
+      status: "Pending"
+      requestDate: $requestDate
+    }
+  )
+}
+
+mutation UpdateRoutine($id: UUID!, $isCheck: Boolean!) @auth(level: PUBLIC) {
+  routine_update(
+    id: $id
+    data: {
+      isCheck: $isCheck
+    }
+  )
+}

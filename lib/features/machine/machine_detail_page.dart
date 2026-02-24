@@ -1,85 +1,421 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_data_connect/firebase_data_connect.dart';
+import '../../../dataconnect_generated/generated.dart';
+
 import 'package:s_factory/features/machine/request_form_page.dart';
+import 'package:s_factory/mock/machine_mock_data.dart'; // Import mock data
 
 import '../../shared/widgets/nav_bar.dart';
 
-class MachineDetailPage extends StatelessWidget {
+class MachineDetailPage extends StatefulWidget {
   final Map<String, String> machineData;
+  final String role; // Require the role argument
 
-  const MachineDetailPage({super.key, required this.machineData});
+  const MachineDetailPage({
+    super.key,
+    required this.machineData,
+    required this.role,
+  });
+
+  @override
+  State<MachineDetailPage> createState() => _MachineDetailPageState();
+}
+
+class _MachineDetailPageState extends State<MachineDetailPage> {
+  List<Map<String, dynamic>> _checklistItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChecklistData();
+  }
+
+  void _loadChecklistData() {
+    final machineId = widget.machineData['id'];
+    // Load checklist if it exists in mock data, otherwise empty list
+    final List<Map<String, dynamic>> baseChecklist =
+        MachineMockData.checklists[machineId] ?? [];
+
+    // Deep copy so we don't modify the mock data globally
+    _checklistItems = baseChecklist
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.role == 'mechanic') {
+      return _buildMechanicView(context);
+    }
+
     return Scaffold(
-      // เรียกใช้ NavBar ของเรา พร้อมส่งค่า leadingText เพื่อให้กดกลับได้
-      appBar: NavBar(
-        title: machineData['name']!,
-        leadingText: 'Cancel',
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Image.network(
-              machineData['imageUrl']!,
-              width: double.infinity,
-              height: 250,
-              fit: BoxFit.cover,
+      appBar: NavBar(title: widget.machineData['name']!, leadingText: 'Cancel'),
+      body: FutureBuilder<QueryResult<GetMachineData, GetMachineVariables>>(
+        future: ConnectorConnector.instance
+            .getMachine(id: widget.machineData['id']!)
+            .execute(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final machine = snapshot.data?.data.machine;
+          if (machine == null) {
+            return const Center(child: Text('Machine not found.'));
+          }
+
+          final name = machine.name ?? widget.machineData['name']!;
+          final description =
+              machine.description ?? widget.machineData['description']!;
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.network(
+                  widget.machineData['imageUrl']!,
+                  width: double.infinity,
+                  height: 250,
+                  fit: BoxFit.cover,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'รายละเอียดเครื่องจักร',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        description,
+                        style: const TextStyle(fontSize: 16, height: 1.5),
+                      ),
+                      const SizedBox(height: 30),
+                      _buildActionButtons(context, name: name),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMechanicView(BuildContext context) {
+    return FutureBuilder<
+      QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
+    >(
+      future: ConnectorConnector.instance
+          .getRoutinesByMachineId(machineId: widget.machineData['id']!)
+          .execute(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Error loading routines: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        final routines = snapshot.data?.data.routines ?? [];
+
+        // Initialize the local state from routines on first load
+        if (_checklistItems.isEmpty && routines.isNotEmpty) {
+          _checklistItems = routines
+              .map(
+                (r) => {
+                  'id': r.id,
+                  'title': r.title ?? 'No Title',
+                  'subtitle': r.description ?? '',
+                  'isDone': r.isCheck ?? false,
+                },
+              )
+              .toList();
+        }
+
+        return Scaffold(
+          backgroundColor:
+              Colors.grey[50], // Soft background to make white containers pop
+          appBar: AppBar(
+            title: Text(widget.machineData['name']!),
+            centerTitle: true,
+            backgroundColor: Colors.deepOrange,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            leadingWidth: 90,
+            leading: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  try {
+                    // Show saving indicator
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Saving checklist...')),
+                    );
+
+                    // Update all checklist items in Data Connect
+                    for (var item in _checklistItems) {
+                      await ConnectorConnector.instance
+                          .updateRoutine(
+                            id: item['id'],
+                            isCheck: item['isDone'],
+                          )
+                          .execute();
+                    }
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Checklist saved successfully!'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      Navigator.pop(context);
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error saving: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: const Text(
+                  'Done',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'รายละเอียดเครื่องจักร',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  // Image Box
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        widget.machineData['imageUrl']!,
+                        height: 200,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    machineData['description']!,
-                    style: const TextStyle(fontSize: 16, height: 1.5),
+                  const SizedBox(height: 20),
+
+                  // Description Box
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      widget.machineData['description']!,
+                      style: const TextStyle(fontSize: 15, height: 1.5),
+                    ),
                   ),
+                  const SizedBox(height: 20),
 
-                  const SizedBox(height: 30),
-
-                  Center(
-                    child: SizedBox(
-                      width: 250,
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
+                  if (_checklistItems.isNotEmpty)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: List.generate(_checklistItems.length, (
+                          index,
+                        ) {
+                          final item = _checklistItems[index];
+                          return _buildChecklistItem(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => RequestFormPage(
-                                machineName: machineData['name']!,
-                                machineID: machineData['id']!,
-                              ),
-                            ),
+                            index,
+                            item['title'] as String,
+                            item['subtitle'] as String,
+                            isLast: index == _checklistItems.length - 1,
                           );
-                        },
-                        icon: const Icon(Icons.send),
-                        label: const Text(
-                          'ส่งคำร้องซ่อม/บำรุง',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepOrange,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                        }),
+                      ),
+                    )
+                  else
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                          'No checklist available for this machine.',
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ),
                     ),
-                  )
+
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
+  }
+
+  Widget _buildChecklistItem(
+    BuildContext context,
+    int index,
+    String title,
+    String subtitle, {
+    bool isLast = false,
+  }) {
+    return Column(
+      children: [
+        CheckboxListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          ),
+          subtitle: subtitle.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
+                )
+              : null,
+          value: _checklistItems[index]['isDone'],
+          activeColor: Colors.deepOrange,
+          checkboxShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          onChanged: (bool? value) {
+            setState(() {
+              _checklistItems[index]['isDone'] = value ?? false;
+            });
+          },
+          controlAffinity: ListTileControlAffinity.trailing,
+        ),
+        if (!isLast) const Divider(height: 1, indent: 16, endIndent: 16),
+      ],
+    );
+  }
+
+  /// Builds different action buttons depending on the user's role (for non-mechanic users).
+  Widget _buildActionButtons(BuildContext context, {String? name}) {
+    if (widget.role == 'user') {
+      return Center(
+        child: SizedBox(
+          width: 250,
+          height: 50,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RequestFormPage(
+                    machineName: name ?? widget.machineData['name']!,
+                    machineID: widget.machineData['id']!,
+                  ),
+                ),
+              );
+            },
+            icon: const Icon(Icons.send),
+            label: const Text(
+              'ส่งคำร้องซ่อม/บำรุง',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepOrange,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (widget.role == 'admin') {
+      return Center(
+        child: SizedBox(
+          width: 250,
+          height: 50,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              // TODO: Navigate to Edit Machine Details page
+            },
+            icon: const Icon(Icons.edit),
+            label: const Text(
+              'แก้ไขข้อมูลเครื่องจักร',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.indigo,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Fallback if role is unknown
+    return const SizedBox.shrink();
   }
 }

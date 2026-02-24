@@ -1,5 +1,5 @@
 # User Queries
-query GetUser($email: String!) {
+query GetUser($email: String!) @auth(level: PUBLIC) {
   user(key: {email: $email}) {
     email
     name
@@ -8,7 +8,7 @@ query GetUser($email: String!) {
   }
 }
 
-query ListUsers {
+query ListUsers @auth(level: PUBLIC) {
   users {
     email
     name
@@ -17,8 +17,17 @@ query ListUsers {
   }
 }
 
+query GetMechanics @auth(level: PUBLIC) {
+  users(where: {role: {eq: "mechanic"}}) {
+    email
+    name
+    role
+    tel
+  }
+}
+
 # Machine Queries
-query GetMachine($id: UUID!) {
+query GetMachine($id: UUID!) @auth(level: PUBLIC) {
   machine(id: $id) {
     id
     name
@@ -27,7 +36,7 @@ query GetMachine($id: UUID!) {
   }
 }
 
-query ListMachines {
+query ListMachines @auth(level: PUBLIC) {
   machines {
     id
     name
@@ -37,7 +46,7 @@ query ListMachines {
 }
 
 # Item Queries
-query GetItem($id: UUID!) {
+query GetItem($id: UUID!) @auth(level: PUBLIC) {
   item(id: $id) {
     id
     name
@@ -46,7 +55,7 @@ query GetItem($id: UUID!) {
   }
 }
 
-query ListItems {
+query ListItems @auth(level: PUBLIC) {
   items {
     id
     name
@@ -56,7 +65,7 @@ query ListItems {
 }
 
 # Request Queries
-query GetRequest($id: UUID!) {
+query GetRequest($id: UUID!) @auth(level: PUBLIC) {
   request(id: $id) {
     id
     user {
@@ -73,7 +82,7 @@ query GetRequest($id: UUID!) {
   }
 }
 
-query ListRequests {
+query ListRequests @auth(level: PUBLIC) {
   requests {
     id
     user {
@@ -84,8 +93,21 @@ query ListRequests {
       id
       name
     }
-    mechanic {
+    requestDate
+    description
+    status
+  }
+}
+
+query GetRequestsByMechanicEmail($email: String!) @auth(level: PUBLIC) {
+  requests(where: {mechanicEmail: {eq: $email}}) {
+    id
+    user {
       email
+      name
+    }
+    machine {
+      id
       name
     }
     requestDate
@@ -94,8 +116,9 @@ query ListRequests {
   }
 }
 
+
 # Routine Queries
-query GetRoutine($id: UUID!) {
+query GetRoutine($id: UUID!) @auth(level: PUBLIC) {
   routine(id: $id) {
     id
     machine {
@@ -118,7 +141,7 @@ query GetRoutinesByMachineId($machineId: UUID!) @auth(level: PUBLIC) {
 }
 
 # RoutineLog Queries
-query GetRoutineLog($id: UUID!) {
+query GetRoutineLog($id: UUID!) @auth(level: PUBLIC) {
   routineLog(id: $id) {
     id
     title
@@ -130,7 +153,7 @@ query GetRoutineLog($id: UUID!) {
   }
 }
 
-query ListRoutineLogs {
+query ListRoutineLogs @auth(level: PUBLIC) {
   routineLogs {
     id
     title
@@ -143,7 +166,7 @@ query ListRoutineLogs {
 }
 
 # MaintainLog Queries
-query GetMaintainLog($id: UUID!) {
+query GetMaintainLog($id: UUID!) @auth(level: PUBLIC) {
   maintainLog(id: $id) {
     id
     title
@@ -155,7 +178,7 @@ query GetMaintainLog($id: UUID!) {
   }
 }
 
-query ListMaintainLogs {
+query ListMaintainLogs @auth(level: PUBLIC) {
   maintainLogs {
     id
     title
