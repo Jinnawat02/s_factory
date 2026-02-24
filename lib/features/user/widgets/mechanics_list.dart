@@ -33,13 +33,13 @@ class MechanicsList extends StatelessWidget {
             return ListView.builder(
               itemCount: mechanics.length,
               itemBuilder: (context, index) {
-                final mechanic = mechanics[index];
+                final GetMechanicsUsers mechanic = mechanics[index];
                 final name = mechanic.name ?? mechanic.email;
                 // Generate a placeholder avatar based on the name
                 final imgUrl =
                     'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=random';
 
-                return mechanicsContainer(context, name, imgUrl);
+                return mechanicsContainer(context, name, imgUrl, mechanic);
               },
             );
           },
@@ -48,14 +48,14 @@ class MechanicsList extends StatelessWidget {
     );
   }
 
-  Widget mechanicsContainer(BuildContext context, String name, String imgUrl) {
+  Widget mechanicsContainer(BuildContext context, String name, String imgUrl, GetMechanicsUsers mechanic) {
     return Card(
       child: InkWell(
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const Profile(), // Add const
+              builder: (context) => Profile(user: mechanic),
             ),
           );
         },
