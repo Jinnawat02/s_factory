@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
+import 'package:s_factory/features/qr/qr_generator.dart';
 import '../../../dataconnect_generated/generated.dart';
 
 import 'package:s_factory/features/machine/request_form_page.dart';
@@ -51,49 +52,78 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     return Scaffold(
       appBar: NavBar(title: widget.machineData['name']!, leadingText: 'Cancel'),
       body: FutureBuilder<QueryResult<GetMachineData, GetMachineVariables>>(
-        future: ConnectorConnector.instance
-            .getMachine(id: widget.machineData['id']!)
-            .execute(),
+        future: widget.machineData['id'] == null
+            ? null
+            : ConnectorConnector.instance
+                  .getMachine(id: widget.machineData['id']!)
+                  .execute(),
+
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
           final machine = snapshot.data?.data.machine;
-          if (machine == null) {
-            return const Center(child: Text('Machine not found.'));
-          }
 
-          final name = machine.name ?? widget.machineData['name']!;
+          final name =
+              machine?.name ?? widget.machineData['name'] ?? 'Unknown machine';
+
           final description =
-              machine.description ?? widget.machineData['description']!;
+              machine?.description ??
+              widget.machineData['description'] ??
+              'No description';
+
+          final imageUrl =
+              widget.machineData['imageUrl'] ??
+              'https://via.placeholder.com/400x250?text=Machine';
 
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(
-                  widget.machineData['imageUrl']!,
-                  width: double.infinity,
-                  height: 250,
-                  fit: BoxFit.cover,
+                Center(
+                  child: Image.network(
+                    imageUrl,
+                    width: double.infinity,
+                    height: 250,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) =>
+                    const Icon(Icons.image_not_supported, size: 100),
+                  ),
                 ),
+
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+
+                          if (widget.machineData['id'] != null)
+                            _buildMachineQRCode(
+                              context,
+                              machineID: widget.machineData['id']!,
+                            ),
+                        ],
                       ),
+
                       const SizedBox(height: 10),
+
                       const Text(
                         'รายละเอียดเครื่องจักร',
                         style: TextStyle(
@@ -101,17 +131,45 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+
                       const SizedBox(height: 10),
+
                       Text(
                         description,
                         style: const TextStyle(fontSize: 16, height: 1.5),
                       ),
+
                       const SizedBox(height: 30),
+
                       _buildActionButtons(context, name: name),
                     ],
                   ),
                 ),
               ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMachineQRCode(BuildContext context, {String? machineID}) {
+    return SizedBox(
+      width: 100,
+      height: 40,
+      child: ElevatedButton.icon(
+        icon: const Icon(Icons.qr_code),
+        label: Text("QR Code", style: TextStyle(color: Colors.black)),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          iconColor: Colors.black,
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  QRGeneratorPage(machineID: machineID as String),
             ),
           );
         },
