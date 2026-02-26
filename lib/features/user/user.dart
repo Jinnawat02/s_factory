@@ -6,6 +6,7 @@ import 'package:s_factory/features/user/widgets/mechanics_list.dart';
 import 'package:s_factory/shared/appbar/appbar.dart';
 import 'package:s_factory/shared/navigation/navbar.dart';
 import '../../shared/services/secure_storage_service.dart';
+import '../qr/qr_scanner.dart';
 
 class UserHomeScreen extends StatefulWidget {
   const UserHomeScreen({super.key});
@@ -41,7 +42,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   List<Widget> get _pages => [
     MachineListPage(role: _currentRole!),
-    const Center(child: Text('QR Scanner Page (ยังไม่ได้ใส่หน้าจริง)')),
+    const QRScannerPage(),
     const RequestListPage(),
     const MechanicsList(),
   ];
