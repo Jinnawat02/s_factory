@@ -25,10 +25,20 @@ class MachineDetailPage extends StatefulWidget {
 class _MachineDetailPageState extends State<MachineDetailPage> {
   List<Map<String, dynamic>> _checklistItems = [];
 
+  late Future<
+    QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
+  >
+  _routinesFuture;
+
   @override
   void initState() {
     super.initState();
     _loadChecklistData();
+    if (widget.role == 'mechanic') {
+      _routinesFuture = ConnectorConnector.instance
+          .getRoutinesByMachineId(machineId: widget.machineData['id']!)
+          .execute();
+    }
   }
 
   void _loadChecklistData() {
@@ -181,9 +191,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     return FutureBuilder<
       QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
     >(
-      future: ConnectorConnector.instance
-          .getRoutinesByMachineId(machineId: widget.machineData['id']!)
-          .execute(),
+      future: _routinesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(

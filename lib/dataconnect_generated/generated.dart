@@ -7,6 +7,8 @@ part 'create_request.dart';
 
 part 'update_routine.dart';
 
+part 'update_request_status.dart';
+
 part 'get_user.dart';
 
 part 'list_users.dart';
@@ -55,6 +57,11 @@ class ConnectorConnector {
   
   UpdateRoutineVariablesBuilder updateRoutine ({required String id, required bool isCheck, }) {
     return UpdateRoutineVariablesBuilder(dataConnect, id: id,isCheck: isCheck,);
+  }
+  
+  
+  UpdateRequestStatusVariablesBuilder updateRequestStatus ({required String id, required String status, }) {
+    return UpdateRequestStatusVariablesBuilder(dataConnect, id: id,status: status,);
   }
   
   
