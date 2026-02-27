@@ -3,12 +3,24 @@ import 'package:s_factory/features/profile/profile.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
+import 'package:s_factory/features/user/add_user_page.dart';
+
 class MechanicsList extends StatelessWidget {
   const MechanicsList({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddUserPage()),
+          );
+        },
+        tooltip: 'Add Employee',
+        child: const Icon(Icons.add),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder<QueryResult<GetMechanicsData, void>>(
@@ -48,15 +60,18 @@ class MechanicsList extends StatelessWidget {
     );
   }
 
-  Widget mechanicsContainer(BuildContext context, String name, String imgUrl, dynamic mechanic) {
+  Widget mechanicsContainer(
+    BuildContext context,
+    String name,
+    String imgUrl,
+    dynamic mechanic,
+  ) {
     return Card(
       child: InkWell(
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => Profile(user: mechanic),
-            ),
+            MaterialPageRoute(builder: (context) => Profile(user: mechanic)),
           );
         },
         child: Container(
