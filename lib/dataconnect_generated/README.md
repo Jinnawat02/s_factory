@@ -858,3 +858,50 @@ final ref = ConnectorConnector.instance.updateRoutine(
 ref.execute();
 ```
 
+
+### UpdateRequestStatus
+#### Required Arguments
+```dart
+String id = ...;
+String status = ...;
+ConnectorConnector.instance.updateRequestStatus(
+  id: id,
+  status: status,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<UpdateRequestStatusData, UpdateRequestStatusVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.updateRequestStatus(
+  id: id,
+  status: status,
+);
+UpdateRequestStatusData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String id = ...;
+String status = ...;
+
+final ref = ConnectorConnector.instance.updateRequestStatus(
+  id: id,
+  status: status,
+).ref();
+ref.execute();
+```
+

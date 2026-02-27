@@ -25,3 +25,14 @@ mutation UpdateRoutine($id: UUID!, $isCheck: Boolean!) @auth(level: PUBLIC) {
     }
   )
 }
+
+# Update Request Status
+mutation UpdateRequestStatus($id: UUID!, $status: String!) @auth(level: PUBLIC) {
+  request_update(
+    id: $id,
+    data: {
+      status: $status
+    }
+  )
+}
+

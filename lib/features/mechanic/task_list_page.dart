@@ -5,7 +5,7 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
 import '../../mock/machine_mock_data.dart'; // Fallback for images if needed
-import '../machine/machine_detail_page.dart'; // Navigate to detail
+import 'task_detail.dart'; // Navigate to detail
 
 class TaskListPage extends StatefulWidget {
   const TaskListPage({super.key});
@@ -163,33 +163,63 @@ class _TaskListPageState extends State<TaskListPage> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.grey[600]),
                       ),
-                      trailing: Text(
-                        dateText,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (task.status?.toLowerCase() == 'pending')
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  margin: const EdgeInsets.only(right: 6),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.grey.shade400,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                )
+                              else if (task.status?.toLowerCase() == 'fixed')
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  margin: const EdgeInsets.only(right: 6),
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              Text(
+                                dateText,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      onTap: () {
-                        // Provide empty map data matching machine_detail_page expectations, supplementing the id.
-                        final navMachineData = {
-                          'id': machineId,
-                          'name': machineName,
-                          'imageUrl':
-                              imageUrl ??
-                              'https://picsum.photos/200?random=$machineId',
-                          'description': mockDescription ?? 'N/A',
-                        };
-
-                        Navigator.push(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MachineDetailPage(
-                              machineData: navMachineData,
-                              role: 'mechanic', // Force mechanic view
+                            builder: (context) => TaskDetailPage(
+                              requestId: task.id,
+                              machineName: machineName,
+                              description:
+                                  task.description ?? mockDescription ?? 'N/A',
                             ),
                           ),
                         );
+                        // Refresh the list after returning from the detail page
+                        if (mounted) {
+                          setState(() {});
+                        }
                       },
                     ),
                   );
