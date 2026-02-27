@@ -89,55 +89,47 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
               ),
               const SizedBox(height: 20),
 
-              const Text(
-                'ชื่อรายการ',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('NAME', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'กรอกชื่อรายการ...',
+                  hintText: '',
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: const BorderSide(
+                      color: Colors.deepPurpleAccent,
+                      width: 2,
+                    ),
+                  ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: const BorderSide(color: Colors.black, width: 2),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
-                    ? 'กรุณากรอกชื่อรายการ'
+                    ? 'Please enter a name'
                     : null,
                 onChanged: (value) => _name = value,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text(
-                'จำนวนสต็อกเริ่มต้น',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _stockController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  hintText: 'เช่น 10, 50...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'QUANTITY',
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  prefixIcon: const Icon(Icons.numbers),
-                  suffixIcon: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      InkWell(
-                        onTap: () {
-                          int current =
-                              int.tryParse(_stockController.text) ?? 0;
-                          _stockController.text = (current + 1).toString();
-                          _stock = _stockController.text;
-                        },
-                        child: const Icon(Icons.keyboard_arrow_up, size: 24),
-                      ),
-                      InkWell(
-                        onTap: () {
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {
                           int current =
                               int.tryParse(_stockController.text) ?? 0;
                           if (current > 0) {
@@ -145,35 +137,62 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                             _stock = _stockController.text;
                           }
                         },
-                        child: const Icon(Icons.keyboard_arrow_down, size: 24),
+                      ),
+                      Container(
+                        width: 48,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: TextFormField(
+                          controller: _stockController,
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(bottom: 15),
+                          ),
+                          onChanged: (value) => _stock = value,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {
+                          int current =
+                              int.tryParse(_stockController.text) ?? 0;
+                          _stockController.text = (current + 1).toString();
+                          _stock = _stockController.text;
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () {
+                          _stockController.text = '0';
+                          _stock = '0';
+                        },
                       ),
                     ],
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'กรุณากรอกจำนวนสต็อก';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'กรุณากรอกตัวเลขเท่านั้น';
-                  }
-                  return null;
-                },
-                onChanged: (value) => _stock = value,
+                ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text(
-                'รายละเอียดเพิ่มเติม',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
               TextFormField(
-                maxLines: 3,
+                maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'กรอกรายละเอียดเพิ่มเติม...',
+                  hintText: 'Item Description/ Detail',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.black, width: 2),
                   ),
                 ),
                 onChanged: (value) => _description = value,
