@@ -310,7 +310,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        widget.machineData['imageUrl']!,
+                        widget.machineData['imageUrl'] ?? '',
                         height: 200,
                         fit: BoxFit.contain,
                       ),

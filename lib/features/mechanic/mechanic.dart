@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:s_factory/features/machine/machine_list_page.dart';
 import 'package:s_factory/features/mechanic/task_list_page.dart';
 import 'package:s_factory/features/profile/profile.dart';
+import 'package:s_factory/features/qr/qr_scanner.dart';
 import 'package:s_factory/shared/appbar/appbar.dart';
 import 'package:s_factory/shared/navigation/navbar.dart';
 
@@ -72,7 +73,7 @@ class _MechanicHomeScreenState extends State<MechanicHomeScreen> {
   List<Widget> _getWidgetOptions() {
     return [
       Center(child: MachineListPage(role: _currentRole!)),
-      const Center(child: Text('QR Scanner Page')),
+      const Center(child: QRScannerPage()),
       const Center(child: TaskListPage()),
       Center(child: Profile(user: _currentUser)), // use Profile(user: currentUser)
     ];
