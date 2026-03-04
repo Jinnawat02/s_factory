@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:s_factory/features/profile/mechanic_calendar.dart';
 import 'package:s_factory/shared/widgets/nav_bar.dart';
-import '../../dataconnect_generated/generated.dart';
 import '../../shared/services/secure_storage_service.dart';
 
 class Profile extends StatefulWidget {
@@ -72,12 +71,12 @@ class _ProfileState extends State<Profile> {
                   _buildInfoSection(user),
 
                   if (user.role == 'mechanic') ...[
-                    const SizedBox(height: 30),
-                    _buildMechanicCalendar(),
+                    const SizedBox(height: 24),
+                    MechanicCalendar(mechanicEmail: user.email),
                   ],
 
                   if (_currentRole == 'admin') ...[
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 24),
                     _buildEditButton(),
                   ],
                 ],
@@ -187,19 +186,6 @@ class _ProfileState extends State<Profile> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMechanicCalendar() {
-    return Center(
-      child: Text(
-        'Calendar',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 30,
-          backgroundColor: Colors.deepOrange,
-        ),
       ),
     );
   }
