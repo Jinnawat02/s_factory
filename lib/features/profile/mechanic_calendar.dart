@@ -1,8 +1,33 @@
+import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
+import '../../dataconnect_generated/generated.dart';
+
 class MechanicCalendar extends StatelessWidget {
-  const MechanicCalendar({super.key});
+  final String mechanicEmail;
+
+  const MechanicCalendar({
+    super.key,
+    required this.mechanicEmail,
+  });
+
+  Color _getColorByStatus(String? status) {
+    switch (status) {
+      case 'Fixed':
+        return Colors.green;
+      case 'Pending':
+        return Colors.yellow;
+      case 'Cancelled':
+        return Colors.red;
+      default:
+        return Colors.blue;
+    }
+  }
+
+  DateTime _convertTimestamp(Timestamp ts) {
+    return DateTime.fromMillisecondsSinceEpoch(ts.seconds * 1000);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +38,7 @@ class MechanicCalendar extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
         color: Colors.white,
-        border: Border.all(
-          width: 4,
-          color: Colors.black,
-        ),
+        border: Border.all(width: 4, color: Colors.black),
       ),
       child: Column(
         children: [
@@ -27,110 +49,70 @@ class MechanicCalendar extends StatelessWidget {
             child: const Center(
               child: Text(
                 'Calendar',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
           ),
-
-          /// Calendar widget here
           Expanded(
-            child: SfCalendar(
-              view: CalendarView.month,
-              dataSource: MechanicDataSource(_getAppointments()),
+            child: FutureBuilder<QueryResult<GetRequestsByMechanicEmailData, GetRequestsByMechanicEmailVariables>>(
+              future: ConnectorConnector.instance
+                  .getRequestsByMechanicEmail(email: mechanicEmail)
+                  .execute(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              monthViewSettings: const MonthViewSettings(
-                showAgenda: true,
-              ),
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Error loading calendar: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
 
-              todayHighlightColor: Colors.blue,
+                final requests = snapshot.data?.data.requests ?? [];
 
-              headerStyle: const CalendarHeaderStyle(
-                textAlign: TextAlign.center,
-                textStyle: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+                final appointments = requests.map((request) {
+                  final date = _convertTimestamp(request.requestDate);
+                    return Appointment(
+                      startTime: date,
+                      endTime: date.add(const Duration(hours: 1)),
+                      startTimeZone: 'Asia/Bangkok',
+                      endTimeZone: 'Asia/Bangkok',
+                      subject: "${request.machine.name!}: ${request.description!}",
+                      color: _getColorByStatus(request.status),
+                    );
+                }).toList();
+
+                return SfCalendar(
+                  view: CalendarView.month,
+                  timeZone: 'Asia/Bangkok',
+                  dataSource: MechanicDataSource(appointments),
+                  todayTextStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  monthViewSettings: const MonthViewSettings(
+                    showAgenda: true,
+                    agendaStyle: AgendaStyle(
+                      appointmentTextStyle: TextStyle(
+                        color: Colors.black,
+                        fontStyle: FontStyle.normal,
+                      ),
+                      dateTextStyle: TextStyle(
+                        color: Colors.black,
+                        fontStyle: FontStyle.normal,
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
       ),
     );
-  }
-
-  /// Example events
-
-  /// Green for status 'Fixed'
-  /// Yellow for status 'Pending'
-
-  List<Appointment> _getAppointments() {
-    final DateTime today = DateTime.now();
-
-    return [
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine A',
-        color: Colors.green,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine B',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine C',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine D',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine C',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine D',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine C',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(hours: 2)),
-        endTime: today.add(const Duration(hours: 3)),
-        subject: 'Inspect Machine D',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(days: 1, hours: 1)),
-        endTime: today.add(const Duration(days: 1, hours: 2)),
-        subject: 'Maintenance Machine E',
-        color: Colors.yellow,
-      ),
-      Appointment(
-        startTime: today.add(const Duration(days: 2)),
-        endTime: today.add(const Duration(days: 2, hours: 2)),
-        subject: 'Repair Machine F',
-        color: Colors.yellow,
-      ),
-    ];
   }
 }
 

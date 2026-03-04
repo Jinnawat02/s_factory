@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/profile/mechanic_calendar.dart';
 import 'package:s_factory/shared/widgets/nav_bar.dart';
-import '../../dataconnect_generated/generated.dart';
 import '../../shared/services/secure_storage_service.dart';
 
 class Profile extends StatefulWidget {
@@ -74,7 +72,7 @@ class _ProfileState extends State<Profile> {
 
                   if (user.role == 'mechanic') ...[
                     const SizedBox(height: 24),
-                    MechanicCalendar(),
+                    MechanicCalendar(mechanicEmail: user.email),
                   ],
 
                   if (_currentRole == 'admin') ...[
