@@ -33,9 +33,9 @@ class _AddUserPageState extends State<AddUserPage> {
           .createUser(
             email: _email,
             password: _password,
-            name: _name.isEmpty ? null : _name,
-            role: _selectedRole,
-            tel: _tel.isEmpty ? null : _tel,
+            name: _name,
+            role: _selectedRole ?? '',
+            tel: _tel,
           )
           .execute();
 

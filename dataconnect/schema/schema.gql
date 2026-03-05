@@ -1,53 +1,64 @@
-type User @table (key: "email") {
-    email: String!
-    password: String!
-    name: String
-    role: String
-    tel: String
+type User @table(key: "email") {
+  email: String!
+  password: String!
+  name: String
+  role: String
+  tel: String
+  fcmToken: String
 }
 
-type Machine @table (key: "id") {
-    id: UUID! @default(expr: "uuidV4()")
-    name: String
-    serialNumber: Int
-    description: String
+type Machine @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String
+  serialNumber: Int
+  description: String
 }
 
-type Item @table (key: "id") {
-    id: UUID! @default(expr: "uuidV4()")
-    name: String
-    quantity: Int
-    description: String
-    }
-
-type Request @table (key: "id") {
-    id: UUID! @default(expr: "uuidV4()")
-    user: User!
-    machine: Machine!
-    mechanic: User!
-    requestDate: Timestamp!
-    description: String
-    status: String @default(value: "Pending")
+type Item @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String
+  quantity: Int
+  description: String
 }
 
-type Routine @table (key: "id") {
-    id: UUID! @default(expr: "uuidV4()")
-    machine: Machine!
-    title: String
-    description: String
-    isCheck: Boolean @default(value: false)
+type Request @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  user: User!
+  machine: Machine!
+  mechanic: User!
+  requestDate: Timestamp!
+  description: String
+  status: String @default(value: "Pending")
 }
 
-type RoutineLog @table (key: "id") {
-    id: UUID! @default(expr: "uuidV4()")
-    routine: Routine!
-    title: String
-    isDone: Boolean
+type Routine @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  machine: Machine!
+  title: String
+  description: String
+  isCheck: Boolean @default(value: false)
 }
 
-type MaintainLog @table (key: "id") {
-    id: UUID! @default(expr: "uuidV4()")
-    title: String
-    isDone: Boolean
-    machine: Machine!
+type RoutineLog @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  routine: Routine!
+  title: String
+  isDone: Boolean
+}
+
+type MaintainLog @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  title: String
+  isDone: Boolean
+  machine: Machine!
+}
+
+type Notification @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  mechanic: User!
+  request: Request!
+  title: String!
+  body: String!
+  isRead: Boolean @default(value: false)
+  createdAt: Timestamp! @default(expr: "request.time")
 }

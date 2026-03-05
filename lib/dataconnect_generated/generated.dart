@@ -71,18 +71,18 @@ class ConnectorConnector {
   }
   
   
-  CreateItemVariablesBuilder createItem ({required String name, required int quantity, }) {
-    return CreateItemVariablesBuilder(dataConnect, name: name,quantity: quantity,);
+  CreateItemVariablesBuilder createItem ({required String name, required int quantity, required String description, }) {
+    return CreateItemVariablesBuilder(dataConnect, name: name,quantity: quantity,description: description,);
   }
   
   
-  CreateMachineVariablesBuilder createMachine ({required String name, }) {
-    return CreateMachineVariablesBuilder(dataConnect, name: name,);
+  CreateMachineVariablesBuilder createMachine ({required String name, required int serialNumber, required String description, }) {
+    return CreateMachineVariablesBuilder(dataConnect, name: name,serialNumber: serialNumber,description: description,);
   }
   
   
-  CreateUserVariablesBuilder createUser ({required String email, required String password, }) {
-    return CreateUserVariablesBuilder(dataConnect, email: email,password: password,);
+  CreateUserVariablesBuilder createUser ({required String email, required String password, required String name, required String role, required String tel, }) {
+    return CreateUserVariablesBuilder(dataConnect, email: email,password: password,name: name,role: role,tel: tel,);
   }
   
   

@@ -911,32 +911,15 @@ ref.execute();
 ```dart
 String name = ...;
 int quantity = ...;
+String description = ...;
 ConnectorConnector.instance.createItem(
   name: name,
   quantity: quantity,
+  description: description,
 ).execute();
 ```
 
-#### Optional Arguments
-We return a builder for each query. For CreateItem, we created `CreateItemBuilder`. For queries and mutations with optional parameters, we return a builder class.
-The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
-```dart
-class CreateItemVariablesBuilder {
-  ...
-   CreateItemVariablesBuilder description(String? t) {
-   _description.value = t;
-   return this;
-  }
 
-  ...
-}
-ConnectorConnector.instance.createItem(
-  name: name,
-  quantity: quantity,
-)
-.description(description)
-.execute();
-```
 
 #### Return Type
 `execute()` returns a `OperationResult<CreateItemData, CreateItemVariables>`
@@ -952,6 +935,7 @@ class OperationResult<Data, Variables> {
 final result = await ConnectorConnector.instance.createItem(
   name: name,
   quantity: quantity,
+  description: description,
 );
 CreateItemData data = result.data;
 final ref = result.ref;
@@ -963,10 +947,12 @@ An example of how to use the `Ref` object is shown below:
 ```dart
 String name = ...;
 int quantity = ...;
+String description = ...;
 
 final ref = ConnectorConnector.instance.createItem(
   name: name,
   quantity: quantity,
+  description: description,
 ).ref();
 ref.execute();
 ```
@@ -976,35 +962,16 @@ ref.execute();
 #### Required Arguments
 ```dart
 String name = ...;
+int serialNumber = ...;
+String description = ...;
 ConnectorConnector.instance.createMachine(
   name: name,
+  serialNumber: serialNumber,
+  description: description,
 ).execute();
 ```
 
-#### Optional Arguments
-We return a builder for each query. For CreateMachine, we created `CreateMachineBuilder`. For queries and mutations with optional parameters, we return a builder class.
-The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
-```dart
-class CreateMachineVariablesBuilder {
-  ...
-   CreateMachineVariablesBuilder serialNumber(int? t) {
-   _serialNumber.value = t;
-   return this;
-  }
-  CreateMachineVariablesBuilder description(String? t) {
-   _description.value = t;
-   return this;
-  }
 
-  ...
-}
-ConnectorConnector.instance.createMachine(
-  name: name,
-)
-.serialNumber(serialNumber)
-.description(description)
-.execute();
-```
 
 #### Return Type
 `execute()` returns a `OperationResult<CreateMachineData, CreateMachineVariables>`
@@ -1019,6 +986,8 @@ class OperationResult<Data, Variables> {
 
 final result = await ConnectorConnector.instance.createMachine(
   name: name,
+  serialNumber: serialNumber,
+  description: description,
 );
 CreateMachineData data = result.data;
 final ref = result.ref;
@@ -1029,9 +998,13 @@ Each builder returns an `execute` function, which is a helper function that crea
 An example of how to use the `Ref` object is shown below:
 ```dart
 String name = ...;
+int serialNumber = ...;
+String description = ...;
 
 final ref = ConnectorConnector.instance.createMachine(
   name: name,
+  serialNumber: serialNumber,
+  description: description,
 ).ref();
 ref.execute();
 ```
@@ -1042,42 +1015,19 @@ ref.execute();
 ```dart
 String email = ...;
 String password = ...;
+String name = ...;
+String role = ...;
+String tel = ...;
 ConnectorConnector.instance.createUser(
   email: email,
   password: password,
+  name: name,
+  role: role,
+  tel: tel,
 ).execute();
 ```
 
-#### Optional Arguments
-We return a builder for each query. For CreateUser, we created `CreateUserBuilder`. For queries and mutations with optional parameters, we return a builder class.
-The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
-```dart
-class CreateUserVariablesBuilder {
-  ...
-   CreateUserVariablesBuilder name(String? t) {
-   _name.value = t;
-   return this;
-  }
-  CreateUserVariablesBuilder role(String? t) {
-   _role.value = t;
-   return this;
-  }
-  CreateUserVariablesBuilder tel(String? t) {
-   _tel.value = t;
-   return this;
-  }
 
-  ...
-}
-ConnectorConnector.instance.createUser(
-  email: email,
-  password: password,
-)
-.name(name)
-.role(role)
-.tel(tel)
-.execute();
-```
 
 #### Return Type
 `execute()` returns a `OperationResult<CreateUserData, CreateUserVariables>`
@@ -1093,6 +1043,9 @@ class OperationResult<Data, Variables> {
 final result = await ConnectorConnector.instance.createUser(
   email: email,
   password: password,
+  name: name,
+  role: role,
+  tel: tel,
 );
 CreateUserData data = result.data;
 final ref = result.ref;
@@ -1104,10 +1057,16 @@ An example of how to use the `Ref` object is shown below:
 ```dart
 String email = ...;
 String password = ...;
+String name = ...;
+String role = ...;
+String tel = ...;
 
 final ref = ConnectorConnector.instance.createUser(
   email: email,
   password: password,
+  name: name,
+  role: role,
+  tel: tel,
 ).ref();
 ref.execute();
 ```

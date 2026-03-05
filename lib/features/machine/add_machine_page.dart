@@ -22,7 +22,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final serialInt = int.tryParse(_serialNumber);
+    final serialInt = int.tryParse(_serialNumber) ?? 0;
 
     setState(() => _isLoading = true);
 
@@ -31,7 +31,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
           .createMachine(
             name: _name,
             serialNumber: serialInt,
-            description: _description.isEmpty ? null : _description,
+            description: _description,
           )
           .execute();
 

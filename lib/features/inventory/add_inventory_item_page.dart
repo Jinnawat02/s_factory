@@ -40,7 +40,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
           .createItem(
             name: _name,
             quantity: quantity,
-            description: _description.isEmpty ? null : _description,
+            description: _description,
           )
           .execute();
 
