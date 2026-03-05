@@ -9,6 +9,12 @@ part 'update_routine.dart';
 
 part 'update_request_status.dart';
 
+part 'create_item.dart';
+
+part 'create_machine.dart';
+
+part 'create_user.dart';
+
 part 'get_user.dart';
 
 part 'list_users.dart';
@@ -62,6 +68,21 @@ class ConnectorConnector {
   
   UpdateRequestStatusVariablesBuilder updateRequestStatus ({required String id, required String status, }) {
     return UpdateRequestStatusVariablesBuilder(dataConnect, id: id,status: status,);
+  }
+  
+  
+  CreateItemVariablesBuilder createItem ({required String name, required int quantity, }) {
+    return CreateItemVariablesBuilder(dataConnect, name: name,quantity: quantity,);
+  }
+  
+  
+  CreateMachineVariablesBuilder createMachine ({required String name, }) {
+    return CreateMachineVariablesBuilder(dataConnect, name: name,);
+  }
+  
+  
+  CreateUserVariablesBuilder createUser ({required String email, required String password, }) {
+    return CreateUserVariablesBuilder(dataConnect, email: email,password: password,);
   }
   
   

@@ -1,55 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
-import '../../../dataconnect_generated/generated.dart';
+import '../../dataconnect_generated/generated.dart';
 
 import '../../mock/machine_mock_data.dart';
 import '../../shared/widgets/machine_card.dart';
 import 'add_machine_page.dart';
 import 'machine_detail_page.dart';
 
-class MachineListPage extends StatelessWidget {
-  final String role; // Require the user's role
+class MachineListPage extends StatefulWidget {
+  final String role;
 
   const MachineListPage({super.key, required this.role});
+
+  @override
+  State<MachineListPage> createState() => _MachineListPageState();
+}
+
+class _MachineListPageState extends State<MachineListPage> {
+  late Future<QueryResult<ListMachinesData, void>> _futureMachines;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMachines();
+  }
+
+  void _loadMachines() {
+    setState(() {
+      _futureMachines = ConnectorConnector.instance.listMachines().execute();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final created = await Navigator.push<bool>(
             context,
             MaterialPageRoute(builder: (context) => const AddMachinePage()),
           );
+          if (created == true) {
+            _loadMachines();
+          }
         },
         tooltip: 'Add Machine',
         child: const Icon(Icons.add),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          int crossAxisCount = 1;
-          if (constraints.maxWidth > 840) {
-            crossAxisCount = 3;
-          } else if (constraints.maxWidth > 420) {
-            crossAxisCount = 2;
+      body: FutureBuilder<QueryResult<ListMachinesData, void>>(
+        future: _futureMachines,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
 
-          return FutureBuilder<QueryResult<ListMachinesData, void>>(
-            future: ConnectorConnector.instance.listMachines().execute(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
 
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
+          final allMachines = snapshot.data?.data.machines ?? [];
 
-              final allMachines = snapshot.data?.data.machines ?? [];
+          if (allMachines.isEmpty) {
+            return const Center(child: Text('No machines found.'));
+          }
 
-              if (allMachines.isEmpty) {
-                return const Center(child: Text('No machines found.'));
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              int crossAxisCount = 1;
+              if (constraints.maxWidth > 840) {
+                crossAxisCount = 3;
+              } else if (constraints.maxWidth > 420) {
+                crossAxisCount = 2;
               }
 
               return GridView.builder(
@@ -64,8 +86,6 @@ class MachineListPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final machine = allMachines[index];
 
-                  // DataConnect Schema hasn't added imageUrl yet, so we use a mock one
-                  // based on the index or falling back to picsum.
                   final mockImage = index < MachineMockData.machines.length
                       ? MachineMockData.machines[index]['imageUrl']
                       : 'https://picsum.photos/400/300?random=${machine.id}';
@@ -78,8 +98,6 @@ class MachineListPage extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        // We pass the raw map structure to MachineDetailPage
-                        // to keep compatibility without rewriting the detail page entirely yet
                         builder: (context) => MachineDetailPage(
                           machineData: {
                             'id': machine.id,
@@ -91,7 +109,7 @@ class MachineListPage extends StatelessWidget {
                                 'No description available',
                             'imageUrl': mockImage,
                           },
-                          role: role,
+                          role: widget.role,
                         ),
                       ),
                     ),

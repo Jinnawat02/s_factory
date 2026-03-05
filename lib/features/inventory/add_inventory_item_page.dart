@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../shared/widgets/nav_bar.dart';
+import '../../dataconnect_generated/generated.dart';
 
 class AddInventoryItemPage extends StatefulWidget {
   const AddInventoryItemPage({super.key});
@@ -13,8 +14,8 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
   final _formKey = GlobalKey<FormState>();
 
   String _name = '';
-  String _stock = '0';
   String _description = '';
+  bool _isLoading = false;
   bool _hasPicture = false;
 
   final TextEditingController _stockController = TextEditingController(
@@ -25,6 +26,41 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
   void dispose() {
     _stockController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final quantity = int.tryParse(_stockController.text) ?? 0;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ConnectorConnector.instance
+          .createItem(
+            name: _name,
+            quantity: quantity,
+            description: _description.isEmpty ? null : _description,
+          )
+          .execute();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('เพิ่มรายการวัสดุ-อุปกรณ์เรียบร้อยแล้ว'),
+          ),
+        );
+        Navigator.pop(context, true); // true = item was created
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -44,7 +80,6 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    // Mock image selection
                     setState(() {
                       _hasPicture = !_hasPicture;
                     });
@@ -110,9 +145,8 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                     borderSide: const BorderSide(color: Colors.black, width: 2),
                   ),
                 ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a name'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'กรุณากรอกชื่อ' : null,
                 onChanged: (value) => _name = value,
               ),
               const SizedBox(height: 24),
@@ -134,7 +168,6 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                               int.tryParse(_stockController.text) ?? 0;
                           if (current > 0) {
                             _stockController.text = (current - 1).toString();
-                            _stock = _stockController.text;
                           }
                         },
                       ),
@@ -157,7 +190,6 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.only(bottom: 15),
                           ),
-                          onChanged: (value) => _stock = value,
                         ),
                       ),
                       IconButton(
@@ -166,14 +198,12 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                           int current =
                               int.tryParse(_stockController.text) ?? 0;
                           _stockController.text = (current + 1).toString();
-                          _stock = _stockController.text;
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete_outline),
                         onPressed: () {
                           _stockController.text = '0';
-                          _stock = '0';
                         },
                       ),
                     ],
@@ -204,24 +234,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                   width: 200,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Use fields to fix unused variable lint
-                        debugPrint(
-                          'Name: $_name, Stock: $_stock, HasPicture: $_hasPicture, Description: $_description',
-                        );
-
-                        // For now we just mock success
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'เพิ่มรายการวัสดุ-อุปกรณ์เรียบร้อยแล้ว',
-                            ),
-                          ),
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
+                    onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.deepOrange,
                       foregroundColor: Colors.white,
@@ -229,7 +242,16 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('บันทึก', style: TextStyle(fontSize: 16)),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('บันทึก', style: TextStyle(fontSize: 16)),
                   ),
                 ),
               ),

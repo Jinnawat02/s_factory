@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/nav_bar.dart';
+import '../../dataconnect_generated/generated.dart';
 
 class AddUserPage extends StatefulWidget {
   const AddUserPage({super.key});
@@ -11,22 +12,55 @@ class AddUserPage extends StatefulWidget {
 class _AddUserPageState extends State<AddUserPage> {
   final _formKey = GlobalKey<FormState>();
 
+  String _email = '';
+  String _password = '';
   String _name = '';
+  String _tel = '';
   String? _selectedRole;
-  String _description = '';
+  bool _isLoading = false;
+  bool _obscurePassword = true;
   bool _hasPicture = false;
 
-  final List<String> _roles = [
-    'Admin',
-    'Mechanic',
-    'Staff',
-  ]; // Add actual roles based on app implementation
+  final List<String> _roles = ['Admin', 'Mechanic', 'Staff'];
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ConnectorConnector.instance
+          .createUser(
+            email: _email,
+            password: _password,
+            name: _name.isEmpty ? null : _name,
+            role: _selectedRole,
+            tel: _tel.isEmpty ? null : _tel,
+          )
+          .execute();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Employee added successfully')),
+        );
+        Navigator.pop(context, true); // true = user was created
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const NavBar(title: 'Employee', leadingText: 'Back'),
+      appBar: const NavBar(title: 'Add Employee', leadingText: 'Back'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -37,7 +71,6 @@ class _AddUserPageState extends State<AddUserPage> {
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    // Mock image selection
                     setState(() {
                       _hasPicture = !_hasPicture;
                     });
@@ -52,12 +85,12 @@ class _AddUserPageState extends State<AddUserPage> {
                     ),
                     child: _hasPicture
                         ? const Icon(
-                            Icons.image,
+                            Icons.person,
                             size: 100,
                             color: Colors.black,
                           )
                         : const Icon(
-                            Icons.image_outlined,
+                            Icons.person_outline,
                             size: 40,
                             color: Colors.black,
                           ),
@@ -66,59 +99,71 @@ class _AddUserPageState extends State<AddUserPage> {
               ),
               const SizedBox(height: 32),
 
+              // EMAIL
               const Text(
-                'USERNAME',
+                'EMAIL',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'Username',
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Colors.deepPurpleAccent,
-                      width: 2,
+                keyboardType: TextInputType.emailAddress,
+                decoration: _inputDecoration('Email'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter an email';
+                  }
+                  if (!value.contains('@')) return 'Please enter a valid email';
+                  return null;
+                },
+                onChanged: (value) => _email = value,
+              ),
+              const SizedBox(height: 24),
+
+              // PASSWORD
+              const Text(
+                'PASSWORD',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                obscureText: _obscurePassword,
+                decoration: _inputDecoration('Password').copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                     ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
                 ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a name'
-                    : null,
+                validator: (value) {
+                  if (value == null || value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
+                onChanged: (value) => _password = value,
+              ),
+              const SizedBox(height: 24),
+
+              // NAME
+              const Text('NAME', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextFormField(
+                decoration: _inputDecoration('Full Name'),
                 onChanged: (value) => _name = value,
               ),
               const SizedBox(height: 24),
 
+              // ROLE
               const Text('ROLE', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _selectedRole,
+                initialValue: _selectedRole,
                 hint: const Text('Select Role'),
-                decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Colors.deepPurpleAccent,
-                      width: 2,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                  ),
-                ),
+                decoration: _inputDecoration(''),
                 items: _roles.map((String role) {
                   return DropdownMenuItem<String>(
                     value: role,
@@ -126,36 +171,23 @@ class _AddUserPageState extends State<AddUserPage> {
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedRole = newValue;
-                  });
+                  setState(() => _selectedRole = newValue);
                 },
                 validator: (value) =>
                     value == null ? 'Please select a role' : null,
               ),
               const SizedBox(height: 24),
 
+              // TEL
+              const Text(
+                'PHONE',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: 'description',
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Colors.deepPurpleAccent,
-                      width: 2,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
-                  ),
-                ),
-                onChanged: (value) => _description = value,
+                keyboardType: TextInputType.phone,
+                decoration: _inputDecoration('Phone Number'),
+                onChanged: (value) => _tel = value,
               ),
               const SizedBox(height: 48),
 
@@ -164,20 +196,7 @@ class _AddUserPageState extends State<AddUserPage> {
                   width: 100,
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        debugPrint(
-                          'Name: $_name, Role: $_selectedRole, HasPicture: $_hasPicture, Description: $_description',
-                        );
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Employee added successfully'),
-                          ),
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
+                    onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
@@ -187,19 +206,46 @@ class _AddUserPageState extends State<AddUserPage> {
                         side: const BorderSide(color: Colors.black, width: 2),
                       ),
                     ),
-                    child: const Text(
-                      'Add',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.black,
+                            ),
+                          )
+                        : const Text(
+                            'Add',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.deepPurpleAccent, width: 2),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 2),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.black, width: 2),
       ),
     );
   }
