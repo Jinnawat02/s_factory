@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../shared/widgets/nav_bar.dart';
+import '../../dataconnect_generated/generated.dart';
 
 class AddMachinePage extends StatefulWidget {
   const AddMachinePage({super.key});
@@ -14,13 +16,47 @@ class _AddMachinePageState extends State<AddMachinePage> {
   String _name = '';
   String _serialNumber = '';
   String _description = '';
+  bool _isLoading = false;
   bool _hasPicture = false;
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final serialInt = int.tryParse(_serialNumber) ?? 0;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ConnectorConnector.instance
+          .createMachine(
+            name: _name,
+            serialNumber: serialInt,
+            description: _description,
+          )
+          .execute();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Machine added successfully')),
+        );
+        Navigator.pop(context, true); // true = machine was created
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const NavBar(title: 'Machine Name', leadingText: 'Back'),
+      appBar: const NavBar(title: 'Add Machine', leadingText: 'Back'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -31,7 +67,6 @@ class _AddMachinePageState extends State<AddMachinePage> {
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    // Mock image selection
                     setState(() {
                       _hasPicture = !_hasPicture;
                     });
@@ -97,7 +132,10 @@ class _AddMachinePageState extends State<AddMachinePage> {
               ),
               const SizedBox(height: 8),
               TextFormField(
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
+                  hintText: 'Serial Number (numbers only)',
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
@@ -118,10 +156,15 @@ class _AddMachinePageState extends State<AddMachinePage> {
               ),
               const SizedBox(height: 24),
 
+              const Text(
+                'DESCRIPTION',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'description',
+                  hintText: 'Description',
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
@@ -147,20 +190,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   width: 100,
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        debugPrint(
-                          'Name: $_name, Serial: $_serialNumber, HasPicture: $_hasPicture, Description: $_description',
-                        );
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Machine added successfully'),
-                          ),
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
+                    onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
@@ -170,13 +200,22 @@ class _AddMachinePageState extends State<AddMachinePage> {
                         side: const BorderSide(color: Colors.black, width: 2),
                       ),
                     ),
-                    child: const Text(
-                      'Add',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: Colors.black,
+                            ),
+                          )
+                        : const Text(
+                            'Add',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ),

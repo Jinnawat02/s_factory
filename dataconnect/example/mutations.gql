@@ -18,21 +18,50 @@ mutation CreateRequest(
 }
 
 mutation UpdateRoutine($id: UUID!, $isCheck: Boolean!) @auth(level: PUBLIC) {
-  routine_update(
-    id: $id
-    data: {
-      isCheck: $isCheck
-    }
-  )
+  routine_update(id: $id, data: { isCheck: $isCheck })
 }
 
 # Update Request Status
-mutation UpdateRequestStatus($id: UUID!, $status: String!) @auth(level: PUBLIC) {
-  request_update(
-    id: $id,
+mutation UpdateRequestStatus($id: UUID!, $status: String!)
+@auth(level: PUBLIC) {
+  request_update(id: $id, data: { status: $status })
+}
+
+mutation CreateItem($name: String!, $quantity: Int!, $description: String!)
+@auth(level: PUBLIC) {
+  item_insert(
+    data: { name: $name, quantity: $quantity, description: $description }
+  )
+}
+
+mutation CreateMachine(
+  $name: String!
+  $serialNumber: Int!
+  $description: String!
+) @auth(level: PUBLIC) {
+  machine_insert(
     data: {
-      status: $status
+      name: $name
+      serialNumber: $serialNumber
+      description: $description
     }
   )
 }
 
+mutation CreateUser(
+  $email: String!
+  $password: String!
+  $name: String!
+  $role: String!
+  $tel: String!
+) @auth(level: PUBLIC) {
+  user_insert(
+    data: {
+      email: $email
+      password: $password
+      name: $name
+      role: $role
+      tel: $tel
+    }
+  )
+}
