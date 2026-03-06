@@ -3,12 +3,14 @@ import '../../../dataconnect_generated/generated.dart';
 
 class TaskDetailPage extends StatefulWidget {
   final String requestId;
+  final String machineId;
   final String machineName;
   final String description;
 
   const TaskDetailPage({
     super.key,
     required this.requestId,
+    required this.machineId,
     required this.machineName,
     required this.description,
   });
@@ -75,6 +77,15 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                 // Update request status to 'Fixed'
                 await ConnectorConnector.instance
                     .updateRequestStatus(id: widget.requestId, status: 'Fixed')
+                    .execute();
+
+                // Create a MaintainLog showing task is completed
+                await ConnectorConnector.instance
+                    .createMaintainLog(
+                      title: 'Fixed Request: ${widget.machineName}',
+                      isDone: true,
+                      machineId: widget.machineId,
+                    )
                     .execute();
 
                 if (context.mounted) {

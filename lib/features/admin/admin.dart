@@ -40,8 +40,8 @@ class _AdminHomeScreen extends State<AdminHomeScreen> {
 
   List<Widget> get _pages => [
     MachineListPage(role: _currentRole!),
-    const MechanicsList(),
-    const InventoryPage(),
+    MechanicsList(role: _currentRole!),
+    InventoryPage(role: _currentRole!),
   ];
 
   void _onItemTapped(int index) {

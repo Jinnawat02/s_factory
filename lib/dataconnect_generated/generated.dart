@@ -15,6 +15,8 @@ part 'create_machine.dart';
 
 part 'create_user.dart';
 
+part 'create_maintain_log.dart';
+
 part 'get_user.dart';
 
 part 'list_users.dart';
@@ -83,6 +85,11 @@ class ConnectorConnector {
   
   CreateUserVariablesBuilder createUser ({required String email, required String password, required String name, required String role, required String tel, }) {
     return CreateUserVariablesBuilder(dataConnect, email: email,password: password,name: name,role: role,tel: tel,);
+  }
+  
+  
+  CreateMaintainLogVariablesBuilder createMaintainLog ({required String title, required bool isDone, required String machineId, }) {
+    return CreateMaintainLogVariablesBuilder(dataConnect, title: title,isDone: isDone,machineId: machineId,);
   }
   
   

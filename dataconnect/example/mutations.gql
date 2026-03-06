@@ -65,3 +65,13 @@ mutation CreateUser(
     }
   )
 }
+
+mutation CreateMaintainLog(
+  $title: String!
+  $isDone: Boolean!
+  $machineId: UUID!
+) @auth(level: PUBLIC) {
+  maintainLog_insert(
+    data: { title: $title, isDone: $isDone, machine: { id: $machineId } }
+  )
+}

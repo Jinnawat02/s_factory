@@ -1071,3 +1071,55 @@ final ref = ConnectorConnector.instance.createUser(
 ref.execute();
 ```
 
+
+### CreateMaintainLog
+#### Required Arguments
+```dart
+String title = ...;
+bool isDone = ...;
+String machineId = ...;
+ConnectorConnector.instance.createMaintainLog(
+  title: title,
+  isDone: isDone,
+  machineId: machineId,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<CreateMaintainLogData, CreateMaintainLogVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.createMaintainLog(
+  title: title,
+  isDone: isDone,
+  machineId: machineId,
+);
+CreateMaintainLogData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String title = ...;
+bool isDone = ...;
+String machineId = ...;
+
+final ref = ConnectorConnector.instance.createMaintainLog(
+  title: title,
+  isDone: isDone,
+  machineId: machineId,
+).ref();
+ref.execute();
+```
+
