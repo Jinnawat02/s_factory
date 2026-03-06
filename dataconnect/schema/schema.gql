@@ -34,6 +34,7 @@ type Request @table(key: "id") {
 type Routine @table(key: "id") {
   id: UUID! @default(expr: "uuidV4()")
   machine: Machine!
+  creator: User
   title: String
   description: String
   isCheck: Boolean @default(value: false)
@@ -51,6 +52,7 @@ type MaintainLog @table(key: "id") {
   title: String
   isDone: Boolean
   machine: Machine!
+  mechanic: User
 }
 
 type Notification @table(key: "id") {
