@@ -118,6 +118,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                             child: Text(
                               name,
                               style: const TextStyle(
+                                color: Colors.white,
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -137,6 +138,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                       const Text(
                         'รายละเอียดเครื่องจักร',
                         style: TextStyle(
+                          color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -146,7 +148,11 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
                       Text(
                         description,
-                        style: const TextStyle(fontSize: 16, height: 1.5),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            height: 1.5
+                        ),
                       ),
 
                       const SizedBox(height: 30),
@@ -165,14 +171,15 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
   Widget _buildMachineQRCode(BuildContext context, {String? machineID}) {
     return SizedBox(
-      width: 100,
-      height: 40,
+      // width: 100,
+      // height: 40,
       child: ElevatedButton.icon(
         icon: const Icon(Icons.qr_code),
         label: Text("QR Code", style: TextStyle(color: Colors.black)),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           iconColor: Colors.black,
+          minimumSize: const Size(120, 40),
         ),
         onPressed: () {
           Navigator.push(
@@ -329,7 +336,11 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                     ),
                     child: Text(
                       widget.machineData['description']!,
-                      style: const TextStyle(fontSize: 15, height: 1.5),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          height: 1.5
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -470,7 +481,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.indigo,
+              backgroundColor: Colors.deepOrange,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),

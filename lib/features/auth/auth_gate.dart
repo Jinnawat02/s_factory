@@ -1,11 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/auth/role_wrapper.dart';
-
-// เนื่องจากเราจะย้ายตรรกะการดึงข้อมูลและเช็ค Role ไปไว้ที่ RoleWrapper
-// หน้านี้จึงทำหน้าที่แค่จัดการ UI การล็อกอินเท่านั้น
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key, required this.clientId});
@@ -18,54 +14,89 @@ class AuthGate extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return SignInScreen(
-            providers: [
-              EmailAuthProvider(),
-              GoogleProvider(clientId: clientId),
-            ],
-            // ลบ actions: [ AuthStateChangeAction<UserCreated>... ] ออกไปเลย
-            // เพราะเราไม่ต้องการให้มีการเซฟข้อมูลลงฐานข้อมูลตอนมีคนพยายามสมัคร
-            headerBuilder: (context, constraints, shrinkOffset) {
-              return Padding(
-                padding: const EdgeInsets.all(20),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.asset('assets/logo_no_bg.png'),
+          return Theme(
+            data: ThemeData(
+              textTheme: const TextTheme(
+                bodyLarge: TextStyle(color: Colors.white),
+                bodyMedium: TextStyle(color: Colors.white),
+              ),
+              inputDecorationTheme: const InputDecorationTheme(
+                filled: true,
+                fillColor: Colors.transparent,
+                labelStyle: TextStyle(color: Colors.white),
+                hintStyle: TextStyle(color: Colors.white54),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
                 ),
-              );
-            },
-            subtitleBuilder: (context, action) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                // เปลี่ยนข้อความให้เหมาะสมกับระบบปิด
-                child: Text('Welcome to the system, please sign in.'),
-              );
-            },
-            footerBuilder: (context, action) {
-              return const Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Text(
-                  // แจ้งเตือนผู้ใช้ว่าเป็นระบบภายใน
-                  'Internal system only. Accounts are managed by administrators.',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                  textAlign: TextAlign.center,
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
                 ),
-              );
-            },
-            sideBuilder: (context, shrinkOffset) {
-              return Padding(
-                padding: const EdgeInsets.all(20),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.asset('assets/logo_no_bg.png'),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 2),
                 ),
-              );
-            },
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  textStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+              colorScheme: const ColorScheme.dark(
+                onSurface: Colors.white,
+                primary: Colors.white,
+              ),
+            ),
+            child: SignInScreen(
+              providers: [
+                EmailAuthProvider(),
+              ],
+              showAuthActionSwitch: false,
+              headerBuilder: (context, constraints, shrinkOffset) {
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Image.asset('assets/logo_no_bg.png'),
+                  ),
+                );
+              },
+              subtitleBuilder: (context, action) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    'Welcome to the system, please sign in.',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              },
+              footerBuilder: (context, action) {
+                return const Padding(
+                  padding: EdgeInsets.only(top: 16),
+                  child: Text(
+                    'Internal system only. Accounts are managed by administrators.',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              },
+              sideBuilder: (context, shrinkOffset) {
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Image.asset('assets/logo_no_bg.png'),
+                  ),
+                );
+              },
+            ),
           );
         }
 
-        // เมื่อเข้าสู่ระบบสำเร็จ (ได้ User กลับมา)
-        // จะส่งไปให้ RoleWrapper จัดการดึงข้อมูลจาก Data Connect ต่อ
         return const RoleWrapper();
       },
     );

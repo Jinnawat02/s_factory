@@ -51,12 +51,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
                 final code = barcode.rawValue;
 
                 if (code != null) {
-
                   _isScanning = true;
-
-                  setState(() {
-                    scannedCode = code;
-                  });
 
                   await onQRScanned(code);
                 }
@@ -68,8 +63,11 @@ class _QRScannerPageState extends State<QRScannerPage> {
             flex: 1,
             child: Center(
               child: Text(
-                'Scan a QR code',
-                style: const TextStyle(fontSize: 20),
+                scannedCode,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20
+                ),
               ),
             ),
           ),
@@ -81,8 +79,6 @@ class _QRScannerPageState extends State<QRScannerPage> {
 
   Future<void> onQRScanned(String code) async {
     try {
-
-      // stop scanner immediately
       await _controller.stop();
 
       final result = await ConnectorConnector
@@ -93,13 +89,8 @@ class _QRScannerPageState extends State<QRScannerPage> {
       final machine = result.data.machine;
 
       if (machine != null) {
-
-        final Map<String, String> machineMap =
-        machine.toJson().map(
-              (key, value) => MapEntry(
-            key,
-            value?.toString() ?? '',
-          ),
+        final Map<String, String> machineMap = machine.toJson().map(
+              (key, value) => MapEntry(key, value?.toString() ?? ''),
         );
 
         if (!mounted) return;
@@ -114,30 +105,20 @@ class _QRScannerPageState extends State<QRScannerPage> {
           ),
         );
 
-        // resume scanner when back
-        await _controller.start();
-
-        _isScanning = false;
-
-      } else {
-
+        setState(() {
+          scannedCode = "Scan a QR code";
+        });
+      }
+    } catch (e) {
+      if (mounted) {
         setState(() {
           scannedCode = "Machine not found";
         });
-
-        await _controller.start();
-
-        _isScanning = false;
       }
 
-    } catch (e) {
-
-      setState(() {
-        scannedCode = "Error: $e";
-      });
-
+    } finally {
+      // ✅ Always runs — avoids duplicating start() + _isScanning in every branch
       await _controller.start();
-
       _isScanning = false;
     }
   }
