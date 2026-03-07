@@ -978,6 +978,10 @@ class UpdateUserVariablesBuilder {
    _tel.value = t;
    return this;
   }
+  UpdateUserVariablesBuilder updatedAt(Timestamp? t) {
+   _updatedAt.value = t;
+   return this;
+  }
 
   ...
 }
@@ -987,6 +991,7 @@ ConnectorConnector.instance.updateUser(
 .name(name)
 .role(role)
 .tel(tel)
+.updatedAt(updatedAt)
 .execute();
 ```
 
@@ -1142,6 +1147,10 @@ class UpdateMachineVariablesBuilder {
    _description.value = t;
    return this;
   }
+  UpdateMachineVariablesBuilder updatedAt(Timestamp? t) {
+   _updatedAt.value = t;
+   return this;
+  }
 
   ...
 }
@@ -1151,6 +1160,7 @@ ConnectorConnector.instance.updateMachine(
 .name(name)
 .serialNumber(serialNumber)
 .description(description)
+.updatedAt(updatedAt)
 .execute();
 ```
 
@@ -1306,6 +1316,10 @@ class UpdateItemVariablesBuilder {
    _description.value = t;
    return this;
   }
+  UpdateItemVariablesBuilder updatedAt(Timestamp? t) {
+   _updatedAt.value = t;
+   return this;
+  }
 
   ...
 }
@@ -1315,6 +1329,7 @@ ConnectorConnector.instance.updateItem(
 .name(name)
 .quantity(quantity)
 .description(description)
+.updatedAt(updatedAt)
 .execute();
 ```
 
@@ -1464,7 +1479,26 @@ ConnectorConnector.instance.updateRequestStatus(
 ).execute();
 ```
 
+#### Optional Arguments
+We return a builder for each query. For UpdateRequestStatus, we created `UpdateRequestStatusBuilder`. For queries and mutations with optional parameters, we return a builder class.
+The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
+```dart
+class UpdateRequestStatusVariablesBuilder {
+  ...
+   UpdateRequestStatusVariablesBuilder updatedAt(Timestamp? t) {
+   _updatedAt.value = t;
+   return this;
+  }
 
+  ...
+}
+ConnectorConnector.instance.updateRequestStatus(
+  id: id,
+  status: status,
+)
+.updatedAt(updatedAt)
+.execute();
+```
 
 #### Return Type
 `execute()` returns a `OperationResult<UpdateRequestStatusData, UpdateRequestStatusVariables>`
@@ -1563,7 +1597,26 @@ ConnectorConnector.instance.updateRoutine(
 ).execute();
 ```
 
+#### Optional Arguments
+We return a builder for each query. For UpdateRoutine, we created `UpdateRoutineBuilder`. For queries and mutations with optional parameters, we return a builder class.
+The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
+```dart
+class UpdateRoutineVariablesBuilder {
+  ...
+   UpdateRoutineVariablesBuilder updatedAt(Timestamp? t) {
+   _updatedAt.value = t;
+   return this;
+  }
 
+  ...
+}
+ConnectorConnector.instance.updateRoutine(
+  id: id,
+  isCheck: isCheck,
+)
+.updatedAt(updatedAt)
+.execute();
+```
 
 #### Return Type
 `execute()` returns a `OperationResult<UpdateRoutineData, UpdateRoutineVariables>`
@@ -1646,6 +1699,58 @@ final ref = ConnectorConnector.instance.createMaintainLog(
   title: title,
   isDone: isDone,
   machineId: machineId,
+).ref();
+ref.execute();
+```
+
+
+### CreateRoutineLog
+#### Required Arguments
+```dart
+String title = ...;
+bool isDone = ...;
+String routineId = ...;
+ConnectorConnector.instance.createRoutineLog(
+  title: title,
+  isDone: isDone,
+  routineId: routineId,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<CreateRoutineLogData, CreateRoutineLogVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.createRoutineLog(
+  title: title,
+  isDone: isDone,
+  routineId: routineId,
+);
+CreateRoutineLogData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String title = ...;
+bool isDone = ...;
+String routineId = ...;
+
+final ref = ConnectorConnector.instance.createRoutineLog(
+  title: title,
+  isDone: isDone,
+  routineId: routineId,
 ).ref();
 ref.execute();
 ```

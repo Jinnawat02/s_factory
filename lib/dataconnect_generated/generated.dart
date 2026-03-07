@@ -69,6 +69,8 @@ part 'update_routine.dart';
 
 part 'create_maintain_log.dart';
 
+part 'create_routine_log.dart';
+
 part 'create_notification.dart';
 
 part 'mark_notification_read.dart';
@@ -244,6 +246,11 @@ class ConnectorConnector {
   
   CreateMaintainLogVariablesBuilder createMaintainLog ({required String title, required bool isDone, required String machineId, }) {
     return CreateMaintainLogVariablesBuilder(dataConnect, title: title,isDone: isDone,machineId: machineId,);
+  }
+  
+  
+  CreateRoutineLogVariablesBuilder createRoutineLog ({required String title, required bool isDone, required String routineId, }) {
+    return CreateRoutineLogVariablesBuilder(dataConnect, title: title,isDone: isDone,routineId: routineId,);
   }
   
   

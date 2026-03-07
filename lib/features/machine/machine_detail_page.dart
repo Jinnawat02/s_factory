@@ -72,6 +72,15 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
         await ConnectorConnector.instance
             .updateRoutine(id: item['id'], isCheck: item['isDone'])
             .execute();
+
+        // Auto-create a RoutineLog for this check
+        await ConnectorConnector.instance
+            .createRoutineLog(
+              title: 'Checked: ${item['title']}',
+              isDone: item['isDone'],
+              routineId: item['id'],
+            )
+            .execute();
       }
     } finally {
       if (mounted) setState(() => _isSavingRoutines = false);
@@ -430,6 +439,15 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                           .updateRoutine(
                             id: item['id'],
                             isCheck: item['isDone'],
+                          )
+                          .execute();
+
+                      // Auto-create a RoutineLog for this check
+                      await ConnectorConnector.instance
+                          .createRoutineLog(
+                            title: 'Checked: ${item['title']}',
+                            isDone: item['isDone'],
+                            routineId: item['id'],
                           )
                           .execute();
                     }

@@ -17,11 +17,16 @@ mutation CreateUser(
   )
 }
 
-mutation UpdateUser($email: String!, $name: String, $role: String, $tel: String)
-@auth(level: PUBLIC) {
+mutation UpdateUser(
+  $email: String!
+  $name: String
+  $role: String
+  $tel: String
+  $updatedAt: Timestamp
+) @auth(level: PUBLIC) {
   user_update(
     key: { email: $email }
-    data: { name: $name, role: $role, tel: $tel }
+    data: { name: $name, role: $role, tel: $tel, updatedAt: $updatedAt }
   )
 }
 
@@ -49,6 +54,7 @@ mutation UpdateMachine(
   $name: String
   $serialNumber: Int
   $description: String
+  $updatedAt: Timestamp
 ) @auth(level: PUBLIC) {
   machine_update(
     key: { id: $id }
@@ -56,6 +62,7 @@ mutation UpdateMachine(
       name: $name
       serialNumber: $serialNumber
       description: $description
+      updatedAt: $updatedAt
     }
   )
 }
@@ -77,10 +84,16 @@ mutation UpdateItem(
   $name: String
   $quantity: Int
   $description: String
+  $updatedAt: Timestamp
 ) @auth(level: PUBLIC) {
   item_update(
     key: { id: $id }
-    data: { name: $name, quantity: $quantity, description: $description }
+    data: {
+      name: $name
+      quantity: $quantity
+      description: $description
+      updatedAt: $updatedAt
+    }
   )
 }
 
@@ -107,9 +120,15 @@ mutation CreateRequest(
   )
 }
 
-mutation UpdateRequestStatus($id: UUID!, $status: String!)
-@auth(level: PUBLIC) {
-  request_update(key: { id: $id }, data: { status: $status })
+mutation UpdateRequestStatus(
+  $id: UUID!
+  $status: String!
+  $updatedAt: Timestamp
+) @auth(level: PUBLIC) {
+  request_update(
+    key: { id: $id }
+    data: { status: $status, updatedAt: $updatedAt }
+  )
 }
 
 # Routine Mutations
@@ -123,8 +142,12 @@ mutation CreateRoutine(
   )
 }
 
-mutation UpdateRoutine($id: UUID!, $isCheck: Boolean!) @auth(level: PUBLIC) {
-  routine_update(key: { id: $id }, data: { isCheck: $isCheck })
+mutation UpdateRoutine($id: UUID!, $isCheck: Boolean!, $updatedAt: Timestamp)
+@auth(level: PUBLIC) {
+  routine_update(
+    key: { id: $id }
+    data: { isCheck: $isCheck, updatedAt: $updatedAt }
+  )
 }
 
 # MaintainLog Mutations
@@ -135,6 +158,14 @@ mutation CreateMaintainLog(
 ) @auth(level: PUBLIC) {
   maintainLog_insert(
     data: { title: $title, isDone: $isDone, machineId: $machineId }
+  )
+}
+
+# RoutineLog Mutations
+mutation CreateRoutineLog($title: String!, $isDone: Boolean!, $routineId: UUID!)
+@auth(level: PUBLIC) {
+  routineLog_insert(
+    data: { title: $title, isDone: $isDone, routineId: $routineId }
   )
 }
 

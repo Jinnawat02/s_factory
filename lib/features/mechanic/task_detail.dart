@@ -98,6 +98,15 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
                                   isCheck: item['isDone'],
                                 )
                                 .execute();
+
+                            // Auto-create a RoutineLog for this check
+                            await ConnectorConnector.instance
+                                .createRoutineLog(
+                                  title: 'Checked: ${item['title']}',
+                                  isDone: item['isDone'],
+                                  routineId: item['id'],
+                                )
+                                .execute();
                           }
 
                           // Mark request as Fixed + auto-creates MaintainLog
