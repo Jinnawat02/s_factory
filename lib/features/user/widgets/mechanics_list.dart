@@ -6,21 +6,25 @@ import '../../../dataconnect_generated/generated.dart';
 import 'package:s_factory/features/user/add_user_page.dart';
 
 class MechanicsList extends StatelessWidget {
-  const MechanicsList({super.key});
+  final String? role;
+
+  const MechanicsList({super.key, this.role});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddUserPage()),
-          );
-        },
-        tooltip: 'Add Employee',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: role == 'admin'
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddUserPage()),
+                );
+              },
+              tooltip: 'Add Employee',
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder<QueryResult<GetMechanicsData, void>>(

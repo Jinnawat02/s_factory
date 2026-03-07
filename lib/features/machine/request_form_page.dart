@@ -277,6 +277,15 @@ class _RequestFormPageState extends State<RequestFormPage> {
                               )
                               .execute();
 
+                          // Create MaintainLog with isDone: false indicating ticket is open
+                          await ConnectorConnector.instance
+                              .createMaintainLog(
+                                title: 'Created Request: $_description',
+                                isDone: false,
+                                machineId: widget.machineID,
+                              )
+                              .execute();
+
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

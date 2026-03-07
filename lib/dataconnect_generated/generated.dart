@@ -3,18 +3,6 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-part 'create_request.dart';
-
-part 'update_routine.dart';
-
-part 'update_request_status.dart';
-
-part 'create_item.dart';
-
-part 'create_machine.dart';
-
-part 'create_user.dart';
-
 part 'get_user.dart';
 
 part 'list_users.dart';
@@ -37,6 +25,8 @@ part 'get_requests_by_mechanic_email.dart';
 
 part 'get_routine.dart';
 
+part 'list_routines.dart';
+
 part 'get_routines_by_machine_id.dart';
 
 part 'get_routine_log.dart';
@@ -47,6 +37,44 @@ part 'get_maintain_log.dart';
 
 part 'list_maintain_logs.dart';
 
+part 'get_notification.dart';
+
+part 'list_notifications_by_mechanic.dart';
+
+part 'create_user.dart';
+
+part 'update_user.dart';
+
+part 'delete_user.dart';
+
+part 'create_machine.dart';
+
+part 'update_machine.dart';
+
+part 'delete_machine.dart';
+
+part 'create_item.dart';
+
+part 'update_item.dart';
+
+part 'delete_item.dart';
+
+part 'create_request.dart';
+
+part 'update_request_status.dart';
+
+part 'create_routine.dart';
+
+part 'update_routine.dart';
+
+part 'create_maintain_log.dart';
+
+part 'create_routine_log.dart';
+
+part 'create_notification.dart';
+
+part 'mark_notification_read.dart';
+
 
 
 
@@ -54,36 +82,6 @@ part 'list_maintain_logs.dart';
 
 
 class ConnectorConnector {
-  
-  
-  CreateRequestVariablesBuilder createRequest ({required String userEmail, required String machineId, required String description, required Timestamp requestDate, required String mechanicEmail, }) {
-    return CreateRequestVariablesBuilder(dataConnect, userEmail: userEmail,machineId: machineId,description: description,requestDate: requestDate,mechanicEmail: mechanicEmail,);
-  }
-  
-  
-  UpdateRoutineVariablesBuilder updateRoutine ({required String id, required bool isCheck, }) {
-    return UpdateRoutineVariablesBuilder(dataConnect, id: id,isCheck: isCheck,);
-  }
-  
-  
-  UpdateRequestStatusVariablesBuilder updateRequestStatus ({required String id, required String status, }) {
-    return UpdateRequestStatusVariablesBuilder(dataConnect, id: id,status: status,);
-  }
-  
-  
-  CreateItemVariablesBuilder createItem ({required String name, required int quantity, required String description, }) {
-    return CreateItemVariablesBuilder(dataConnect, name: name,quantity: quantity,description: description,);
-  }
-  
-  
-  CreateMachineVariablesBuilder createMachine ({required String name, required int serialNumber, required String description, }) {
-    return CreateMachineVariablesBuilder(dataConnect, name: name,serialNumber: serialNumber,description: description,);
-  }
-  
-  
-  CreateUserVariablesBuilder createUser ({required String email, required String password, required String name, required String role, required String tel, }) {
-    return CreateUserVariablesBuilder(dataConnect, email: email,password: password,name: name,role: role,tel: tel,);
-  }
   
   
   GetUserVariablesBuilder getUser ({required String email, }) {
@@ -141,6 +139,11 @@ class ConnectorConnector {
   }
   
   
+  ListRoutinesVariablesBuilder listRoutines () {
+    return ListRoutinesVariablesBuilder(dataConnect, );
+  }
+  
+  
   GetRoutinesByMachineIdVariablesBuilder getRoutinesByMachineId ({required String machineId, }) {
     return GetRoutinesByMachineIdVariablesBuilder(dataConnect, machineId: machineId,);
   }
@@ -163,6 +166,101 @@ class ConnectorConnector {
   
   ListMaintainLogsVariablesBuilder listMaintainLogs () {
     return ListMaintainLogsVariablesBuilder(dataConnect, );
+  }
+  
+  
+  GetNotificationVariablesBuilder getNotification ({required String id, }) {
+    return GetNotificationVariablesBuilder(dataConnect, id: id,);
+  }
+  
+  
+  ListNotificationsByMechanicVariablesBuilder listNotificationsByMechanic ({required String mechanicEmail, }) {
+    return ListNotificationsByMechanicVariablesBuilder(dataConnect, mechanicEmail: mechanicEmail,);
+  }
+  
+  
+  CreateUserVariablesBuilder createUser ({required String email, required String password, required String name, required String role, required String tel, }) {
+    return CreateUserVariablesBuilder(dataConnect, email: email,password: password,name: name,role: role,tel: tel,);
+  }
+  
+  
+  UpdateUserVariablesBuilder updateUser ({required String email, }) {
+    return UpdateUserVariablesBuilder(dataConnect, email: email,);
+  }
+  
+  
+  DeleteUserVariablesBuilder deleteUser ({required String email, }) {
+    return DeleteUserVariablesBuilder(dataConnect, email: email,);
+  }
+  
+  
+  CreateMachineVariablesBuilder createMachine ({required String name, required int serialNumber, required String description, }) {
+    return CreateMachineVariablesBuilder(dataConnect, name: name,serialNumber: serialNumber,description: description,);
+  }
+  
+  
+  UpdateMachineVariablesBuilder updateMachine ({required String id, }) {
+    return UpdateMachineVariablesBuilder(dataConnect, id: id,);
+  }
+  
+  
+  DeleteMachineVariablesBuilder deleteMachine ({required String id, }) {
+    return DeleteMachineVariablesBuilder(dataConnect, id: id,);
+  }
+  
+  
+  CreateItemVariablesBuilder createItem ({required String name, required int quantity, required String description, }) {
+    return CreateItemVariablesBuilder(dataConnect, name: name,quantity: quantity,description: description,);
+  }
+  
+  
+  UpdateItemVariablesBuilder updateItem ({required String id, }) {
+    return UpdateItemVariablesBuilder(dataConnect, id: id,);
+  }
+  
+  
+  DeleteItemVariablesBuilder deleteItem ({required String id, }) {
+    return DeleteItemVariablesBuilder(dataConnect, id: id,);
+  }
+  
+  
+  CreateRequestVariablesBuilder createRequest ({required String userEmail, required String machineId, required String mechanicEmail, required Timestamp requestDate, required String description, }) {
+    return CreateRequestVariablesBuilder(dataConnect, userEmail: userEmail,machineId: machineId,mechanicEmail: mechanicEmail,requestDate: requestDate,description: description,);
+  }
+  
+  
+  UpdateRequestStatusVariablesBuilder updateRequestStatus ({required String id, required String status, }) {
+    return UpdateRequestStatusVariablesBuilder(dataConnect, id: id,status: status,);
+  }
+  
+  
+  CreateRoutineVariablesBuilder createRoutine ({required String machineId, required String title, required String description, }) {
+    return CreateRoutineVariablesBuilder(dataConnect, machineId: machineId,title: title,description: description,);
+  }
+  
+  
+  UpdateRoutineVariablesBuilder updateRoutine ({required String id, required bool isCheck, }) {
+    return UpdateRoutineVariablesBuilder(dataConnect, id: id,isCheck: isCheck,);
+  }
+  
+  
+  CreateMaintainLogVariablesBuilder createMaintainLog ({required String title, required bool isDone, required String machineId, }) {
+    return CreateMaintainLogVariablesBuilder(dataConnect, title: title,isDone: isDone,machineId: machineId,);
+  }
+  
+  
+  CreateRoutineLogVariablesBuilder createRoutineLog ({required String title, required bool isDone, required String routineId, }) {
+    return CreateRoutineLogVariablesBuilder(dataConnect, title: title,isDone: isDone,routineId: routineId,);
+  }
+  
+  
+  CreateNotificationVariablesBuilder createNotification ({required String mechanicEmail, required String requestId, required String title, required String body, }) {
+    return CreateNotificationVariablesBuilder(dataConnect, mechanicEmail: mechanicEmail,requestId: requestId,title: title,body: body,);
+  }
+  
+  
+  MarkNotificationReadVariablesBuilder markNotificationRead ({required String id, }) {
+    return MarkNotificationReadVariablesBuilder(dataConnect, id: id,);
   }
   
 

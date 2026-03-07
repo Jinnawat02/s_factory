@@ -44,7 +44,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     MachineListPage(role: _currentRole!),
     const QRScannerPage(),
     const RequestListPage(),
-    const MechanicsList(),
+    MechanicsList(role: _currentRole!),
   ];
 
   void _onItemTapped(int index) {

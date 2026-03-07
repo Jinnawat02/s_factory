@@ -5,6 +5,8 @@ type User @table(key: "email") {
   role: String
   tel: String
   fcmToken: String
+  createdAt: Timestamp @default(expr: "request.time")
+  updatedAt: Timestamp @default(expr: "request.time")
 }
 
 type Machine @table(key: "id") {
@@ -12,6 +14,8 @@ type Machine @table(key: "id") {
   name: String
   serialNumber: Int
   description: String
+  createdAt: Timestamp @default(expr: "request.time")
+  updatedAt: Timestamp @default(expr: "request.time")
 }
 
 type Item @table(key: "id") {
@@ -19,6 +23,8 @@ type Item @table(key: "id") {
   name: String
   quantity: Int
   description: String
+  createdAt: Timestamp @default(expr: "request.time")
+  updatedAt: Timestamp @default(expr: "request.time")
 }
 
 type Request @table(key: "id") {
@@ -29,14 +35,19 @@ type Request @table(key: "id") {
   requestDate: Timestamp!
   description: String
   status: String @default(value: "Pending")
+  createdAt: Timestamp @default(expr: "request.time")
+  updatedAt: Timestamp @default(expr: "request.time")
 }
 
 type Routine @table(key: "id") {
   id: UUID! @default(expr: "uuidV4()")
   machine: Machine!
+  creator: User
   title: String
   description: String
   isCheck: Boolean @default(value: false)
+  createdAt: Timestamp @default(expr: "request.time")
+  updatedAt: Timestamp @default(expr: "request.time")
 }
 
 type RoutineLog @table(key: "id") {
@@ -44,6 +55,7 @@ type RoutineLog @table(key: "id") {
   routine: Routine!
   title: String
   isDone: Boolean
+  createdAt: Timestamp @default(expr: "request.time")
 }
 
 type MaintainLog @table(key: "id") {
@@ -51,6 +63,8 @@ type MaintainLog @table(key: "id") {
   title: String
   isDone: Boolean
   machine: Machine!
+  mechanic: User
+  createdAt: Timestamp @default(expr: "request.time")
 }
 
 type Notification @table(key: "id") {

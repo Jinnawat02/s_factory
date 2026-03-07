@@ -6,7 +6,9 @@ import 'inventory_item_detail_page.dart';
 import 'add_inventory_item_page.dart';
 
 class InventoryPage extends StatefulWidget {
-  const InventoryPage({super.key});
+  final String? role;
+
+  const InventoryPage({super.key, this.role});
 
   @override
   State<InventoryPage> createState() => _InventoryPageState();
@@ -31,21 +33,23 @@ class _InventoryPageState extends State<InventoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final created = await Navigator.push<bool>(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddInventoryItemPage(),
-            ),
-          );
-          if (created == true) {
-            _loadItems();
-          }
-        },
-        tooltip: 'Create Item',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: widget.role == 'admin'
+          ? FloatingActionButton(
+              onPressed: () async {
+                final created = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddInventoryItemPage(),
+                  ),
+                );
+                if (created == true) {
+                  _loadItems();
+                }
+              },
+              tooltip: 'Create Item',
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: FutureBuilder<QueryResult<ListItemsData, void>>(
         future: _futureItems,
         builder: (context, snapshot) {

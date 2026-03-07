@@ -35,19 +35,23 @@ class _MachineListPageState extends State<MachineListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final created = await Navigator.push<bool>(
-            context,
-            MaterialPageRoute(builder: (context) => const AddMachinePage()),
-          );
-          if (created == true) {
-            _loadMachines();
-          }
-        },
-        tooltip: 'Add Machine',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: widget.role == 'admin'
+          ? FloatingActionButton(
+              onPressed: () async {
+                final created = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AddMachinePage(),
+                  ),
+                );
+                if (created == true) {
+                  _loadMachines();
+                }
+              },
+              tooltip: 'Add Machine',
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: FutureBuilder<QueryResult<ListMachinesData, void>>(
         future: _futureMachines,
         builder: (context, snapshot) {

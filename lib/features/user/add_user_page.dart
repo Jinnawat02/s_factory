@@ -21,7 +21,7 @@ class _AddUserPageState extends State<AddUserPage> {
   bool _obscurePassword = true;
   bool _hasPicture = false;
 
-  final List<String> _roles = ['Admin', 'Mechanic', 'Staff'];
+  final List<String> _roles = ['admin', 'mechanic', 'staff'];
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
