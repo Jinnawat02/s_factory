@@ -45,6 +45,7 @@ query ListMachines @auth(level: PUBLIC) {
     name
     serialNumber
     description
+    imageUrl
   }
 }
 
@@ -64,6 +65,7 @@ query ListItems @auth(level: PUBLIC) {
     name
     quantity
     description
+    imageUrl
   }
 }
 
