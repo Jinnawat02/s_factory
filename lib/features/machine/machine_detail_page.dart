@@ -616,7 +616,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
   /// Builds different action buttons depending on the user's role (for non-mechanic users).
   Widget _buildActionButtons(BuildContext context, {String? name}) {
-    if (widget.role == 'user') {
+    if (widget.role == 'staff') {
       return Center(
         child: SizedBox(
           width: 250,

@@ -114,7 +114,11 @@ class _ProfileState extends State<Profile> {
       children: [
         Text(
           user.name ?? 'ไม่ระบุชื่อ',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         Text(
           user.email,
@@ -174,13 +178,17 @@ class _ProfileState extends State<Profile> {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade500
+                ),
               ),
               Text(
                 value,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
+                  color: Colors.black,
                 ),
               ),
             ],

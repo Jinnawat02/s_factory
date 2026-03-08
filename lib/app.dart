@@ -12,7 +12,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFF2E2E32),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.white
+        ),
         fontFamily: GoogleFonts.oswald().fontFamily,
       ),
       home: AuthGate(clientId: clientId),

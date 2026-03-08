@@ -91,6 +91,7 @@ class MechanicCalendar extends StatelessWidget {
                   timeZone: 'Asia/Bangkok',
                   dataSource: MechanicDataSource(appointments),
                   todayTextStyle: TextStyle(
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
                   monthViewSettings: const MonthViewSettings(

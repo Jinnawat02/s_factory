@@ -51,6 +51,7 @@ class MachineCard extends StatelessWidget {
                         child: Text(
                           name,
                           style: const TextStyle(
+                            color: Colors.black,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
