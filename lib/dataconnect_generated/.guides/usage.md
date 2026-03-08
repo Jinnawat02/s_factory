@@ -1,16 +1,16 @@
 # Basic Usage
 
 ```dart
-ConnectorConnector.instance.CreateUser(createUserVariables).execute();
-ConnectorConnector.instance.UpdateUser(updateUserVariables).execute();
-ConnectorConnector.instance.DeleteUser(deleteUserVariables).execute();
-ConnectorConnector.instance.CreateMachine(createMachineVariables).execute();
-ConnectorConnector.instance.UpdateMachine(updateMachineVariables).execute();
-ConnectorConnector.instance.DeleteMachine(deleteMachineVariables).execute();
-ConnectorConnector.instance.CreateItem(createItemVariables).execute();
-ConnectorConnector.instance.UpdateItem(updateItemVariables).execute();
-ConnectorConnector.instance.DeleteItem(deleteItemVariables).execute();
-ConnectorConnector.instance.CreateRequest(createRequestVariables).execute();
+ConnectorConnector.instance.GetUser(getUserVariables).execute();
+ConnectorConnector.instance.ListUsers().execute();
+ConnectorConnector.instance.GetMechanics().execute();
+ConnectorConnector.instance.GetMachine(getMachineVariables).execute();
+ConnectorConnector.instance.ListMachines().execute();
+ConnectorConnector.instance.GetItem(getItemVariables).execute();
+ConnectorConnector.instance.ListItems().execute();
+ConnectorConnector.instance.GetRequest(getRequestVariables).execute();
+ConnectorConnector.instance.ListRequests().execute();
+ConnectorConnector.instance.GetRequestsByMechanicEmail(getRequestsByMechanicEmailVariables).execute();
 
 ```
 
