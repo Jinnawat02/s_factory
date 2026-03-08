@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../dataconnect_generated/generated.dart';
 
-import '../../mock/machine_mock_data.dart';
 import '../../shared/widgets/machine_card.dart';
 import 'add_machine_page.dart';
 import 'machine_detail_page.dart';
@@ -90,20 +89,15 @@ class _MachineListPageState extends State<MachineListPage> {
                 itemBuilder: (context, index) {
                   final machine = allMachines[index];
 
-                  // Wait for machine list has imageUrl
-                  final machineImage = index < MachineMockData.machines.length
-                      ? MachineMockData.machines[index]['imageUrl']
-                      : 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machine.name!)}&background=0D47A1&color=fff&size=200&bold=true';
-
-                  print('==========================');
-                  print(machineImage);
-                  print('==========================');
+                  final machineImage =
+                      machine.imageUrl ??
+                      'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machine.name!)}&background=0D47A1&color=fff&size=200&bold=true';
 
                   return MachineCard(
                     name: machine.name ?? 'Unknown Machine',
                     description:
                         machine.description ?? 'No description available',
-                    imageUrl: machineImage!,
+                    imageUrl: machineImage,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
