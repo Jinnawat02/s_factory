@@ -52,9 +52,8 @@ class MechanicsList extends StatelessWidget {
                 final dynamic mechanic = mechanics[index];
                 final name = mechanic.name ?? mechanic.email;
                 // Generate a placeholder avatar based on the name
-                final imgUrl =
-                    mechanic.imageUrl ??
-                    'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=random';
+                final imgUrl = mechanic.imageUrl ??
+                    'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=0D47A1&color=fff&size=200&bold=true';
 
                 return mechanicsContainer(context, name, imgUrl, mechanic);
               },
@@ -83,7 +82,7 @@ class MechanicsList extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.0),
-            color: Colors.blueGrey,
+            color: Colors.white,
           ),
           width: double.infinity,
           height: 100,
@@ -94,6 +93,7 @@ class MechanicsList extends StatelessWidget {
                 padding: const EdgeInsets.all(2.5),
                 child: CircleAvatar(
                   radius: 40,
+                  backgroundColor: Colors.black,
                   backgroundImage: NetworkImage(imgUrl),
                 ),
               ),
@@ -102,7 +102,7 @@ class MechanicsList extends StatelessWidget {
                 child: Text(
                   name,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 16.0,
                   ),

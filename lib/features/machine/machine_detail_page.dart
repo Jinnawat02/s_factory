@@ -164,6 +164,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                                   style: const TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ),
@@ -181,12 +182,17 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             description,
-                            style: const TextStyle(fontSize: 16, height: 1.5),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              height: 1.5,
+                              color: Colors.white,
+                            ),
                           ),
 
                           const SizedBox(height: 30),
@@ -203,6 +209,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                               if (_checklistItems.isNotEmpty)
@@ -349,14 +356,13 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
   Widget _buildMachineQRCode(BuildContext context, {String? machineID}) {
     return SizedBox(
-      width: 100,
-      height: 40,
       child: ElevatedButton.icon(
         icon: const Icon(Icons.qr_code),
         label: Text("QR Code", style: TextStyle(color: Colors.black)),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           iconColor: Colors.black,
+          minimumSize: const Size(120, 40),
         ),
         onPressed: () {
           Navigator.push(
@@ -673,10 +679,14 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                 icon: const Icon(Icons.checklist),
                 label: const Text(
                   'Add Routine Checklist',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
+                  backgroundColor: Colors.deepOrange,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
