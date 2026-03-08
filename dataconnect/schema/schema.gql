@@ -5,6 +5,7 @@ type User @table(key: "email") {
   role: String
   tel: String
   fcmToken: String
+  imageUrl: String
   createdAt: Timestamp @default(expr: "request.time")
   updatedAt: Timestamp @default(expr: "request.time")
 }
@@ -14,6 +15,7 @@ type Machine @table(key: "id") {
   name: String
   serialNumber: Int
   description: String
+  imageUrl: String
   createdAt: Timestamp @default(expr: "request.time")
   updatedAt: Timestamp @default(expr: "request.time")
 }
@@ -23,6 +25,7 @@ type Item @table(key: "id") {
   name: String
   quantity: Int
   description: String
+  imageUrl: String
   createdAt: Timestamp @default(expr: "request.time")
   updatedAt: Timestamp @default(expr: "request.time")
 }

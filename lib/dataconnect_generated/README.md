@@ -906,7 +906,29 @@ ConnectorConnector.instance.createUser(
 ).execute();
 ```
 
+#### Optional Arguments
+We return a builder for each query. For CreateUser, we created `CreateUserBuilder`. For queries and mutations with optional parameters, we return a builder class.
+The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
+```dart
+class CreateUserVariablesBuilder {
+  ...
+   CreateUserVariablesBuilder imageUrl(String? t) {
+   _imageUrl.value = t;
+   return this;
+  }
 
+  ...
+}
+ConnectorConnector.instance.createUser(
+  email: email,
+  password: password,
+  name: name,
+  role: role,
+  tel: tel,
+)
+.imageUrl(imageUrl)
+.execute();
+```
 
 #### Return Type
 `execute()` returns a `OperationResult<CreateUserData, CreateUserVariables>`
@@ -978,6 +1000,10 @@ class UpdateUserVariablesBuilder {
    _tel.value = t;
    return this;
   }
+  UpdateUserVariablesBuilder imageUrl(String? t) {
+   _imageUrl.value = t;
+   return this;
+  }
   UpdateUserVariablesBuilder updatedAt(Timestamp? t) {
    _updatedAt.value = t;
    return this;
@@ -991,6 +1017,7 @@ ConnectorConnector.instance.updateUser(
 .name(name)
 .role(role)
 .tel(tel)
+.imageUrl(imageUrl)
 .updatedAt(updatedAt)
 .execute();
 ```
@@ -1081,7 +1108,27 @@ ConnectorConnector.instance.createMachine(
 ).execute();
 ```
 
+#### Optional Arguments
+We return a builder for each query. For CreateMachine, we created `CreateMachineBuilder`. For queries and mutations with optional parameters, we return a builder class.
+The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
+```dart
+class CreateMachineVariablesBuilder {
+  ...
+   CreateMachineVariablesBuilder imageUrl(String? t) {
+   _imageUrl.value = t;
+   return this;
+  }
 
+  ...
+}
+ConnectorConnector.instance.createMachine(
+  name: name,
+  serialNumber: serialNumber,
+  description: description,
+)
+.imageUrl(imageUrl)
+.execute();
+```
 
 #### Return Type
 `execute()` returns a `OperationResult<CreateMachineData, CreateMachineVariables>`
@@ -1147,6 +1194,10 @@ class UpdateMachineVariablesBuilder {
    _description.value = t;
    return this;
   }
+  UpdateMachineVariablesBuilder imageUrl(String? t) {
+   _imageUrl.value = t;
+   return this;
+  }
   UpdateMachineVariablesBuilder updatedAt(Timestamp? t) {
    _updatedAt.value = t;
    return this;
@@ -1160,6 +1211,7 @@ ConnectorConnector.instance.updateMachine(
 .name(name)
 .serialNumber(serialNumber)
 .description(description)
+.imageUrl(imageUrl)
 .updatedAt(updatedAt)
 .execute();
 ```
@@ -1250,7 +1302,27 @@ ConnectorConnector.instance.createItem(
 ).execute();
 ```
 
+#### Optional Arguments
+We return a builder for each query. For CreateItem, we created `CreateItemBuilder`. For queries and mutations with optional parameters, we return a builder class.
+The builder pattern allows Data Connect to distinguish between fields that haven't been set and fields that have been set to null. A field can be set by calling its respective setter method like below:
+```dart
+class CreateItemVariablesBuilder {
+  ...
+   CreateItemVariablesBuilder imageUrl(String? t) {
+   _imageUrl.value = t;
+   return this;
+  }
 
+  ...
+}
+ConnectorConnector.instance.createItem(
+  name: name,
+  quantity: quantity,
+  description: description,
+)
+.imageUrl(imageUrl)
+.execute();
+```
 
 #### Return Type
 `execute()` returns a `OperationResult<CreateItemData, CreateItemVariables>`
@@ -1316,6 +1388,10 @@ class UpdateItemVariablesBuilder {
    _description.value = t;
    return this;
   }
+  UpdateItemVariablesBuilder imageUrl(String? t) {
+   _imageUrl.value = t;
+   return this;
+  }
   UpdateItemVariablesBuilder updatedAt(Timestamp? t) {
    _updatedAt.value = t;
    return this;
@@ -1329,6 +1405,7 @@ ConnectorConnector.instance.updateItem(
 .name(name)
 .quantity(quantity)
 .description(description)
+.imageUrl(imageUrl)
 .updatedAt(updatedAt)
 .execute();
 ```

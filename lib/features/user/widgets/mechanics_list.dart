@@ -53,6 +53,7 @@ class MechanicsList extends StatelessWidget {
                 final name = mechanic.name ?? mechanic.email;
                 // Generate a placeholder avatar based on the name
                 final imgUrl =
+                    mechanic.imageUrl ??
                     'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=random';
 
                 return mechanicsContainer(context, name, imgUrl, mechanic);

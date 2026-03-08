@@ -5,6 +5,7 @@ query GetUser($email: String!) @auth(level: PUBLIC) {
     name
     role
     tel
+    imageUrl
   }
 }
 
@@ -14,6 +15,7 @@ query ListUsers @auth(level: PUBLIC) {
     name
     role
     tel
+    imageUrl
   }
 }
 
@@ -23,6 +25,7 @@ query GetMechanics @auth(level: PUBLIC) {
     name
     role
     tel
+    imageUrl
   }
 }
 

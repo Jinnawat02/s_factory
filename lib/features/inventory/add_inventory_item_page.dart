@@ -1,7 +1,11 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
+import '../../shared/utils/storage_service.dart';
 
 class AddInventoryItemPage extends StatefulWidget {
   const AddInventoryItemPage({super.key});
@@ -16,7 +20,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
   String _name = '';
   String _description = '';
   bool _isLoading = false;
-  bool _hasPicture = false;
+  XFile? _pickedImage;
 
   final TextEditingController _stockController = TextEditingController(
     text: '0',
@@ -28,6 +32,55 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
     super.dispose();
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        setState(() => _pickedImage = image);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('ไม่สามารถเลือกรูปได้: $e')));
+      }
+    }
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('เลือกจากคลังรูปภาพ'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('ถ่ายรูป'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -36,12 +89,21 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
     setState(() => _isLoading = true);
 
     try {
+      String? uploadedImageUrl;
+      if (_pickedImage != null) {
+        uploadedImageUrl = await StorageService.uploadImage(
+          _pickedImage!,
+          'items',
+        );
+      }
+
       await ConnectorConnector.instance
           .createItem(
             name: _name,
             quantity: quantity,
             description: _description,
           )
+          .imageUrl(uploadedImageUrl)
           .execute();
 
       if (mounted) {
@@ -65,6 +127,9 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final imageSize = screenWidth * 0.4; // 40% of screen width
+
     return Scaffold(
       appBar: const NavBar(
         title: 'เพิ่มรายการวัสดุ-อุปกรณ์',
@@ -79,27 +144,27 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
             children: [
               Center(
                 child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _hasPicture = !_hasPicture;
-                    });
-                  },
+                  onTap: _showImageSourceSheet,
                   child: Container(
-                    width: 120,
-                    height: 120,
+                    width: imageSize,
+                    height: imageSize,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.grey[400]!),
                     ),
-                    child: _hasPicture
+                    child: _pickedImage != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: const Icon(
-                              Icons.image,
-                              size: 80,
-                              color: Colors.grey,
-                            ),
+                            child: kIsWeb
+                                ? Image.network(
+                                    _pickedImage!.path,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.file(
+                                    File(_pickedImage!.path),
+                                    fit: BoxFit.cover,
+                                  ),
                           )
                         : const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
