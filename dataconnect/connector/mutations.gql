@@ -5,6 +5,7 @@ mutation CreateUser(
   $name: String!
   $role: String!
   $tel: String!
+  $imageUrl: String
 ) @auth(level: PUBLIC) {
   user_insert(
     data: {
@@ -13,6 +14,7 @@ mutation CreateUser(
       name: $name
       role: $role
       tel: $tel
+      imageUrl: $imageUrl
     }
   )
 }
@@ -22,11 +24,18 @@ mutation UpdateUser(
   $name: String
   $role: String
   $tel: String
+  $imageUrl: String
   $updatedAt: Timestamp
 ) @auth(level: PUBLIC) {
   user_update(
     key: { email: $email }
-    data: { name: $name, role: $role, tel: $tel, updatedAt: $updatedAt }
+    data: {
+      name: $name
+      role: $role
+      tel: $tel
+      imageUrl: $imageUrl
+      updatedAt: $updatedAt
+    }
   )
 }
 
@@ -39,12 +48,14 @@ mutation CreateMachine(
   $name: String!
   $serialNumber: Int!
   $description: String!
+  $imageUrl: String
 ) @auth(level: PUBLIC) {
   machine_insert(
     data: {
       name: $name
       serialNumber: $serialNumber
       description: $description
+      imageUrl: $imageUrl
     }
   )
 }
@@ -54,6 +65,7 @@ mutation UpdateMachine(
   $name: String
   $serialNumber: Int
   $description: String
+  $imageUrl: String
   $updatedAt: Timestamp
 ) @auth(level: PUBLIC) {
   machine_update(
@@ -62,6 +74,7 @@ mutation UpdateMachine(
       name: $name
       serialNumber: $serialNumber
       description: $description
+      imageUrl: $imageUrl
       updatedAt: $updatedAt
     }
   )
@@ -72,10 +85,19 @@ mutation DeleteMachine($id: UUID!) @auth(level: PUBLIC) {
 }
 
 # Item Mutations
-mutation CreateItem($name: String!, $quantity: Int!, $description: String!)
-@auth(level: PUBLIC) {
+mutation CreateItem(
+  $name: String!
+  $quantity: Int!
+  $description: String!
+  $imageUrl: String
+) @auth(level: PUBLIC) {
   item_insert(
-    data: { name: $name, quantity: $quantity, description: $description }
+    data: {
+      name: $name
+      quantity: $quantity
+      description: $description
+      imageUrl: $imageUrl
+    }
   )
 }
 
@@ -84,6 +106,7 @@ mutation UpdateItem(
   $name: String
   $quantity: Int
   $description: String
+  $imageUrl: String
   $updatedAt: Timestamp
 ) @auth(level: PUBLIC) {
   item_update(
@@ -92,6 +115,7 @@ mutation UpdateItem(
       name: $name
       quantity: $quantity
       description: $description
+      imageUrl: $imageUrl
       updatedAt: $updatedAt
     }
   )
