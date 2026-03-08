@@ -1,0 +1,215 @@
+# User Mutations
+mutation CreateUser(
+  $email: String!
+  $password: String!
+  $name: String!
+  $role: String!
+  $tel: String!
+  $imageUrl: String
+) @auth(level: PUBLIC) {
+  user_insert(
+    data: {
+      email: $email
+      password: $password
+      name: $name
+      role: $role
+      tel: $tel
+      imageUrl: $imageUrl
+    }
+  )
+}
+
+mutation UpdateUser(
+  $email: String!
+  $name: String
+  $role: String
+  $tel: String
+  $imageUrl: String
+  $updatedAt: Timestamp
+) @auth(level: PUBLIC) {
+  user_update(
+    key: { email: $email }
+    data: {
+      name: $name
+      role: $role
+      tel: $tel
+      imageUrl: $imageUrl
+      updatedAt: $updatedAt
+    }
+  )
+}
+
+mutation DeleteUser($email: String!) @auth(level: PUBLIC) {
+  user_delete(key: { email: $email })
+}
+
+# Machine Mutations
+mutation CreateMachine(
+  $name: String!
+  $serialNumber: Int!
+  $description: String!
+  $imageUrl: String
+) @auth(level: PUBLIC) {
+  machine_insert(
+    data: {
+      name: $name
+      serialNumber: $serialNumber
+      description: $description
+      imageUrl: $imageUrl
+    }
+  )
+}
+
+mutation UpdateMachine(
+  $id: UUID!
+  $name: String
+  $serialNumber: Int
+  $description: String
+  $imageUrl: String
+  $updatedAt: Timestamp
+) @auth(level: PUBLIC) {
+  machine_update(
+    key: { id: $id }
+    data: {
+      name: $name
+      serialNumber: $serialNumber
+      description: $description
+      imageUrl: $imageUrl
+      updatedAt: $updatedAt
+    }
+  )
+}
+
+mutation DeleteMachine($id: UUID!) @auth(level: PUBLIC) {
+  machine_delete(key: { id: $id })
+}
+
+# Item Mutations
+mutation CreateItem(
+  $name: String!
+  $quantity: Int!
+  $description: String!
+  $imageUrl: String
+) @auth(level: PUBLIC) {
+  item_insert(
+    data: {
+      name: $name
+      quantity: $quantity
+      description: $description
+      imageUrl: $imageUrl
+    }
+  )
+}
+
+mutation UpdateItem(
+  $id: UUID!
+  $name: String
+  $quantity: Int
+  $description: String
+  $imageUrl: String
+  $updatedAt: Timestamp
+) @auth(level: PUBLIC) {
+  item_update(
+    key: { id: $id }
+    data: {
+      name: $name
+      quantity: $quantity
+      description: $description
+      imageUrl: $imageUrl
+      updatedAt: $updatedAt
+    }
+  )
+}
+
+mutation DeleteItem($id: UUID!) @auth(level: PUBLIC) {
+  item_delete(key: { id: $id })
+}
+
+# Request Mutations
+mutation CreateRequest(
+  $userEmail: String!
+  $machineId: UUID!
+  $mechanicEmail: String!
+  $requestDate: Timestamp!
+  $description: String!
+) @auth(level: PUBLIC) {
+  request_insert(
+    data: {
+      userEmail: $userEmail
+      machineId: $machineId
+      mechanicEmail: $mechanicEmail
+      requestDate: $requestDate
+      description: $description
+    }
+  )
+}
+
+mutation UpdateRequestStatus(
+  $id: UUID!
+  $status: String!
+  $updatedAt: Timestamp
+) @auth(level: PUBLIC) {
+  request_update(
+    key: { id: $id }
+    data: { status: $status, updatedAt: $updatedAt }
+  )
+}
+
+# Routine Mutations
+mutation CreateRoutine(
+  $machineId: UUID!
+  $title: String!
+  $description: String!
+) @auth(level: PUBLIC) {
+  routine_insert(
+    data: { machineId: $machineId, title: $title, description: $description }
+  )
+}
+
+mutation UpdateRoutine($id: UUID!, $isCheck: Boolean!, $updatedAt: Timestamp)
+@auth(level: PUBLIC) {
+  routine_update(
+    key: { id: $id }
+    data: { isCheck: $isCheck, updatedAt: $updatedAt }
+  )
+}
+
+# MaintainLog Mutations
+mutation CreateMaintainLog(
+  $title: String!
+  $isDone: Boolean!
+  $machineId: UUID!
+) @auth(level: PUBLIC) {
+  maintainLog_insert(
+    data: { title: $title, isDone: $isDone, machineId: $machineId }
+  )
+}
+
+# RoutineLog Mutations
+mutation CreateRoutineLog($title: String!, $isDone: Boolean!, $routineId: UUID!)
+@auth(level: PUBLIC) {
+  routineLog_insert(
+    data: { title: $title, isDone: $isDone, routineId: $routineId }
+  )
+}
+
+# Notification Mutations
+mutation CreateNotification(
+  $mechanicEmail: String!
+  $requestId: UUID!
+  $title: String!
+  $body: String!
+) @auth(level: PUBLIC) {
+  notification_insert(
+    data: {
+      mechanicEmail: $mechanicEmail
+      requestId: $requestId
+      title: $title
+      body: $body
+    }
+  )
+}
+
+mutation MarkNotificationRead($id: UUID!) @auth(level: PUBLIC) {
+  notification_update(key: { id: $id }, data: { isRead: true })
+}

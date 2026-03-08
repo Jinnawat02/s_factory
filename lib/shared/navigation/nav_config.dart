@@ -50,7 +50,7 @@ class NavConfig {
           'label': 'Profile',
         },
       ],
-      'user': [
+      'staff': [
         {
           'icon': Icons.home_outlined,
           'activeIcon': Icons.home,

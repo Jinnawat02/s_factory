@@ -33,7 +33,7 @@ class AppBarConfig {
           ),
         ],
       },
-      'user': {
+      'staff': {
         'title': const Text('S-Factory'),
         'actions': (BuildContext context) => <Widget>[
           IconButton(

@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
+import '../../shared/utils/storage_service.dart';
 
 class AddUserPage extends StatefulWidget {
   const AddUserPage({super.key});
@@ -19,9 +23,58 @@ class _AddUserPageState extends State<AddUserPage> {
   String? _selectedRole;
   bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _hasPicture = false;
+  XFile? _pickedImage;
 
-  final List<String> _roles = ['Admin', 'Mechanic', 'Staff'];
+  final List<String> _roles = ['admin', 'mechanic', 'staff'];
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await ImagePicker().pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        setState(() => _pickedImage = image);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Cannot pick image: $e')));
+      }
+    }
+  }
+
+  void _showImageSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take a Photo'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -29,6 +82,14 @@ class _AddUserPageState extends State<AddUserPage> {
     setState(() => _isLoading = true);
 
     try {
+      String? uploadedImageUrl;
+      if (_pickedImage != null) {
+        uploadedImageUrl = await StorageService.uploadImage(
+          _pickedImage!,
+          'users',
+        );
+      }
+
       await ConnectorConnector.instance
           .createUser(
             email: _email,
@@ -37,6 +98,7 @@ class _AddUserPageState extends State<AddUserPage> {
             role: _selectedRole ?? '',
             tel: _tel,
           )
+          .imageUrl(uploadedImageUrl)
           .execute();
 
       if (mounted) {
@@ -58,6 +120,9 @@ class _AddUserPageState extends State<AddUserPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final imageSize = screenWidth * 0.45; // 45% of screen width
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const NavBar(title: 'Add Employee', leadingText: 'Back'),
@@ -70,28 +135,30 @@ class _AddUserPageState extends State<AddUserPage> {
             children: [
               Center(
                 child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _hasPicture = !_hasPicture;
-                    });
-                  },
+                  onTap: _showImageSourceSheet,
                   child: Container(
-                    width: 160,
-                    height: 160,
+                    width: imageSize,
+                    height: imageSize,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
+                      shape: BoxShape.circle,
                       border: Border.all(color: Colors.black, width: 2),
                     ),
-                    child: _hasPicture
-                        ? const Icon(
-                            Icons.person,
-                            size: 100,
-                            color: Colors.black,
+                    child: _pickedImage != null
+                        ? ClipOval(
+                            child: kIsWeb
+                                ? Image.network(
+                                    _pickedImage!.path,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.file(
+                                    File(_pickedImage!.path),
+                                    fit: BoxFit.cover,
+                                  ),
                           )
                         : const Icon(
                             Icons.person_outline,
-                            size: 40,
+                            size: 60,
                             color: Colors.black,
                           ),
                   ),

@@ -23,15 +23,13 @@ class RequestFormPage extends StatefulWidget {
 class _RequestFormPageState extends State<RequestFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Form fields
+  // ตัวแปรสำหรับเก็บข้อมูล
   String _description = '';
   String? _selectedMechanic;
   DateTime? _pickedDate;
   TimeOfDay? _pickedTime;
 
-  // State management
   bool _isLoadingMechanics = true;
-  bool _isSubmitting = false;
   final List<GetMechanicsUsers> _mechanics = [];
 
   @override
@@ -40,7 +38,6 @@ class _RequestFormPageState extends State<RequestFormPage> {
     _fetchMechanics();
   }
 
-  // Data fetching
   Future<void> _fetchMechanics() async {
     try {
       final response = await ConnectorConnector.instance
@@ -48,147 +45,46 @@ class _RequestFormPageState extends State<RequestFormPage> {
           .execute();
       final mechanics = response.data.users;
 
-      if (!mounted) return;
-
-      setState(() {
-        _mechanics.addAll(mechanics);
-        _isLoadingMechanics = false;
-      });
+      if (mounted) {
+        setState(() {
+          _mechanics.addAll(mechanics);
+          _isLoadingMechanics = false;
+        });
+      }
     } catch (e) {
       if (!mounted) return;
-
-      setState(() => _isLoadingMechanics = false);
-      _showErrorSnackBar('Error loading mechanics: $e');
+      setState(() {
+        _isLoadingMechanics = false;
+      });
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading mechanics: $e')));
     }
   }
 
-  // Date and time pickers
+  // ฟังก์ชันเลือกวันที่
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
-      initialEntryMode: DatePickerEntryMode.input,
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      firstDate: DateTime.now(), // ห้ามเลือกวันย้อนหลัง
       lastDate: DateTime(2030),
     );
-
     if (picked != null) {
       setState(() => _pickedDate = picked);
     }
   }
 
+  // ฟังก์ชันเลือกเวลา
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
-      initialEntryMode: TimePickerEntryMode.input,
       context: context,
       initialTime: TimeOfDay.now(),
     );
-
     if (picked != null) {
       setState(() => _pickedTime = picked);
     }
-  }
-
-  // Form submission
-  Future<void> _submitRequest() async {
-    if (!_validateForm()) return;
-
-    setState(() => _isSubmitting = true);
-
-    try {
-      final email = FirebaseAuth.instance.currentUser?.email ?? 'Unknown User';
-      final requestDateTime = _buildRequestDateTime();
-
-      // Save to mock data (for backward compatibility)
-      _saveMockRequest(email);
-
-      // Save to Firebase Data Connect
-      await _saveToDataConnect(email, requestDateTime);
-
-      if (!mounted) return;
-
-      _showSuccessSnackBar('ส่งข้อมูลการแจ้งซ่อมเรียบร้อยแล้ว');
-      Navigator.pop(context);
-    } catch (e) {
-      if (!mounted) return;
-      _showErrorSnackBar('เกิดข้อผิดพลาด: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
-    }
-  }
-
-  bool _validateForm() {
-    if (!_formKey.currentState!.validate()) {
-      return false;
-    }
-
-    if (_pickedDate == null || _pickedTime == null) {
-      _showErrorSnackBar('กรุณาเลือกวันและเวลาให้ครบถ้วน');
-      return false;
-    }
-
-    return true;
-  }
-
-  DateTime _buildRequestDateTime() {
-    return DateTime(
-      _pickedDate!.year,
-      _pickedDate!.month,
-      _pickedDate!.day,
-      _pickedTime!.hour,
-      _pickedTime!.minute,
-    );
-  }
-
-  void _saveMockRequest(String email) {
-    final requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    final newRequest = {
-      'request_id': requestId,
-      'email': email,
-      'machine_id': widget.machineID,
-      'machine_name': widget.machineName,
-      'description': _description,
-      'selectedMechanic': _selectedMechanic,
-      'pickedDate': DateFormat('yyyy-MM-dd').format(_pickedDate!),
-      'pickedTime': _pickedTime!.format(context),
-      'status': 'pending',
-      'timestamp': DateTime.now().toIso8601String(),
-    };
-    RequestMockData.addRequest(newRequest);
-  }
-
-  Future<void> _saveToDataConnect(
-    String email,
-    DateTime requestDateTime,
-  ) async {
-    await ConnectorConnector.instance
-        .createRequest(
-          userEmail: email,
-          machineId: widget.machineID,
-          description: _description,
-          requestDate: Timestamp.fromJson(
-            requestDateTime.toUtc().toIso8601String(),
-          ),
-          mechanicEmail: _selectedMechanic!,
-        )
-        .execute();
-  }
-
-  // UI helpers
-  void _showErrorSnackBar(String message) {
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  void _showSuccessSnackBar(String message) {
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -205,277 +101,230 @@ class _RequestFormPageState extends State<RequestFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDescriptionField(),
+              const Text(
+                'รายละเอียดอาการเสีย',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: 'กรอกรายละเอียดปัญหา...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'กรุณากรอกรายละเอียด'
+                    : null,
+                onChanged: (value) => _description = value,
+              ),
               const SizedBox(height: 20),
-              _buildMechanicDropdown(),
+
+              const Text(
+                'เลือกช่าง',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              _isLoadingMechanics
+                  ? DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'loading',
+                          child: Text('กำลังโหลดข้อมูลช่าง...'),
+                        ),
+                      ],
+                      initialValue: 'loading',
+                      onChanged: null,
+                    )
+                  : DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                      hint: Text(
+                        _mechanics.isEmpty
+                            ? 'ไม่พบข้อมูลช่างซ่อม'
+                            : 'เลือกช่าง',
+                      ),
+                      initialValue: _selectedMechanic,
+                      items: _mechanics.isEmpty
+                          ? []
+                          : _mechanics
+                                .map(
+                                  (m) => DropdownMenuItem(
+                                    value: m.email,
+                                    child: Text(m.name ?? m.email),
+                                  ),
+                                )
+                                .toList(),
+                      onChanged: _mechanics.isEmpty
+                          ? null
+                          : (val) => setState(() => _selectedMechanic = val),
+                      validator: (val) => val == null ? 'กรุณาเลือกช่าง' : null,
+                    ),
               const SizedBox(height: 20),
-              _buildDatePicker(),
+
+              // ส่วนเลือกวันที่แบบจิ้มปฏิทิน
+              const Text(
+                'เลือกวันที่',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => _selectDate(context),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: const Icon(Icons.calendar_today),
+                  ),
+                  child: Text(
+                    _pickedDate == null
+                        ? 'กดเพื่อเลือกวันที่'
+                        : DateFormat('dd/MM/yyyy').format(_pickedDate!),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
-              _buildTimePicker(),
+
+              // ส่วนเลือกเวลาแบบจิ้มนาฬิกา
+              const Text(
+                'เลือกเวลา',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => _selectTime(context),
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: const Icon(Icons.access_time),
+                  ),
+                  child: Text(
+                    _pickedTime == null
+                        ? 'กดเพื่อเลือกเวลา'
+                        : _pickedTime!.format(context),
+                  ),
+                ),
+              ),
               const SizedBox(height: 40),
-              _buildSubmitButton(),
+
+              Center(
+                child: SizedBox(
+                  width: 200,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate() &&
+                          _pickedDate != null &&
+                          _pickedTime != null) {
+                        // 1. Fetch User Email
+                        final String email =
+                            FirebaseAuth.instance.currentUser?.email ??
+                            'Unknown User';
+
+                        final DateTime requestDateTime = DateTime(
+                          _pickedDate!.year,
+                          _pickedDate!.month,
+                          _pickedDate!.day,
+                          _pickedTime!.hour,
+                          _pickedTime!.minute,
+                        );
+
+                        // Save to Mock Data Store (optional, keeping for UI backward compatibility if needed)
+                        final String requestId = DateTime.now()
+                            .millisecondsSinceEpoch
+                            .toString();
+                        final newRequest = {
+                          'request_id': requestId,
+                          'email': email,
+                          'machine_id': widget.machineID,
+                          'machine_name': widget.machineName,
+                          'description': _description,
+                          'selectedMechanic': _selectedMechanic,
+                          'pickedDate': DateFormat(
+                            'yyyy-MM-dd',
+                          ).format(_pickedDate!),
+                          'pickedTime': _pickedTime!.format(context),
+                          'status': 'pending',
+                          'timestamp': DateTime.now().toIso8601String(),
+                        };
+                        RequestMockData.addRequest(newRequest);
+
+                        try {
+                          // 2. Save to Data Connect
+                          await ConnectorConnector.instance
+                              .createRequest(
+                                userEmail: email,
+                                machineId: widget.machineID,
+                                description: _description,
+                                requestDate: Timestamp.fromJson(
+                                  requestDateTime.toUtc().toIso8601String(),
+                                ),
+                                mechanicEmail: _selectedMechanic!,
+                              )
+                              .execute();
+
+                          // Create MaintainLog with isDone: false indicating ticket is open
+                          await ConnectorConnector.instance
+                              .createMaintainLog(
+                                title: 'Created Request: $_description',
+                                isDone: false,
+                                machineId: widget.machineID,
+                              )
+                              .execute();
+
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'ส่งข้อมูลการแจ้งซ่อมเรียบร้อยแล้ว',
+                              ),
+                            ),
+                          );
+                          Navigator.pop(context);
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+                          );
+                        }
+                      } else if (_pickedDate == null || _pickedTime == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('กรุณาเลือกวันและเวลาให้ครบถ้วน'),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepOrange,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'ยืนยันส่งคำร้อง',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDescriptionField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'รายละเอียดอาการเสีย',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          maxLines: 3,
-          decoration: InputDecoration(
-            hintText: 'กรอกรายละเอียดปัญหา...',
-            hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.white, width: 2),
-            ),
-          ),
-          style: const TextStyle(color: Colors.white),
-          validator: (value) =>
-              value == null || value.isEmpty ? 'กรุณากรอกรายละเอียด' : null,
-          onChanged: (value) => _description = value,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMechanicDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'เลือกช่าง',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 8),
-        _isLoadingMechanics
-            ? DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.white,
-                width: 2,
-              ),
-            ),
-            prefixIcon: const Icon(
-              Icons.person,
-              color: Colors.grey,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 16,
-            ),
-          ),
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-          ),
-          items: const [
-            DropdownMenuItem(
-              value: 'loading',
-              child: Text(
-                'กำลังโหลดข้อมูลช่าง...',
-                style: TextStyle(
-                  color: Colors.grey
-                ),
-              ),
-            ),
-          ],
-          value: 'loading',
-          onChanged: null,
-        )
-            : DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: Colors.white,
-                width: 2,
-              ),
-            ),
-            prefixIcon: Icon(
-              Icons.person,
-              color: _selectedMechanic != null ? Colors.white : Colors.grey,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 16,
-            ),
-          ),
-          isExpanded: true,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-          dropdownColor: Colors.white,
-          menuMaxHeight: 300,
-          hint: Text(
-            _mechanics.isEmpty ? 'ไม่พบข้อมูลช่างซ่อม' : 'เลือกช่าง',
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 16,
-            ),
-          ),
-          value: _selectedMechanic,
-          items: _mechanics.isEmpty
-              ? []
-              : _mechanics
-              .map((m) => DropdownMenuItem(
-            value: m.email,
-            child: Text(
-              m.name ?? m.email,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-              ),
-            ),
-          ))
-              .toList(),
-          selectedItemBuilder: (BuildContext context) {
-            return _mechanics.map((m) {
-              return Text(
-                m.name ?? m.email,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              );
-            }).toList();
-          },
-          onChanged: _mechanics.isEmpty
-              ? null
-              : (val) => setState(() => _selectedMechanic = val),
-          validator: (val) => val == null ? 'กรุณาเลือกช่าง' : null,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDatePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'เลือกวันที่',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () => _selectDate(context),
-          child: InputDecorator(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Colors.white, width: 2),
-              ),
-              prefixIcon: Icon(
-                Icons.calendar_today,
-                color: _pickedDate == null ? Colors.grey : Colors.white,
-              ),
-            ),
-            child: Text(
-              _pickedDate == null
-                  ? 'กดเพื่อเลือกวันที่'
-                  : DateFormat('dd/MM/yyyy').format(_pickedDate!),
-              style: TextStyle(
-                color: _pickedDate == null ? Colors.grey : Colors.white,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'เลือกเวลา',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () => _selectTime(context),
-          child: InputDecorator(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Colors.white, width: 2),
-              ),
-              prefixIcon: Icon(
-                Icons.access_time,
-                color: _pickedTime == null ? Colors.grey : Colors.white,
-              ),
-            ),
-            child: Text(
-              _pickedTime == null
-                  ? 'กดเพื่อเลือกเวลา'
-                  : _pickedTime!.format(context),
-              style: TextStyle(
-                color: _pickedTime == null ? Colors.grey : Colors.white,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSubmitButton() {
-    return Center(
-      child: SizedBox(
-        width: 200,
-        height: 50,
-        child: ElevatedButton(
-          onPressed: _isSubmitting ? null : _submitRequest,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepOrange,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          child: _isSubmitting
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Text('ยืนยันส่งคำร้อง', style: TextStyle(fontSize: 16)),
         ),
       ),
     );

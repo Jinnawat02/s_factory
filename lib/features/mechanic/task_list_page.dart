@@ -210,6 +210,7 @@ class _TaskListPageState extends State<TaskListPage> {
                           MaterialPageRoute(
                             builder: (context) => TaskDetailPage(
                               requestId: task.id,
+                              machineId: task.machine.id,
                               machineName: machineName,
                               description:
                                   task.description ?? mockDescription ?? 'N/A',
