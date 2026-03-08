@@ -90,15 +90,20 @@ class _MachineListPageState extends State<MachineListPage> {
                 itemBuilder: (context, index) {
                   final machine = allMachines[index];
 
-                  final mockImage = index < MachineMockData.machines.length
+                  // Wait for machine list has imageUrl
+                  final machineImage = index < MachineMockData.machines.length
                       ? MachineMockData.machines[index]['imageUrl']
-                      : 'https://picsum.photos/400/300?random=${machine.id}';
+                      : 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machine.name!)}&background=0D47A1&color=fff&size=200&bold=true';
+
+                  print('==========================');
+                  print(machineImage);
+                  print('==========================');
 
                   return MachineCard(
                     name: machine.name ?? 'Unknown Machine',
                     description:
                         machine.description ?? 'No description available',
-                    imageUrl: mockImage!,
+                    imageUrl: machineImage!,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -111,7 +116,7 @@ class _MachineListPageState extends State<MachineListPage> {
                             'description':
                                 machine.description ??
                                 'No description available',
-                            'imageUrl': mockImage,
+                            'imageUrl': machineImage,
                           },
                           role: widget.role,
                         ),
