@@ -42,3 +42,9 @@ firebase deploy --only dataconnect
 ```bash
 firebase dataconnect:sdk:generate
 ```
+
+### SQL Proxy (for connect database with DBeaver)
+
+```bash
+cloud-sql-proxy fir-factory-45cec:asia-southeast1:fir-factory-45cec-instance
+```

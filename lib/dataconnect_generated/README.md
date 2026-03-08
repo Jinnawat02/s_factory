@@ -748,6 +748,104 @@ ref.execute();
 ref.subscribe(...);
 ```
 
+
+### GetMechanicFCMToken
+#### Required Arguments
+```dart
+String email = ...;
+ConnectorConnector.instance.getMechanicFcmToken(
+  email: email,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `QueryResult<GetMechanicFCMTokenData, GetMechanicFCMTokenVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+/// Result of a query request. Created to hold extra variables in the future.
+class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
+  QueryResult(super.dataConnect, super.data, super.ref);
+}
+
+final result = await ConnectorConnector.instance.getMechanicFcmToken(
+  email: email,
+);
+GetMechanicFCMTokenData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String email = ...;
+
+final ref = ConnectorConnector.instance.getMechanicFcmToken(
+  email: email,
+).ref();
+ref.execute();
+
+ref.subscribe(...);
+```
+
+
+### ListMechanicNotifications
+#### Required Arguments
+```dart
+String mechanicEmail = ...;
+ConnectorConnector.instance.listMechanicNotifications(
+  mechanicEmail: mechanicEmail,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `QueryResult<ListMechanicNotificationsData, ListMechanicNotificationsVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+/// Result of a query request. Created to hold extra variables in the future.
+class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
+  QueryResult(super.dataConnect, super.data, super.ref);
+}
+
+final result = await ConnectorConnector.instance.listMechanicNotifications(
+  mechanicEmail: mechanicEmail,
+);
+ListMechanicNotificationsData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String mechanicEmail = ...;
+
+final ref = ConnectorConnector.instance.listMechanicNotifications(
+  mechanicEmail: mechanicEmail,
+).ref();
+ref.execute();
+
+ref.subscribe(...);
+```
+
 ## Mutations
 
 ### CreateRequest
@@ -901,6 +999,323 @@ String status = ...;
 final ref = ConnectorConnector.instance.updateRequestStatus(
   id: id,
   status: status,
+).ref();
+ref.execute();
+```
+
+
+### UpdateUserFCMToken
+#### Required Arguments
+```dart
+String email = ...;
+String token = ...;
+ConnectorConnector.instance.updateUserFcmToken(
+  email: email,
+  token: token,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<UpdateUserFCMTokenData, UpdateUserFCMTokenVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.updateUserFcmToken(
+  email: email,
+  token: token,
+);
+UpdateUserFCMTokenData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String email = ...;
+String token = ...;
+
+final ref = ConnectorConnector.instance.updateUserFcmToken(
+  email: email,
+  token: token,
+).ref();
+ref.execute();
+```
+
+
+### CreateNotification
+#### Required Arguments
+```dart
+String mechanicEmail = ...;
+String requestId = ...;
+String title = ...;
+String body = ...;
+Timestamp createdAt = ...;
+ConnectorConnector.instance.createNotification(
+  mechanicEmail: mechanicEmail,
+  requestId: requestId,
+  title: title,
+  body: body,
+  createdAt: createdAt,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<CreateNotificationData, CreateNotificationVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.createNotification(
+  mechanicEmail: mechanicEmail,
+  requestId: requestId,
+  title: title,
+  body: body,
+  createdAt: createdAt,
+);
+CreateNotificationData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String mechanicEmail = ...;
+String requestId = ...;
+String title = ...;
+String body = ...;
+Timestamp createdAt = ...;
+
+final ref = ConnectorConnector.instance.createNotification(
+  mechanicEmail: mechanicEmail,
+  requestId: requestId,
+  title: title,
+  body: body,
+  createdAt: createdAt,
+).ref();
+ref.execute();
+```
+
+
+### MarkNotificationRead
+#### Required Arguments
+```dart
+String id = ...;
+ConnectorConnector.instance.markNotificationRead(
+  id: id,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<MarkNotificationReadData, MarkNotificationReadVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.markNotificationRead(
+  id: id,
+);
+MarkNotificationReadData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String id = ...;
+
+final ref = ConnectorConnector.instance.markNotificationRead(
+  id: id,
+).ref();
+ref.execute();
+```
+
+
+### CreateItem
+#### Required Arguments
+```dart
+String name = ...;
+int quantity = ...;
+String description = ...;
+ConnectorConnector.instance.createItem(
+  name: name,
+  quantity: quantity,
+  description: description,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<CreateItemData, CreateItemVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.createItem(
+  name: name,
+  quantity: quantity,
+  description: description,
+);
+CreateItemData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String name = ...;
+int quantity = ...;
+String description = ...;
+
+final ref = ConnectorConnector.instance.createItem(
+  name: name,
+  quantity: quantity,
+  description: description,
+).ref();
+ref.execute();
+```
+
+
+### CreateMachine
+#### Required Arguments
+```dart
+String name = ...;
+int serialNumber = ...;
+String description = ...;
+ConnectorConnector.instance.createMachine(
+  name: name,
+  serialNumber: serialNumber,
+  description: description,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<CreateMachineData, CreateMachineVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.createMachine(
+  name: name,
+  serialNumber: serialNumber,
+  description: description,
+);
+CreateMachineData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String name = ...;
+int serialNumber = ...;
+String description = ...;
+
+final ref = ConnectorConnector.instance.createMachine(
+  name: name,
+  serialNumber: serialNumber,
+  description: description,
+).ref();
+ref.execute();
+```
+
+
+### CreateUser
+#### Required Arguments
+```dart
+String email = ...;
+String password = ...;
+String name = ...;
+String role = ...;
+String tel = ...;
+ConnectorConnector.instance.createUser(
+  email: email,
+  password: password,
+  name: name,
+  role: role,
+  tel: tel,
+).execute();
+```
+
+
+
+#### Return Type
+`execute()` returns a `OperationResult<CreateUserData, CreateUserVariables>`
+```dart
+/// Result of an Operation Request (query/mutation).
+class OperationResult<Data, Variables> {
+  OperationResult(this.dataConnect, this.data, this.ref);
+  Data data;
+  OperationRef<Data, Variables> ref;
+  FirebaseDataConnect dataConnect;
+}
+
+final result = await ConnectorConnector.instance.createUser(
+  email: email,
+  password: password,
+  name: name,
+  role: role,
+  tel: tel,
+);
+CreateUserData data = result.data;
+final ref = result.ref;
+```
+
+#### Getting the Ref
+Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
+An example of how to use the `Ref` object is shown below:
+```dart
+String email = ...;
+String password = ...;
+String name = ...;
+String role = ...;
+String tel = ...;
+
+final ref = ConnectorConnector.instance.createUser(
+  email: email,
+  password: password,
+  name: name,
+  role: role,
+  tel: tel,
 ).ref();
 ref.execute();
 ```

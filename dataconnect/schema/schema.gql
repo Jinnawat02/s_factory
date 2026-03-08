@@ -4,6 +4,7 @@ type User @table (key: "email") {
     name: String
     role: String
     tel: String
+    fcmToken: String
 }
 
 type Machine @table (key: "id") {
@@ -50,4 +51,14 @@ type MaintainLog @table (key: "id") {
     title: String
     isDone: Boolean
     machine: Machine!
+}
+
+type Notification @table(key: "id") {
+    id: UUID! @default(expr: "uuidV4()")
+    mechanic: User!
+    request: Request!
+    title: String!
+    body: String!
+    isRead: Boolean @default(value: false)
+    createdAt: Timestamp!
 }

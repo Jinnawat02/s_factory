@@ -189,3 +189,26 @@ query ListMaintainLogs @auth(level: PUBLIC) {
     }
   }
 }
+
+# Notification Queries
+query GetMechanicFCMToken($email: String!) @auth(level: USER) {
+  user(key: {email: $email}) {
+    fcmToken
+  }
+}
+
+query ListMechanicNotifications($mechanicEmail: String!) @auth(level: PUBLIC) {
+  notifications(where: {mechanic: {email: {eq: $mechanicEmail}}}, orderBy: {createdAt: DESC}) {
+    id
+    title
+    body
+    isRead
+    createdAt
+    request {
+      id
+      machine {
+        name
+      }
+    }
+  }
+}

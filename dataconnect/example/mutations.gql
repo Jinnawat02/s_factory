@@ -4,7 +4,7 @@ mutation CreateRequest(
   $description: String!
   $requestDate: Timestamp!
   $mechanicEmail: String!
-) @auth(level: PUBLIC) {
+) @auth(level: USER) {
   request_insert(
     data: {
       user: { email: $userEmail }
@@ -36,3 +36,50 @@ mutation UpdateRequestStatus($id: UUID!, $status: String!) @auth(level: PUBLIC) 
   )
 }
 
+# Notification Mutations
+mutation UpdateUserFCMToken($email: String!, $token: String!) @auth(level: PUBLIC) {
+  user_update(
+    key: { email: $email }
+    data: {
+      fcmToken: $token
+    }
+  )
+}
+
+mutation CreateNotification(
+  $mechanicEmail: String!
+  $requestId: UUID!
+  $title: String!
+  $body: String!
+  $createdAt: Timestamp!
+) @auth(level: USER) {
+  notification_insert(
+    data: {
+      mechanic: { email: $mechanicEmail }
+      request: { id: $requestId }
+      title: $title
+      body: $body
+      createdAt: $createdAt
+    }
+  )
+}
+
+mutation MarkNotificationRead($id: UUID!) @auth(level: PUBLIC) {
+  notification_update(
+    id: $id
+    data: {
+      isRead: true
+    }
+  )
+}
+mutation CreateItem($name: String!, $quantity: Int!, $description: String!) @auth(level: PUBLIC) {
+  item_insert(data: {name: $name, quantity: $quantity, description: $description})
+}
+
+mutation CreateMachine($name: String!, $serialNumber: Int!, $description: String!) @auth(level: PUBLIC) {
+  machine_insert(data: {name: $name, serialNumber: $serialNumber, description: $description})
+}
+
+mutation CreateUser($email: String!, $password: String!, $name: String!, $role: String!, $tel: String!) @auth(level: PUBLIC) {
+  user_insert(data: {email: $email, password: $password, name: $name, role: $role, tel: $tel})
+}

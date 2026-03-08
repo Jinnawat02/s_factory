@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
+import 'shared/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,8 @@ Future<void> main() async {
   //       : 'localhost';
   //   ConnectorConnector.instance.dataConnect.useDataConnectEmulator(host, 9399);
   // }
+
+  NotificationService.initializeForegroundListener();
 
   runApp(MyApp(clientId: clientId));
 }

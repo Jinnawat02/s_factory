@@ -9,6 +9,18 @@ part 'update_routine.dart';
 
 part 'update_request_status.dart';
 
+part 'update_user_fcm_token.dart';
+
+part 'create_notification.dart';
+
+part 'mark_notification_read.dart';
+
+part 'create_item.dart';
+
+part 'create_machine.dart';
+
+part 'create_user.dart';
+
 part 'get_user.dart';
 
 part 'list_users.dart';
@@ -41,6 +53,10 @@ part 'get_maintain_log.dart';
 
 part 'list_maintain_logs.dart';
 
+part 'get_mechanic_fcm_token.dart';
+
+part 'list_mechanic_notifications.dart';
+
 
 
 
@@ -62,6 +78,36 @@ class ConnectorConnector {
   
   UpdateRequestStatusVariablesBuilder updateRequestStatus ({required String id, required String status, }) {
     return UpdateRequestStatusVariablesBuilder(dataConnect, id: id,status: status,);
+  }
+  
+  
+  UpdateUserFcmTokenVariablesBuilder updateUserFcmToken ({required String email, required String token, }) {
+    return UpdateUserFcmTokenVariablesBuilder(dataConnect, email: email,token: token,);
+  }
+  
+  
+  CreateNotificationVariablesBuilder createNotification ({required String mechanicEmail, required String requestId, required String title, required String body, required Timestamp createdAt, }) {
+    return CreateNotificationVariablesBuilder(dataConnect, mechanicEmail: mechanicEmail,requestId: requestId,title: title,body: body,createdAt: createdAt,);
+  }
+  
+  
+  MarkNotificationReadVariablesBuilder markNotificationRead ({required String id, }) {
+    return MarkNotificationReadVariablesBuilder(dataConnect, id: id,);
+  }
+  
+  
+  CreateItemVariablesBuilder createItem ({required String name, required int quantity, required String description, }) {
+    return CreateItemVariablesBuilder(dataConnect, name: name,quantity: quantity,description: description,);
+  }
+  
+  
+  CreateMachineVariablesBuilder createMachine ({required String name, required int serialNumber, required String description, }) {
+    return CreateMachineVariablesBuilder(dataConnect, name: name,serialNumber: serialNumber,description: description,);
+  }
+  
+  
+  CreateUserVariablesBuilder createUser ({required String email, required String password, required String name, required String role, required String tel, }) {
+    return CreateUserVariablesBuilder(dataConnect, email: email,password: password,name: name,role: role,tel: tel,);
   }
   
   
@@ -142,6 +188,16 @@ class ConnectorConnector {
   
   ListMaintainLogsVariablesBuilder listMaintainLogs () {
     return ListMaintainLogsVariablesBuilder(dataConnect, );
+  }
+  
+  
+  GetMechanicFcmTokenVariablesBuilder getMechanicFcmToken ({required String email, }) {
+    return GetMechanicFcmTokenVariablesBuilder(dataConnect, email: email,);
+  }
+  
+  
+  ListMechanicNotificationsVariablesBuilder listMechanicNotifications ({required String mechanicEmail, }) {
+    return ListMechanicNotificationsVariablesBuilder(dataConnect, mechanicEmail: mechanicEmail,);
   }
   
 

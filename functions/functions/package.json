@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@firebasegen/default-connector": "file:../dataconnect_generated"
+  }
+}

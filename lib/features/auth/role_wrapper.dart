@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../dataconnect_generated/generated.dart';
 // Import คลาส Service ที่เราเพิ่งสร้าง
 import '../../shared/services/secure_storage_service.dart';
+import '../../shared/services/notification_service.dart'; // Import Notification Service
 
 import '../admin/admin.dart';
 import '../mechanic/mechanic.dart';
@@ -36,6 +37,12 @@ class RoleWrapper extends StatelessWidget {
       if (role != null && role.isNotEmpty) {
         // 3. ได้ข้อมูลมาแล้ว เอาไปเซฟลงเครื่องไว้ใช้รอบหน้า
         await storageService.saveRole(role);
+
+        // -- เพิ่มเติมระบบ Notification: อัพเดต FCM Token ถ้าเป็นช่าง --
+        if (role == 'mechanic') {
+          await NotificationService.setupFCMToken(email);
+        }
+
         return role;
       } else {
         // กรณีพบ User ในระบบ แต่ไม่ได้ระบุ Role

@@ -4,13 +4,13 @@ import 'package:s_factory/features/qr/qr_generator.dart';
 import '../../../dataconnect_generated/generated.dart';
 
 import 'package:s_factory/features/machine/request_form_page.dart';
-import 'package:s_factory/mock/machine_mock_data.dart'; // Import mock data
+import 'package:s_factory/mock/machine_mock_data.dart';
 
 import '../../shared/widgets/nav_bar.dart';
 
 class MachineDetailPage extends StatefulWidget {
   final Map<String, String> machineData;
-  final String role; // Require the role argument
+  final String role;
 
   const MachineDetailPage({
     super.key,
@@ -102,7 +102,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                     height: 250,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) =>
-                    const Icon(Icons.image_not_supported, size: 100),
+                        const Icon(Icons.image_not_supported, size: 100),
                   ),
                 ),
 

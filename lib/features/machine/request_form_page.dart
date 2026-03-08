@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 import '../../mock/request_mock_data.dart';
@@ -244,11 +245,11 @@ class _RequestFormPageState extends State<RequestFormPage> {
                         );
 
                         // Save to Mock Data Store (optional, keeping for UI backward compatibility if needed)
-                        final String requestId = DateTime.now()
+                        final String requestIdMock = DateTime.now()
                             .millisecondsSinceEpoch
                             .toString();
                         final newRequest = {
-                          'request_id': requestId,
+                          'request_id': requestIdMock,
                           'email': email,
                           'machine_id': widget.machineID,
                           'machine_name': widget.machineName,
@@ -264,18 +265,25 @@ class _RequestFormPageState extends State<RequestFormPage> {
                         RequestMockData.addRequest(newRequest);
 
                         try {
-                          // 2. Save to Data Connect
-                          await ConnectorConnector.instance
-                              .createRequest(
-                                userEmail: email,
-                                machineId: widget.machineID,
-                                description: _description,
-                                requestDate: Timestamp.fromJson(
-                                  requestDateTime.toUtc().toIso8601String(),
-                                ),
-                                mechanicEmail: _selectedMechanic!,
-                              )
-                              .execute();
+                          print(
+                            '--- STARTING REQUEST SUBMISSION TO CLOUD FUNCTION ---',
+                          );
+
+                          final funcResponse = await FirebaseFunctions.instance
+                              .httpsCallable('submitRepairRequest')
+                              .call({
+                                'machineId': widget.machineID,
+                                'description': _description,
+                                'mechanicEmail': _selectedMechanic,
+                                'requestDate': requestDateTime
+                                    .toUtc()
+                                    .toIso8601String(),
+                              });
+
+                          print(
+                            '-> Function Success, Response: \${funcResponse.data}',
+                          );
+                          print('--- END REQUEST SUBMISSION ---');
 
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -287,6 +295,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
                           );
                           Navigator.pop(context);
                         } catch (e) {
+                          print('-> Function Error: $e');
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
