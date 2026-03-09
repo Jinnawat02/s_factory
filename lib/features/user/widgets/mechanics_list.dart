@@ -5,21 +5,43 @@ import '../../../dataconnect_generated/generated.dart';
 
 import 'package:s_factory/features/user/add_user_page.dart';
 
-class MechanicsList extends StatelessWidget {
+class MechanicsList extends StatefulWidget {
   final String? role;
 
   const MechanicsList({super.key, this.role});
 
   @override
+  State<MechanicsList> createState() => _MechanicsListState();
+}
+
+class _MechanicsListState extends State<MechanicsList> {
+  late Future<QueryResult<GetMechanicsData, void>> _futureMechanics;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMechanics();
+  }
+
+  void _loadMechanics() {
+    setState(() {
+      _futureMechanics = ConnectorConnector.instance.getMechanics().execute();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: role == 'admin'
+      floatingActionButton: widget.role == 'admin'
           ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final added = await Navigator.push<bool?>(
                   context,
                   MaterialPageRoute(builder: (context) => const AddUserPage()),
                 );
+                if (added == true) {
+                  _loadMechanics();
+                }
               },
               tooltip: 'Add Employee',
               child: const Icon(Icons.add),
@@ -28,7 +50,7 @@ class MechanicsList extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder<QueryResult<GetMechanicsData, void>>(
-          future: ConnectorConnector.instance.getMechanics().execute(),
+          future: _futureMechanics,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -73,11 +95,14 @@ class MechanicsList extends StatelessWidget {
   ) {
     return Card(
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final deleted = await Navigator.push<bool>(
             context,
             MaterialPageRoute(builder: (context) => Profile(user: mechanic)),
           );
+          if (deleted == true && mounted) {
+            _loadMechanics();
+          }
         },
         child: Container(
           padding: const EdgeInsets.all(10),

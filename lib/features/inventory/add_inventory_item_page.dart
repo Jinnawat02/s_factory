@@ -45,7 +45,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('ไม่สามารถเลือกรูปได้: $e')));
+        ).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
       }
     }
   }
@@ -61,7 +61,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('เลือกจากคลังรูปภาพ'),
+              title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.gallery);
@@ -69,7 +69,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('ถ่ายรูป'),
+              title: const Text('Take Photo'),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.camera);
@@ -108,9 +108,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('เพิ่มรายการวัสดุ-อุปกรณ์เรียบร้อยแล้ว'),
-          ),
+          const SnackBar(content: Text('Item added successfully')),
         );
         Navigator.pop(context, true); // true = item was created
       }
@@ -118,7 +116,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -131,10 +129,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
     final imageSize = screenWidth * 0.4; // 40% of screen width
 
     return Scaffold(
-      appBar: const NavBar(
-        title: 'เพิ่มรายการวัสดุ-อุปกรณ์',
-        leadingText: 'Cancel',
-      ),
+      appBar: const NavBar(title: 'Add Inventory Item', leadingText: 'Cancel'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -176,7 +171,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                'เพิ่มรูปภาพ',
+                                'Add Image',
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: 12,
@@ -210,8 +205,9 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                     borderSide: const BorderSide(color: Colors.black, width: 2),
                   ),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'กรุณากรอกชื่อ' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter a name'
+                    : null,
                 onChanged: (value) => _name = value,
               ),
               const SizedBox(height: 24),
@@ -316,7 +312,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text('บันทึก', style: TextStyle(fontSize: 16)),
+                        : const Text('Save', style: TextStyle(fontSize: 16)),
                   ),
                 ),
               ),

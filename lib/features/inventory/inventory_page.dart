@@ -75,7 +75,7 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'ยังไม่มีรายการวัสดุ-อุปกรณ์',
+                    'No inventory items found',
                     style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
                 ],
@@ -115,21 +115,26 @@ class _InventoryPageState extends State<InventoryPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: InkWell(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final deleted = await Navigator.push<bool>(
                           context,
                           MaterialPageRoute(
                             builder: (context) => InventoryItemDetailPage(
                               itemData: {
+                                'id': item.id,
                                 'name': itemName,
                                 'stock': stockCount.toString(),
                                 'location': 'N/A',
                                 'category': 'N/A',
                                 'description': description,
                               },
+                              role: widget.role ?? '',
                             ),
                           ),
                         );
+                        if (deleted == true && context.mounted) {
+                          _loadItems();
+                        }
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -99,24 +99,29 @@ class _MachineListPageState extends State<MachineListPage> {
                     description:
                         machine.description ?? 'No description available',
                     imageUrl: mockImage!,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MachineDetailPage(
-                          machineData: {
-                            'id': machine.id,
-                            'name': machine.name ?? 'Unknown Machine',
-                            'serialNumber':
-                                machine.serialNumber?.toString() ?? 'N/A',
-                            'description':
-                                machine.description ??
-                                'No description available',
-                            'imageUrl': mockImage,
-                          },
-                          role: widget.role,
+                    onTap: () async {
+                      final deleted = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MachineDetailPage(
+                            machineData: {
+                              'id': machine.id,
+                              'name': machine.name ?? 'Unknown Machine',
+                              'serialNumber':
+                                  machine.serialNumber?.toString() ?? 'N/A',
+                              'description':
+                                  machine.description ??
+                                  'No description available',
+                              'imageUrl': mockImage,
+                            },
+                            role: widget.role,
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                      if (deleted == true && context.mounted) {
+                        _loadMachines();
+                      }
+                    },
                   );
                 },
               );

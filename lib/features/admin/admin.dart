@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/inventory/inventory_page.dart';
 import 'package:s_factory/features/machine/machine_list_page.dart';
-import 'package:s_factory/features/user/widgets/mechanics_list.dart';
+import 'package:s_factory/features/user/user_list_page.dart';
 import 'package:s_factory/shared/appbar/appbar.dart';
 import 'package:s_factory/shared/navigation/navbar.dart';
 import 'package:s_factory/shared/services/secure_storage_service.dart';
@@ -40,7 +40,7 @@ class _AdminHomeScreen extends State<AdminHomeScreen> {
 
   List<Widget> get _pages => [
     MachineListPage(role: _currentRole!),
-    MechanicsList(role: _currentRole!),
+    UserListPage(role: _currentRole!),
     InventoryPage(role: _currentRole!),
   ];
 

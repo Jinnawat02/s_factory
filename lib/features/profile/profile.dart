@@ -54,10 +54,9 @@ class _ProfileState extends State<Profile> {
     final user = widget.user;
 
     return Scaffold(
-      appBar: _currentRole != 'mechanic' ? NavBar(
-        title: user.name ?? 'Profile',
-        leadingText: 'Back',
-      ) : null,
+      appBar: _currentRole != 'mechanic'
+          ? NavBar(title: user.name ?? 'Profile', leadingText: 'Back')
+          : null,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -113,7 +112,7 @@ class _ProfileState extends State<Profile> {
     return Column(
       children: [
         Text(
-          user.name ?? 'ไม่ระบุชื่อ',
+          user.name ?? 'Unknown Name',
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -133,11 +132,11 @@ class _ProfileState extends State<Profile> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          _buildInfoTile(Icons.badge, 'บทบาทหลัก', user.role ?? 'N/A'),
+          _buildInfoTile(Icons.badge, 'Role', user.role ?? 'N/A'),
           _buildInfoTile(
             Icons.phone,
-            'เบอร์โทรศัพท์',
-            user.tel ?? 'ไม่ได้ระบุ',
+            'Phone Number',
+            user.tel ?? 'Not specified',
           ),
         ],
       ),
@@ -155,7 +154,7 @@ class _ProfileState extends State<Profile> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: const Text('แก้ไขข้อมูลส่วนตัว'),
+        child: const Text('Edit Profile'),
       ),
     );
   }
@@ -178,10 +177,7 @@ class _ProfileState extends State<Profile> {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade500
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
               ),
               Text(
                 value,

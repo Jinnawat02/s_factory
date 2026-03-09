@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../../dataconnect_generated/generated.dart';
+
 import '../../shared/widgets/nav_bar.dart';
 
 class InventoryItemDetailPage extends StatelessWidget {
   final Map<String, dynamic> itemData;
+  final String? role;
 
-  const InventoryItemDetailPage({super.key, required this.itemData});
+  const InventoryItemDetailPage({super.key, required this.itemData, this.role});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +34,7 @@ class InventoryItemDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'รายละเอียดอุปกรณ์ (Item Details)',
+                    'Item Details',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
@@ -92,6 +95,33 @@ class InventoryItemDetailPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (role == 'admin' && itemData['id'] != null) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: SizedBox(
+                        width: 250,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _confirmDeleteItem(context),
+                          icon: const Icon(Icons.delete),
+                          label: const Text(
+                            'Delete Item',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -99,6 +129,52 @@ class InventoryItemDetailPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDeleteItem(BuildContext context) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Item'),
+        content: Text('Are you sure you want to delete ${itemData['name']}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      try {
+        await ConnectorConnector.instance
+            .deleteItem(id: itemData['id'])
+            .execute();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Item deleted successfully')),
+          );
+          Navigator.pop(
+            context,
+            true,
+          ); // Pop the detail page, optionally returning true to refresh
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting item: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget _buildInfoRow(String label, String value) {

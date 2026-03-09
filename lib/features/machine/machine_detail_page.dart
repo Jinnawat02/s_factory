@@ -177,7 +177,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
                           const SizedBox(height: 10),
                           const Text(
-                            'รายละเอียดเครื่องจักร',
+                            'Machine Details',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -635,7 +635,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
             },
             icon: const Icon(Icons.send),
             label: const Text(
-              'ส่งคำร้องซ่อม/บำรุง',
+              'Submit Request',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
@@ -685,11 +685,80 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               ),
             ),
           ),
+          if (widget.machineData['id'] != null) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: SizedBox(
+                width: 250,
+                height: 50,
+                child: ElevatedButton.icon(
+                  onPressed: () => _confirmDeleteMachine(context),
+                  icon: const Icon(Icons.delete),
+                  label: const Text(
+                    'Delete Machine',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       );
     }
 
     // Fallback if role is unknown
     return const SizedBox.shrink();
+  }
+
+  Future<void> _confirmDeleteMachine(BuildContext context) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Machine'),
+        content: Text(
+          'Are you sure you want to delete ${widget.machineData['name']}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      try {
+        await ConnectorConnector.instance
+            .deleteMachine(id: widget.machineData['id']!)
+            .execute();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Machine deleted successfully')),
+          );
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting machine: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 }
