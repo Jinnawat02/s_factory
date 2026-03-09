@@ -18,16 +18,34 @@ class InventoryItemDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              height: 250,
-              color: Colors.grey[300],
-              child: const Icon(
-                Icons.inventory_2,
-                size: 100,
-                color: Colors.grey,
+            if (itemData['imageUrl'] != null)
+              Image.network(
+                itemData['imageUrl'],
+                width: double.infinity,
+                height: 250,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: double.infinity,
+                  height: 250,
+                  color: Colors.grey[300],
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    size: 100,
+                    color: Colors.grey,
+                  ),
+                ),
+              )
+            else
+              Container(
+                width: double.infinity,
+                height: 250,
+                color: Colors.grey[300],
+                child: const Icon(
+                  Icons.inventory_2,
+                  size: 100,
+                  color: Colors.grey,
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -35,18 +53,28 @@ class InventoryItemDetailPage extends StatelessWidget {
                 children: [
                   const Text(
                     'Item Details',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     itemData['description'] ?? 'No description available.',
-                    style: const TextStyle(fontSize: 16, height: 1.5),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blueGrey[50],
+                      color: Colors.white.withOpacity(
+                        0.1,
+                      ), // Adjusted for dark background
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -183,15 +211,19 @@ class InventoryItemDetailPage extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
-            color: Colors.grey[700],
+            color: Colors.white70, // Matched for dark background
             fontWeight: FontWeight.w500,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ],
     );

@@ -144,9 +144,9 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                     width: imageSize,
                     height: imageSize,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[400]!),
+                      border: Border.all(color: Colors.grey[600]!),
                     ),
                     child: _pickedImage != null
                         ? ClipRRect(
@@ -173,7 +173,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                               Text(
                                 'Add Image',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: Colors.white70,
                                   fontSize: 12,
                                 ),
                               ),
@@ -184,9 +184,16 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
               ),
               const SizedBox(height: 20),
 
-              const Text('NAME', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'NAME',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: '',
                   focusedBorder: OutlineInputBorder(
@@ -198,11 +205,11 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
@@ -217,13 +224,16 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                 children: [
                   const Text(
                     'QUANTITY',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.remove),
+                        icon: const Icon(Icons.remove, color: Colors.white),
                         onPressed: () {
                           int current =
                               int.tryParse(_stockController.text) ?? 0;
@@ -236,14 +246,17 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                         width: 48,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Colors.grey[300],
+                          color: Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: TextFormField(
                           controller: _stockController,
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
@@ -254,7 +267,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add, color: Colors.white),
                         onPressed: () {
                           int current =
                               int.tryParse(_stockController.text) ?? 0;
@@ -262,7 +275,10 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.redAccent,
+                        ),
                         onPressed: () {
                           _stockController.text = '0';
                         },
@@ -275,15 +291,17 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
 
               TextFormField(
                 maxLines: 4,
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Item Description/ Detail',
+                  hintStyle: const TextStyle(color: Colors.white54),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
                 onChanged: (value) => _description = value,

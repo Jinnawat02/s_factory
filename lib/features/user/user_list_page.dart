@@ -55,11 +55,11 @@ class _UserListPageState extends State<UserListPage> {
         body: Column(
           children: [
             Container(
-              color: Colors.white,
+              color: Colors.transparent, // Removed white background
               child: const TabBar(
-                labelColor: Colors.deepOrange,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.deepOrange,
+                labelColor: Colors.white, // Selected text
+                unselectedLabelColor: Colors.white54, // Unselected text
+                indicatorColor: Colors.deepOrange, // Keep the orange indicator
                 tabs: [
                   Tab(text: 'Mechanics'),
                   Tab(text: 'Staff'),
@@ -76,7 +76,10 @@ class _UserListPageState extends State<UserListPage> {
 
                   if (snapshot.hasError) {
                     return Center(
-                      child: Text('Error loading users: ${snapshot.error}'),
+                      child: Text(
+                        'Error loading users: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     );
                   }
 
@@ -107,7 +110,12 @@ class _UserListPageState extends State<UserListPage> {
 
   Widget _buildUserList(List<ListUsersUsers> users, String emptyMessageRole) {
     if (users.isEmpty) {
-      return Center(child: Text('No $emptyMessageRole found.'));
+      return Center(
+        child: Text(
+          'No $emptyMessageRole found.',
+          style: const TextStyle(color: Colors.white54),
+        ),
+      );
     }
 
     return Padding(
@@ -134,6 +142,8 @@ class _UserListPageState extends State<UserListPage> {
     dynamic user,
   ) {
     return Card(
+      color: Colors.transparent, // Let the container drive the color
+      elevation: 0,
       child: InkWell(
         onTap: () async {
           final deleted = await Navigator.push<bool>(
@@ -148,7 +158,8 @@ class _UserListPageState extends State<UserListPage> {
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.0),
-            color: Colors.blueGrey,
+            color: Colors.white.withOpacity(0.1), // Adjusted for dark theme
+            border: Border.all(color: Colors.white.withOpacity(0.2)),
           ),
           width: double.infinity,
           height: 100,

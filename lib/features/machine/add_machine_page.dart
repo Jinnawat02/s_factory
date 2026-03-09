@@ -120,7 +120,6 @@ class _AddMachinePageState extends State<AddMachinePage> {
     final imageSize = screenWidth * 0.45; // 45% of screen width
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: const NavBar(title: 'Add Machine', leadingText: 'Back'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -136,9 +135,9 @@ class _AddMachinePageState extends State<AddMachinePage> {
                     width: imageSize,
                     height: imageSize,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.black, width: 2),
+                      border: Border.all(color: Colors.grey[600]!, width: 2),
                     ),
                     child: _pickedImage != null
                         ? ClipRRect(
@@ -156,7 +155,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                         : const Icon(
                             Icons.image_outlined,
                             size: 40,
-                            color: Colors.black,
+                            color: Colors.white70,
                           ),
                   ),
                 ),
@@ -165,12 +164,17 @@ class _AddMachinePageState extends State<AddMachinePage> {
 
               const Text(
                 'MACHINE NAME',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Machine Name',
+                  hintStyle: const TextStyle(color: Colors.white54),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
@@ -180,11 +184,11 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
@@ -196,14 +200,19 @@ class _AddMachinePageState extends State<AddMachinePage> {
 
               const Text(
                 'SERIAL NUMBER',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   hintText: 'Serial Number (numbers only)',
+                  hintStyle: const TextStyle(color: Colors.white54),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
@@ -213,11 +222,11 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
                 onChanged: (value) => _serialNumber = value,
@@ -226,13 +235,18 @@ class _AddMachinePageState extends State<AddMachinePage> {
 
               const Text(
                 'DESCRIPTION',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 maxLines: 4,
                 decoration: InputDecoration(
                   hintText: 'Description',
+                  hintStyle: const TextStyle(color: Colors.white54),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
@@ -242,11 +256,11 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
                 onChanged: (value) => _description = value,
@@ -260,12 +274,12 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
+                      backgroundColor:
+                          Colors.deepOrange, // match existing style
+                      foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: const BorderSide(color: Colors.black, width: 2),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: _isLoading
@@ -274,11 +288,11 @@ class _AddMachinePageState extends State<AddMachinePage> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                           )
                         : const Text(
-                            'Add',
+                            'Save',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

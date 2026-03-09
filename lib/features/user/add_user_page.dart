@@ -124,7 +124,6 @@ class _AddUserPageState extends State<AddUserPage> {
     final imageSize = screenWidth * 0.45; // 45% of screen width
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: const NavBar(title: 'Add Employee', leadingText: 'Back'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -140,9 +139,14 @@ class _AddUserPageState extends State<AddUserPage> {
                     width: imageSize,
                     height: imageSize,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Colors.white.withOpacity(
+                        0.1,
+                      ), // changed for dark mode
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black, width: 2),
+                      border: Border.all(
+                        color: Colors.grey[600]!,
+                        width: 2,
+                      ), // matched
                     ),
                     child: _pickedImage != null
                         ? ClipOval(
@@ -159,7 +163,7 @@ class _AddUserPageState extends State<AddUserPage> {
                         : const Icon(
                             Icons.person_outline,
                             size: 60,
-                            color: Colors.black,
+                            color: Colors.white70,
                           ),
                   ),
                 ),
@@ -169,10 +173,14 @@ class _AddUserPageState extends State<AddUserPage> {
               // EMAIL
               const Text(
                 'EMAIL',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 keyboardType: TextInputType.emailAddress,
                 decoration: _inputDecoration('Email'),
                 validator: (value) {
@@ -189,10 +197,14 @@ class _AddUserPageState extends State<AddUserPage> {
               // PASSWORD
               const Text(
                 'PASSWORD',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 obscureText: _obscurePassword,
                 decoration: _inputDecoration('Password').copyWith(
                   suffixIcon: IconButton(
@@ -200,6 +212,7 @@ class _AddUserPageState extends State<AddUserPage> {
                       _obscurePassword
                           ? Icons.visibility_off
                           : Icons.visibility,
+                      color: Colors.white54,
                     ),
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
@@ -216,25 +229,46 @@ class _AddUserPageState extends State<AddUserPage> {
               const SizedBox(height: 24),
 
               // NAME
-              const Text('NAME', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'NAME',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration('Full Name'),
                 onChanged: (value) => _name = value,
               ),
               const SizedBox(height: 24),
 
               // ROLE
-              const Text('ROLE', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'ROLE',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
+                dropdownColor: const Color(0xFF2E2E32), // match background
+                style: const TextStyle(color: Colors.white),
                 initialValue: _selectedRole,
-                hint: const Text('Select Role'),
+                hint: const Text(
+                  'Select Role',
+                  style: TextStyle(color: Colors.white54),
+                ),
                 decoration: _inputDecoration(''),
                 items: _roles.map((String role) {
                   return DropdownMenuItem<String>(
                     value: role,
-                    child: Text(role),
+                    child: Text(
+                      role,
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
@@ -248,10 +282,14 @@ class _AddUserPageState extends State<AddUserPage> {
               // TEL
               const Text(
                 'PHONE',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 keyboardType: TextInputType.phone,
                 decoration: _inputDecoration('Phone Number'),
                 onChanged: (value) => _tel = value,
@@ -265,12 +303,13 @@ class _AddUserPageState extends State<AddUserPage> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
+                      backgroundColor: Colors.deepOrange, // match add item
+                      foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: const BorderSide(color: Colors.black, width: 2),
+                        borderRadius: BorderRadius.circular(
+                          12,
+                        ), // match add item
                       ),
                     ),
                     child: _isLoading
@@ -279,11 +318,11 @@ class _AddUserPageState extends State<AddUserPage> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                           )
                         : const Text(
-                            'Add',
+                            'Save', // match add item
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -302,17 +341,18 @@ class _AddUserPageState extends State<AddUserPage> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
+      hintStyle: const TextStyle(color: Colors.white54),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: Colors.deepPurpleAccent, width: 2),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.black, width: 2),
+        borderSide: const BorderSide(color: Colors.grey, width: 2),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.black, width: 2),
+        borderSide: const BorderSide(color: Colors.grey, width: 2),
       ),
     );
   }

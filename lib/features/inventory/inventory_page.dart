@@ -98,7 +98,8 @@ class _InventoryPageState extends State<InventoryPage> {
                   crossAxisCount: crossAxisCount,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  mainAxisExtent: 280,
+                  mainAxisExtent:
+                      340, // increased to accommodate the image and text below
                 ),
                 itemCount: items.length,
                 itemBuilder: (context, index) {
@@ -107,6 +108,9 @@ class _InventoryPageState extends State<InventoryPage> {
                   final stockCount = item.quantity ?? 0;
                   final description =
                       item.description ?? 'No description available.';
+                  final itemImage =
+                      item.imageUrl ??
+                      'https://ui-avatars.com/api/?name=${Uri.encodeComponent(itemName)}&background=0D47A1&color=fff&size=200&bold=true';
 
                   return Card(
                     clipBehavior: Clip.antiAlias,
@@ -127,6 +131,7 @@ class _InventoryPageState extends State<InventoryPage> {
                                 'location': 'N/A',
                                 'category': 'N/A',
                                 'description': description,
+                                'imageUrl': itemImage,
                               },
                               role: widget.role ?? '',
                             ),
@@ -141,13 +146,17 @@ class _InventoryPageState extends State<InventoryPage> {
                         children: [
                           AspectRatio(
                             aspectRatio: 16 / 9,
-                            child: Container(
-                              color: Colors.grey[200],
-                              child: const Icon(
-                                Icons.inventory_2,
-                                size: 64,
-                                color: Colors.grey,
-                              ),
+                            child: Image.network(
+                              itemImage,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Container(
+                                    color: Colors.grey[200],
+                                    child: const Icon(
+                                      Icons.image_not_supported,
+                                      size: 50,
+                                    ),
+                                  ),
                             ),
                           ),
                           Padding(
