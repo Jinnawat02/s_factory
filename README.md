@@ -42,3 +42,13 @@ firebase deploy --only dataconnect
 ```bash
 firebase dataconnect:sdk:generate
 ```
+
+### Cloud Functions (Push Notifications ***RUN ONLY WHEN YOU WANT TO CHANGE SOMETHING RELATED TO PUSH NOTIFICATION) 
+
+```bash
+cd functions
+npm install
+npm run build
+
+cd ..
+```
