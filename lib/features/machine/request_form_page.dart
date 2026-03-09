@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 import '../../mock/request_mock_data.dart';
@@ -266,7 +267,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
                         try {
                           // 2. Save to Data Connect
-                          await ConnectorConnector.instance
+                          final result = await ConnectorConnector.instance
                               .createRequest(
                                 userEmail: email,
                                 machineId: widget.machineID,
@@ -277,6 +278,8 @@ class _RequestFormPageState extends State<RequestFormPage> {
                                 mechanicEmail: _selectedMechanic!,
                               )
                               .execute();
+                          final String generatedRequestId =
+                              result.data.request_insert.id;
 
                           // Create MaintainLog with isDone: false indicating ticket is open
                           await ConnectorConnector.instance
@@ -286,6 +289,18 @@ class _RequestFormPageState extends State<RequestFormPage> {
                                 machineId: widget.machineID,
                               )
                               .execute();
+
+                          // Send FCM Notification via Cloud Function
+                          try {
+                            await FirebaseFunctions.instance
+                                .httpsCallable('notifyMechanic')
+                                .call({
+                                  'mechanicEmail': _selectedMechanic!,
+                                  'requestId': generatedRequestId,
+                                });
+                          } catch (e) {
+                            debugPrint('Failed to send notification: $e');
+                          }
 
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(

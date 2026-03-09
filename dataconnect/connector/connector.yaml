@@ -3,3 +3,6 @@ generate:
   dartSdk:
     - outputDir: ../../lib/dataconnect_generated
       package: dataconnect_generated/generated.dart
+  javascriptSdk:
+    - outputDir: ../../functions/dataconnect-generated
+      package: "@firebasegen/default-connector"

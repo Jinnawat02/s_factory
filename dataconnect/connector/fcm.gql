@@ -1,0 +1,9 @@
+mutation UpdateFCMToken($email: String!, $fcmToken: String!) @auth(level: PUBLIC) {
+  user_update(key: { email: $email }, data: { fcmToken: $fcmToken })
+}
+
+query GetUserFCMToken($email: String!) @auth(level: USER) {
+  user(key: {email: $email}) {
+    fcmToken
+  }
+}

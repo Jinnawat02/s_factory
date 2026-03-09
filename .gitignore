@@ -50,3 +50,6 @@ app.*.map.json
 **/dataconnect/.dataconnect/
 /lib/dataconnect_generated/
 
+/functions/node_modules/
+/functions/lib/
+/functions/dataconnect-generated/
