@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../dataconnect_generated/generated.dart';
 
-import '../../mock/machine_mock_data.dart';
 import '../../shared/widgets/machine_card.dart';
 import 'add_machine_page.dart';
 import 'machine_detail_page.dart';
@@ -90,15 +89,15 @@ class _MachineListPageState extends State<MachineListPage> {
                 itemBuilder: (context, index) {
                   final machine = allMachines[index];
 
-                  final mockImage = index < MachineMockData.machines.length
-                      ? MachineMockData.machines[index]['imageUrl']
-                      : 'https://picsum.photos/400/300?random=${machine.id}';
+                  final machineImage =
+                      machine.imageUrl ??
+                      'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machine.name!)}&background=0D47A1&color=fff&size=200&bold=true';
 
                   return MachineCard(
                     name: machine.name ?? 'Unknown Machine',
                     description:
                         machine.description ?? 'No description available',
-                    imageUrl: mockImage!,
+                    imageUrl: machineImage,
                     onTap: () async {
                       final deleted = await Navigator.push<bool>(
                         context,
@@ -112,7 +111,7 @@ class _MachineListPageState extends State<MachineListPage> {
                               'description':
                                   machine.description ??
                                   'No description available',
-                              'imageUrl': mockImage,
+                              'imageUrl': machineImage,
                             },
                             role: widget.role,
                           ),

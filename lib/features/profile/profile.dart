@@ -63,7 +63,7 @@ class _ProfileState extends State<Profile> {
               child: Column(
                 children: [
                   const SizedBox(height: 30),
-                  _buildAvatar(),
+                  _buildAvatar(user),
                   const SizedBox(height: 16),
                   _buildNameHeader(user),
                   const SizedBox(height: 24),
@@ -84,14 +84,17 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(dynamic user) {
     return Center(
       child: Stack(
         children: [
           CircleAvatar(
             radius: 60,
             backgroundColor: Colors.blue.shade100,
-            backgroundImage: const NetworkImage('https://picsum.photos/200'),
+            backgroundImage: NetworkImage(
+              user.imageUrl ??
+              'https://ui-avatars.com/api/?name=${Uri.encodeComponent(user.name)}&background=0D47A1&color=fff&size=200&bold=true'
+            ),
           ),
           if (_currentRole == 'admin')
             const Positioned(
