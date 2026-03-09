@@ -45,7 +45,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('ไม่สามารถเลือกรูปได้: $e')));
+        ).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
       }
     }
   }
@@ -61,7 +61,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('เลือกจากคลังรูปภาพ'),
+              title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.gallery);
@@ -69,7 +69,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('ถ่ายรูป'),
+              title: const Text('Take Photo'),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickImage(ImageSource.camera);
@@ -108,9 +108,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('เพิ่มรายการวัสดุ-อุปกรณ์เรียบร้อยแล้ว'),
-          ),
+          const SnackBar(content: Text('Item added successfully')),
         );
         Navigator.pop(context, true); // true = item was created
       }
@@ -118,7 +116,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('เกิดข้อผิดพลาด: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -131,10 +129,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
     final imageSize = screenWidth * 0.4; // 40% of screen width
 
     return Scaffold(
-      appBar: const NavBar(
-        title: 'เพิ่มรายการวัสดุ-อุปกรณ์',
-        leadingText: 'Cancel',
-      ),
+      appBar: const NavBar(title: 'Add Inventory Item', leadingText: 'Cancel'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -149,9 +144,9 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                     width: imageSize,
                     height: imageSize,
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[400]!),
+                      border: Border.all(color: Colors.grey[600]!),
                     ),
                     child: _pickedImage != null
                         ? ClipRRect(
@@ -176,9 +171,9 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                               ),
                               SizedBox(height: 8),
                               Text(
-                                'เพิ่มรูปภาพ',
+                                'Add Image',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: Colors.white70,
                                   fontSize: 12,
                                 ),
                               ),
@@ -189,9 +184,16 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
               ),
               const SizedBox(height: 20),
 
-              const Text('NAME', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                'NAME',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: '',
                   focusedBorder: OutlineInputBorder(
@@ -203,15 +205,16 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'กรุณากรอกชื่อ' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter a name'
+                    : null,
                 onChanged: (value) => _name = value,
               ),
               const SizedBox(height: 24),
@@ -221,13 +224,16 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                 children: [
                   const Text(
                     'QUANTITY',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.remove),
+                        icon: const Icon(Icons.remove, color: Colors.white),
                         onPressed: () {
                           int current =
                               int.tryParse(_stockController.text) ?? 0;
@@ -240,14 +246,17 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                         width: 48,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Colors.grey[300],
+                          color: Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: TextFormField(
                           controller: _stockController,
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
                           ],
@@ -258,7 +267,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add, color: Colors.white),
                         onPressed: () {
                           int current =
                               int.tryParse(_stockController.text) ?? 0;
@@ -266,7 +275,10 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.redAccent,
+                        ),
                         onPressed: () {
                           _stockController.text = '0';
                         },
@@ -279,15 +291,17 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
 
               TextFormField(
                 maxLines: 4,
+                style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Item Description/ Detail',
+                  hintStyle: const TextStyle(color: Colors.white54),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black, width: 2),
+                    borderSide: const BorderSide(color: Colors.grey, width: 2),
                   ),
                 ),
                 onChanged: (value) => _description = value,
@@ -316,7 +330,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text('บันทึก', style: TextStyle(fontSize: 16)),
+                        : const Text('Save', style: TextStyle(fontSize: 16)),
                   ),
                 ),
               ),

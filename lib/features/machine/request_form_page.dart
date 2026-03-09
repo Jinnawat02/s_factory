@@ -91,7 +91,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavBar(
-        title: 'แจ้งซ่อม: ${widget.machineName}',
+        title: 'Repair Request: ${widget.machineName}',
         leadingText: 'Cancel',
       ),
       body: SingleChildScrollView(
@@ -102,27 +102,27 @@ class _RequestFormPageState extends State<RequestFormPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'รายละเอียดอาการเสีย',
+                'Problem Description',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 maxLines: 3,
                 decoration: InputDecoration(
-                  hintText: 'กรอกรายละเอียดปัญหา...',
+                  hintText: 'Enter problem details...',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 validator: (value) => value == null || value.isEmpty
-                    ? 'กรุณากรอกรายละเอียด'
+                    ? 'Please enter a description'
                     : null,
                 onChanged: (value) => _description = value,
               ),
               const SizedBox(height: 20),
 
               const Text(
-                'เลือกช่าง',
+                'Select Mechanic',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -137,7 +137,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
                       items: const [
                         DropdownMenuItem(
                           value: 'loading',
-                          child: Text('กำลังโหลดข้อมูลช่าง...'),
+                          child: Text('Loading mechanics...'),
                         ),
                       ],
                       initialValue: 'loading',
@@ -152,8 +152,8 @@ class _RequestFormPageState extends State<RequestFormPage> {
                       ),
                       hint: Text(
                         _mechanics.isEmpty
-                            ? 'ไม่พบข้อมูลช่างซ่อม'
-                            : 'เลือกช่าง',
+                            ? 'No mechanics found'
+                            : 'Select mechanic',
                       ),
                       initialValue: _selectedMechanic,
                       items: _mechanics.isEmpty
@@ -169,13 +169,14 @@ class _RequestFormPageState extends State<RequestFormPage> {
                       onChanged: _mechanics.isEmpty
                           ? null
                           : (val) => setState(() => _selectedMechanic = val),
-                      validator: (val) => val == null ? 'กรุณาเลือกช่าง' : null,
+                      validator: (val) =>
+                          val == null ? 'Please select a mechanic' : null,
                     ),
               const SizedBox(height: 20),
 
               // ส่วนเลือกวันที่แบบจิ้มปฏิทิน
               const Text(
-                'เลือกวันที่',
+                'Select Date',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -199,7 +200,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
               // ส่วนเลือกเวลาแบบจิ้มนาฬิกา
               const Text(
-                'เลือกเวลา',
+                'Select Time',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -317,7 +318,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
                       ),
                     ),
                     child: const Text(
-                      'ยืนยันส่งคำร้อง',
+                      'Submit Request',
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
