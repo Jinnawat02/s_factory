@@ -19,7 +19,7 @@ class RequestListPage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.grey[900],
       body: FutureBuilder<QueryResult<ListRequestsData, ListRequestsVariables>>(
         future: ConnectorConnector.instance
             .listRequests(email: currentUserEmail)
@@ -59,7 +59,8 @@ class RequestListPage extends StatelessWidget {
 
           return ListView.separated(
             itemCount: sortedRequests.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
+            separatorBuilder: (context, index) =>
+                const Divider(height: 1, color: Colors.grey),
             itemBuilder: (context, index) {
               final request = sortedRequests[index];
 
@@ -83,7 +84,7 @@ class RequestListPage extends StatelessWidget {
               ).format(request.requestDate.toDateTime().toLocal());
 
               return Container(
-                color: Colors.white,
+                color: Colors.grey[850],
                 child: ListTile(
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -91,7 +92,7 @@ class RequestListPage extends StatelessWidget {
                   ),
                   leading: CircleAvatar(
                     radius: 25,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor: Colors.grey[800],
                     backgroundImage: imageUrl != null
                         ? NetworkImage(imageUrl)
                         : null,
@@ -104,12 +105,14 @@ class RequestListPage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
+                      color: Colors.white,
                     ),
                   ),
                   subtitle: Text(
                     request.description ?? 'No description',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.grey),
                   ),
                   trailing: Text(
                     dateText,
