@@ -213,3 +213,20 @@ mutation CreateNotification(
 mutation MarkNotificationRead($id: UUID!) @auth(level: PUBLIC) {
   notification_update(key: { id: $id }, data: { isRead: true })
 }
+
+mutation UpdateRequest(
+  $id: UUID!
+  $mechanicEmail: String
+  $requestDate: Timestamp
+  $description: String
+) @auth(level: PUBLIC) {
+  request_update(
+    key: { id: $id }
+    data: {
+      mechanicEmail: $mechanicEmail
+      requestDate: $requestDate
+      description: $description
+    }
+  )
+}
+  
