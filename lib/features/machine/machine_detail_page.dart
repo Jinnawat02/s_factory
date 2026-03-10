@@ -195,155 +195,20 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                             ),
                           ),
 
-                          const SizedBox(height: 30),
-                          _buildActionButtons(context, name: name),
 
-                          const SizedBox(height: 30),
+                          if (widget.role == 'staff') ...[
+                            const SizedBox(height: 30),
+                            _buildActionButtons(context, name: name),
+                          ],
 
                           // ── Routine Checklist Section ──
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Routine Checklist',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              if (_checklistItems.isNotEmpty)
-                                _isSavingRoutines
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : TextButton.icon(
-                                        onPressed: () async {
-                                          await _saveRoutines();
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Checklist saved!',
-                                                ),
-                                                backgroundColor: Colors.green,
-                                                duration: Duration(seconds: 2),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        icon: const Icon(
-                                          Icons.save_outlined,
-                                          size: 18,
-                                          color: Colors.white,
-                                        ),
-                                        label: const Text(
-                                          'Save',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-
-                          if (routineSnapshot.connectionState ==
-                              ConnectionState.waiting)
-                            const Center(child: CircularProgressIndicator())
-                          else if (routineSnapshot.hasError)
-                            Text(
-                              'Error loading routines: ${routineSnapshot.error}',
-                              style: const TextStyle(color: Colors.red),
-                            )
-                          else if (_checklistItems.isEmpty)
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: const Text(
-                                'No routines yet. Tap "Add Routine Checklist" above to create one.',
-                                style: TextStyle(color: Colors.grey),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          else
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                children: List.generate(
-                                  _checklistItems.length,
-                                  (index) {
-                                    final item = _checklistItems[index];
-                                    final isLast =
-                                        index == _checklistItems.length - 1;
-                                    return Column(
-                                      children: [
-                                        CheckboxListTile(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                                vertical: 4,
-                                              ),
-                                          title: Text(
-                                            item['title'] as String,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          subtitle:
-                                              (item['subtitle'] as String)
-                                                  .isNotEmpty
-                                              ? Text(
-                                                  item['subtitle'] as String,
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey.shade600,
-                                                  ),
-                                                )
-                                              : null,
-                                          value: item['isDone'] as bool,
-                                          activeColor: Colors.indigo,
-                                          checkboxShape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          onChanged: (bool? value) {
-                                            setState(() {
-                                              _checklistItems[index]['isDone'] =
-                                                  value ?? false;
-                                            });
-                                          },
-                                          controlAffinity:
-                                              ListTileControlAffinity.trailing,
-                                        ),
-                                        if (!isLast)
-                                          const Divider(
-                                            height: 1,
-                                            indent: 16,
-                                            endIndent: 16,
-                                          ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
+                          if (widget.role == 'mechanic') ...[
+                            const SizedBox(height: 30),
+                            _buildRoutineChecklistSection(
+                              context,
+                              routineSnapshot,
                             ),
-
+                          ],
                           const SizedBox(height: 40),
                         ],
                       ),
@@ -774,5 +639,163 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
         }
       }
     }
+  }
+
+  Widget _buildRoutineChecklistSection(
+    BuildContext context,
+    AsyncSnapshot<
+      QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
+    >
+    routineSnapshot,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildRoutineHeader(context),
+        const SizedBox(height: 8),
+        _buildRoutineContent(context, routineSnapshot),
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+  Widget _buildRoutineHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Routine Checklist',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        if (_checklistItems.isNotEmpty)
+          _isSavingRoutines
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : TextButton.icon(
+                  onPressed: () async {
+                    await _saveRoutines();
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Checklist saved!'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.save_outlined,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+      ],
+    );
+  }
+
+  Widget _buildRoutineContent(
+    BuildContext context,
+    AsyncSnapshot<
+      QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
+    >
+    snapshot,
+  ) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (snapshot.hasError) {
+      return Text(
+        'Error loading routines: ${snapshot.error}',
+        style: const TextStyle(color: Colors.red),
+      );
+    }
+
+    if (_checklistItems.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: const Text(
+          'No routines yet. Tap "Add Routine Checklist" above to create one.',
+          style: TextStyle(color: Colors.grey),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return _buildRoutineList();
+  }
+
+  Widget _buildRoutineList() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: List.generate(_checklistItems.length, (index) {
+          final item = _checklistItems[index];
+          final isLast = index == _checklistItems.length - 1;
+
+          return Column(
+            children: [
+              CheckboxListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                title: Text(
+                  item['title'],
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+                subtitle: (item['subtitle'] as String).isNotEmpty
+                    ? Text(
+                        item['subtitle'],
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey.shade600,
+                        ),
+                      )
+                    : null,
+                value: item['isDone'],
+                activeColor: Colors.indigo,
+                checkboxShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _checklistItems[index]['isDone'] = value ?? false;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.trailing,
+              ),
+              if (!isLast) const Divider(height: 1, indent: 16, endIndent: 16),
+            ],
+          );
+        }),
+      ),
+    );
   }
 }
