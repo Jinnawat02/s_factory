@@ -199,7 +199,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide: const BorderSide(
-                      color: Colors.deepPurpleAccent,
+                      color: Colors.white,
                       width: 2,
                     ),
                   ),
