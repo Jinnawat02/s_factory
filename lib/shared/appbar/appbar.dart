@@ -40,9 +40,7 @@ class _SFactoryAppBarState extends State<SFactoryAppBar> {
       backgroundColor: Colors.deepOrange,
       foregroundColor: Colors.white,
       title: config['title'],
-      actions: [
-        _buildPopupMenu(context),
-      ],
+      actions: [_buildPopupMenu(context)],
     );
   }
 
@@ -75,8 +73,12 @@ class _SFactoryAppBarState extends State<SFactoryAppBar> {
             MaterialPageRoute(
               builder: (context) => Scaffold(
                 appBar: const NavBar(title: 'Profile', leadingText: 'Back'),
-                body: Profile(user: _currentUser),
-              )
+                body: Profile(
+                  user: _currentUser,
+                  isOwnProfile: true,
+                  isShowOnlyCalendar: false,
+                ),
+              ),
             ),
           );
         } else if (value == 'logout') {

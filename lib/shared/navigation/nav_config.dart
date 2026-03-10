@@ -45,9 +45,9 @@ class NavConfig {
           'label': 'Tasks',
         },
         {
-          'icon': Icons.account_circle,
-          'activeIcon': Icons.account_circle,
-          'label': 'Profile',
+          'icon': Icons.calendar_month,
+          'activeIcon': Icons.calendar_month,
+          'label': 'Calendar',
         },
       ],
       'staff': [

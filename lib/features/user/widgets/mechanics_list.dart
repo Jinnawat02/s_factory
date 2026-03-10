@@ -74,7 +74,8 @@ class _MechanicsListState extends State<MechanicsList> {
                 final dynamic mechanic = mechanics[index];
                 final name = mechanic.name ?? mechanic.email;
                 // Generate a placeholder avatar based on the name
-                final imgUrl = mechanic.imageUrl ??
+                final imgUrl =
+                    mechanic.imageUrl ??
                     'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=0D47A1&color=fff&size=200&bold=true';
 
                 return mechanicsContainer(context, name, imgUrl, mechanic);
@@ -97,7 +98,13 @@ class _MechanicsListState extends State<MechanicsList> {
         onTap: () async {
           final deleted = await Navigator.push<bool>(
             context,
-            MaterialPageRoute(builder: (context) => Profile(user: mechanic)),
+            MaterialPageRoute(
+              builder: (context) => Profile(
+                user: mechanic,
+                isOwnProfile: false,
+                isShowOnlyCalendar: false,
+              ),
+            ),
           );
           if (deleted == true && mounted) {
             _loadMechanics();

@@ -5,8 +5,15 @@ import '../../shared/services/secure_storage_service.dart';
 
 class Profile extends StatefulWidget {
   final dynamic user;
+  final bool isOwnProfile;
+  final bool isShowOnlyCalendar;
 
-  const Profile({super.key, required this.user});
+  const Profile({
+    super.key,
+    required this.user,
+    required this.isOwnProfile,
+    required this.isShowOnlyCalendar,
+  });
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -52,31 +59,37 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     final user = widget.user;
+    final ownProfile = widget.isOwnProfile;
+    final showOnlyCalendar = widget.isShowOnlyCalendar;
 
     return Scaffold(
-      appBar: _currentRole != 'mechanic'
-          ? NavBar(title: user.name ?? 'Profile', leadingText: 'Back')
-          : null,
+      appBar: ownProfile
+          ? null
+          : NavBar(title: user.name ?? 'Profile', leadingText: 'Back'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(height: 30),
-                  _buildAvatar(user),
-                  const SizedBox(height: 16),
-                  _buildNameHeader(user),
-                  const SizedBox(height: 24),
-                  _buildInfoSection(user),
-
-                  if (user.role == 'mechanic') ...[
-                    const SizedBox(height: 24),
+                  if (showOnlyCalendar) ...[
                     MechanicCalendar(mechanicEmail: user.email),
-                  ],
-
-                  if (_currentRole == 'admin') ...[
+                  ] else ... [
+                    const SizedBox(height: 30),
+                    _buildAvatar(user),
+                    const SizedBox(height: 16),
+                    _buildNameHeader(user),
                     const SizedBox(height: 24),
-                    _buildEditButton(),
+                    _buildInfoSection(user),
+
+                    if (user.role == 'mechanic' && !ownProfile) ...[
+                      const SizedBox(height: 24),
+                      MechanicCalendar(mechanicEmail: user.email),
+                    ],
+
+                    if (_currentRole == 'admin' || ownProfile) ...[
+                      const SizedBox(height: 24),
+                      _buildEditButton(),
+                    ],
                   ],
                 ],
               ),
@@ -93,7 +106,7 @@ class _ProfileState extends State<Profile> {
             backgroundColor: Colors.blue.shade100,
             backgroundImage: NetworkImage(
               user.imageUrl ??
-              'https://ui-avatars.com/api/?name=${Uri.encodeComponent(user.name)}&background=0D47A1&color=fff&size=200&bold=true'
+                  'https://ui-avatars.com/api/?name=${Uri.encodeComponent(user.name)}&background=0D47A1&color=fff&size=200&bold=true',
             ),
           ),
           if (_currentRole == 'admin')
@@ -157,7 +170,10 @@ class _ProfileState extends State<Profile> {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: const Text('Edit Profile'),
+        child: const Text(
+          'Edit Profile',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }

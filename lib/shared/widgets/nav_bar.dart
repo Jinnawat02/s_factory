@@ -32,20 +32,6 @@ class NavBar extends StatelessWidget implements PreferredSizeWidget {
           style: const TextStyle(color: Colors.white),
         ),
       ) : null, // for leading to previous page
-
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          color: Colors.white,
-          onPressed: () async {
-            // 1. ล้างข้อมูล Role ที่แคชไว้ในเครื่องก่อน
-            await SecureStorageService().clearRole();
-
-            // 2. สั่งออกจากระบบ Firebase Auth
-            await FirebaseAuth.instance.signOut();
-          },
-        ),
-      ],
     );
   }
 
