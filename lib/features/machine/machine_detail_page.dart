@@ -32,10 +32,21 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
   >
   _routinesFuture;
 
+  Future<QueryResult<GetMachineData, GetMachineVariables>>? _machineFuture;
+
   @override
   void initState() {
     super.initState();
+    _loadMachine();
     _loadRoutines();
+  }
+
+  void _loadMachine() {
+    _machineFuture = widget.machineData['id'] == null
+        ? null
+        : ConnectorConnector.instance
+              .getMachine(id: widget.machineData['id']!)
+              .execute();
   }
 
   void _loadRoutines() {
@@ -89,18 +100,14 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.role == 'mechanic') {
-      return _buildMechanicView(context);
-    }
+    // if (widget.role == 'mechanic') {
+    //   return _buildMechanicView(context);
+    // }
 
     return Scaffold(
       appBar: NavBar(title: widget.machineData['name']!, leadingText: 'Cancel'),
       body: FutureBuilder<QueryResult<GetMachineData, GetMachineVariables>>(
-        future: widget.machineData['id'] == null
-            ? null
-            : ConnectorConnector.instance
-                  .getMachine(id: widget.machineData['id']!)
-                  .execute(),
+        future: _machineFuture,
         builder: (context, machineSnapshot) {
           if (machineSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -195,14 +202,14 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                             ),
                           ),
 
-
                           if (widget.role == 'staff') ...[
                             const SizedBox(height: 30),
                             _buildActionButtons(context, name: name),
                           ],
 
                           // ── Routine Checklist Section ──
-                          if (widget.role == 'mechanic') ...[
+                          if (widget.role == 'mechanic' ||
+                              widget.role == 'admin') ...[
                             const SizedBox(height: 30),
                             _buildRoutineChecklistSection(
                               context,
@@ -243,249 +250,6 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildMechanicView(BuildContext context) {
-    return FutureBuilder<
-      QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
-    >(
-      future: _routinesFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Text('Error loading routines: ${snapshot.error}'),
-            ),
-          );
-        }
-
-        final routines = snapshot.data?.data.routines ?? [];
-
-        // Initialize the local state from routines on first load
-        if (_checklistItems.isEmpty && routines.isNotEmpty) {
-          _checklistItems = routines
-              .map(
-                (r) => {
-                  'id': r.id,
-                  'title': r.title ?? 'No Title',
-                  'subtitle': r.description ?? '',
-                  'isDone': r.isCheck ?? false,
-                },
-              )
-              .toList();
-        }
-
-        return Scaffold(
-          backgroundColor:
-              Colors.grey[50], // Soft background to make white containers pop
-          appBar: AppBar(
-            title: Text(widget.machineData['name']!),
-            centerTitle: true,
-            backgroundColor: Colors.deepOrange,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            leadingWidth: 90,
-            leading: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  try {
-                    // Show saving indicator
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Saving checklist...')),
-                    );
-
-                    // Update all checklist items in Data Connect
-                    for (var item in _checklistItems) {
-                      await ConnectorConnector.instance
-                          .updateRoutine(
-                            id: item['id'],
-                            isCheck: item['isDone'],
-                          )
-                          .execute();
-
-                      // Auto-create a RoutineLog for this check
-                      await ConnectorConnector.instance
-                          .createRoutineLog(
-                            title: 'Checked: ${item['title']}',
-                            isDone: item['isDone'],
-                            routineId: item['id'],
-                          )
-                          .execute();
-                    }
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Checklist saved successfully!'),
-                          backgroundColor: Colors.green,
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error saving: $e'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  }
-                },
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Image Box
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        widget.machineData['imageUrl'] ?? '',
-                        height: 200,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Description Box
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      widget.machineData['description']!,
-                      style: const TextStyle(fontSize: 15, height: 1.5),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  if (_checklistItems.isNotEmpty)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        children: List.generate(_checklistItems.length, (
-                          index,
-                        ) {
-                          final item = _checklistItems[index];
-                          return _buildChecklistItem(
-                            context,
-                            index,
-                            item['title'] as String,
-                            item['subtitle'] as String,
-                            isLast: index == _checklistItems.length - 1,
-                          );
-                        }),
-                      ),
-                    )
-                  else
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Text(
-                          'No checklist available for this machine.',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 30),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildChecklistItem(
-    BuildContext context,
-    int index,
-    String title,
-    String subtitle, {
-    bool isLast = false,
-  }) {
-    return Column(
-      children: [
-        CheckboxListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          ),
-          subtitle: subtitle.isNotEmpty
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                  ),
-                )
-              : null,
-          value: _checklistItems[index]['isDone'],
-          activeColor: Colors.deepOrange,
-          checkboxShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          onChanged: (bool? value) {
-            setState(() {
-              _checklistItems[index]['isDone'] = value ?? false;
-            });
-          },
-          controlAffinity: ListTileControlAffinity.trailing,
-        ),
-        if (!isLast) const Divider(height: 1, indent: 16, endIndent: 16),
-      ],
     );
   }
 
