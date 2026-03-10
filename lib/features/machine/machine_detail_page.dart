@@ -241,8 +241,14 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                                         icon: const Icon(
                                           Icons.save_outlined,
                                           size: 18,
+                                          color: Colors.white,
                                         ),
-                                        label: const Text('Save'),
+                                        label: const Text(
+                                          'Save',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                       ),
                             ],
                           ),
