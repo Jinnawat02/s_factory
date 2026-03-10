@@ -61,7 +61,7 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
       hintText: hint,
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.deepPurpleAccent, width: 2),
+        borderSide: const BorderSide(color: Colors.white, width: 2),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),

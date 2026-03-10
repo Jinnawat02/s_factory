@@ -344,7 +344,7 @@ class _AddUserPageState extends State<AddUserPage> {
       hintStyle: const TextStyle(color: Colors.white54),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.deepPurpleAccent, width: 2),
+        borderSide: const BorderSide(color: Colors.white, width: 2),
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),

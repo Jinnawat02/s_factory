@@ -178,7 +178,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
-                      color: Colors.deepPurpleAccent,
+                      color: Colors.white,
                       width: 2,
                     ),
                   ),
@@ -216,7 +216,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
-                      color: Colors.deepPurpleAccent,
+                      color: Colors.white,
                       width: 2,
                     ),
                   ),
@@ -250,7 +250,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: const BorderSide(
-                      color: Colors.deepPurpleAccent,
+                      color: Colors.white,
                       width: 2,
                     ),
                   ),

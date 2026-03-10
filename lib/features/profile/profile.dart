@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/profile/mechanic_calendar.dart';
 import 'package:s_factory/shared/widgets/nav_bar.dart';
+import '../../dataconnect_generated/generated.dart';
 import '../../shared/services/secure_storage_service.dart';
+import 'edit_profile_page.dart';
 
 class Profile extends StatefulWidget {
   final dynamic user;
@@ -22,12 +24,14 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   String _currentRole = '';
   bool _isLoading = true;
+  late dynamic _user;
 
   // For calendar variable
 
   @override
   void initState() {
     super.initState();
+    _user = widget.user;
     _loadUserRole();
   }
 
@@ -56,9 +60,25 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  Future<void> _reloadUser() async {
+    try {
+      final response = await ConnectorConnector.instance
+          .getUser(email: _user.email)
+          .execute();
+
+      if (mounted) {
+        setState(() {
+          _user = response.data.user;
+        });
+      }
+    } catch (e) {
+      debugPrint("Failed to reload user: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final user = widget.user;
+    final user = _user;
     final ownProfile = widget.isOwnProfile;
     final showOnlyCalendar = widget.isShowOnlyCalendar;
 
@@ -74,22 +94,24 @@ class _ProfileState extends State<Profile> {
                   if (showOnlyCalendar) ...[
                     MechanicCalendar(mechanicEmail: user.email),
                   ] else ... [
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30),
                     _buildAvatar(user),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     _buildNameHeader(user),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     _buildInfoSection(user),
+
+                    if (_currentRole == 'admin' || ownProfile) ...[
+                      const SizedBox(height: 24),
+                      _buildEditButton(),
+                    ],
 
                     if (user.role == 'mechanic' && !ownProfile) ...[
                       const SizedBox(height: 24),
                       MechanicCalendar(mechanicEmail: user.email),
                     ],
 
-                    if (_currentRole == 'admin' || ownProfile) ...[
-                      const SizedBox(height: 24),
-                      _buildEditButton(),
-                    ],
+                    const SizedBox(height: 24),
                   ],
                 ],
               ),
@@ -163,7 +185,18 @@ class _ProfileState extends State<Profile> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: OutlinedButton(
-        onPressed: () {},
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditProfilePage(user: _user),
+              ),
+            );
+
+            if (result != null && mounted) {
+              await _reloadUser(); // 🔄 reload profile from database
+            }
+          },
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(
