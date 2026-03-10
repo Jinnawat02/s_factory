@@ -38,10 +38,9 @@ class SFactoryBottomNavbar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: onTap,
       items: items,
-      // Optional: A few style adjustments to make it look good
-      type: BottomNavigationBarType.fixed, // Shows all labels
-      selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.grey,
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: Colors.grey,
+      unselectedItemColor: Colors.white,
     );
   }
 }

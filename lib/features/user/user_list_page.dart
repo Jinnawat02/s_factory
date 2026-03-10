@@ -148,7 +148,13 @@ class _UserListPageState extends State<UserListPage> {
         onTap: () async {
           final deleted = await Navigator.push<bool>(
             context,
-            MaterialPageRoute(builder: (context) => Profile(user: user)),
+            MaterialPageRoute(
+              builder: (context) => Profile(
+                user: user,
+                isOwnProfile: false,
+                isShowOnlyCalendar: false,
+              ),
+            ),
           );
           if (deleted == true && mounted) {
             _loadUsers();

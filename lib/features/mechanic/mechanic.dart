@@ -75,7 +75,7 @@ class _MechanicHomeScreenState extends State<MechanicHomeScreen> {
       Center(child: MachineListPage(role: _currentRole!)),
       const Center(child: QRScannerPage()),
       const Center(child: TaskListPage()),
-      Center(child: Profile(user: _currentUser)), // use Profile(user: currentUser)
+      Center(child: Profile(user: _currentUser, isOwnProfile: true, isShowOnlyCalendar: true,)), // use Profile(user: currentUser)
     ];
   }
 
