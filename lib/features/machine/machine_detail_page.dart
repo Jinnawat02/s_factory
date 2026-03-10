@@ -245,9 +245,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                                         ),
                                         label: const Text(
                                           'Save',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
+                                          style: TextStyle(color: Colors.white),
                                         ),
                                       ),
                             ],

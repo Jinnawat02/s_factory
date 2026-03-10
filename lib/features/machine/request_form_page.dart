@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
+
 import '../../../dataconnect_generated/generated.dart';
 import '../../mock/request_mock_data.dart';
 import '../../shared/widgets/nav_bar.dart';
@@ -23,8 +24,8 @@ class RequestFormPage extends StatefulWidget {
 
 class _RequestFormPageState extends State<RequestFormPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _isSubmitting = false;
 
-  // ตัวแปรสำหรับเก็บข้อมูล
   String _description = '';
   String? _selectedMechanic;
   DateTime? _pickedDate;
@@ -32,6 +33,14 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
   bool _isLoadingMechanics = true;
   final List<GetMechanicsUsers> _mechanics = [];
+
+  DateTime get _requestDateTime => DateTime(
+    _pickedDate!.year,
+    _pickedDate!.month,
+    _pickedDate!.day,
+    _pickedTime!.hour,
+    _pickedTime!.minute,
+  );
 
   @override
   void initState() {
@@ -41,55 +50,150 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
   Future<void> _fetchMechanics() async {
     try {
-      final response = await ConnectorConnector.instance
-          .getMechanics()
-          .execute();
-      final mechanics = response.data.users;
+      final response =
+      await ConnectorConnector.instance.getMechanics().execute();
 
-      if (mounted) {
-        setState(() {
-          _mechanics.addAll(mechanics);
-          _isLoadingMechanics = false;
-        });
-      }
-    } catch (e) {
       if (!mounted) return;
+
       setState(() {
+        _mechanics.addAll(response.data.users);
         _isLoadingMechanics = false;
       });
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error loading mechanics: $e')));
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() => _isLoadingMechanics = false);
+
+      _showSnackBar('Error loading mechanics: $e');
     }
   }
 
-  // ฟังก์ชันเลือกวันที่
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
+      initialEntryMode: DatePickerEntryMode.input,
       initialDate: DateTime.now(),
-      firstDate: DateTime.now(), // ห้ามเลือกวันย้อนหลัง
+      firstDate: DateTime.now(),
       lastDate: DateTime(2030),
     );
+
     if (picked != null) {
       setState(() => _pickedDate = picked);
     }
   }
 
-  // ฟังก์ชันเลือกเวลา
   Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
+    final picked = await showTimePicker(
       context: context,
+      initialEntryMode: TimePickerEntryMode.input,
       initialTime: TimeOfDay.now(),
     );
+
     if (picked != null) {
       setState(() => _pickedTime = picked);
     }
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _submitRequest() async {
+
+    if (_isSubmitting) return;
+
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_pickedDate == null || _pickedTime == null) {
+      _showSnackBar('กรุณาเลือกวันและเวลาให้ครบถ้วน');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final email =
+        FirebaseAuth.instance.currentUser?.email ?? 'Unknown User';
+
+    final requestDateTime = _requestDateTime;
+
+    try {
+
+      final requestId = DateTime.now().millisecondsSinceEpoch.toString();
+
+      RequestMockData.addRequest({
+        'request_id': requestId,
+        'email': email,
+        'machine_id': widget.machineID,
+        'machine_name': widget.machineName,
+        'description': _description,
+        'selectedMechanic': _selectedMechanic,
+        'pickedDate': DateFormat('yyyy-MM-dd').format(_pickedDate!),
+        'pickedTime': _pickedTime!.format(context),
+        'status': 'pending',
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+
+      final result = await ConnectorConnector.instance
+          .createRequest(
+        userEmail: email,
+        machineId: widget.machineID,
+        description: _description,
+        requestDate: Timestamp.fromJson(
+          requestDateTime.toUtc().toIso8601String(),
+        ),
+        mechanicEmail: _selectedMechanic!,
+      )
+          .execute();
+
+      final requestIdGenerated = result.data.request_insert.id;
+
+      await ConnectorConnector.instance
+          .createMaintainLog(
+        title: 'Created Request: $_description',
+        isDone: false,
+        machineId: widget.machineID,
+      )
+          .execute();
+
+      try {
+        await FirebaseFunctions.instance
+            .httpsCallable('notifyMechanic')
+            .call({
+          'mechanicEmail': _selectedMechanic!,
+          'requestId': requestIdGenerated,
+        });
+      } catch (e) {
+        debugPrint('FCM failed: $e');
+      }
+
+      if (!mounted) return;
+
+      _showSnackBar('ส่งข้อมูลการแจ้งซ่อมเรียบร้อยแล้ว');
+
+      Navigator.pop(context);
+
+    } catch (e) {
+
+      if (!mounted) return;
+
+      _showSnackBar('เกิดข้อผิดพลาด: $e');
+
+    } finally {
+
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: NavBar(
         title: 'Repair Request: ${widget.machineName}',
@@ -102,244 +206,297 @@ class _RequestFormPageState extends State<RequestFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Problem Description',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Enter problem details...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a description'
-                    : null,
-                onChanged: (value) => _description = value,
-              ),
+
+              _descriptionField(),
+
               const SizedBox(height: 20),
 
-              const Text(
-                'Select Mechanic',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              _isLoadingMechanics
-                  ? DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.person),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'loading',
-                          child: Text('Loading mechanics...'),
-                        ),
-                      ],
-                      initialValue: 'loading',
-                      onChanged: null,
-                    )
-                  : DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.person),
-                      ),
-                      hint: Text(
-                        _mechanics.isEmpty
-                            ? 'No mechanics found'
-                            : 'Select mechanic',
-                      ),
-                      initialValue: _selectedMechanic,
-                      items: _mechanics.isEmpty
-                          ? []
-                          : _mechanics
-                                .map(
-                                  (m) => DropdownMenuItem(
-                                    value: m.email,
-                                    child: Text(m.name ?? m.email),
-                                  ),
-                                )
-                                .toList(),
-                      onChanged: _mechanics.isEmpty
-                          ? null
-                          : (val) => setState(() => _selectedMechanic = val),
-                      validator: (val) =>
-                          val == null ? 'Please select a mechanic' : null,
-                    ),
+              _mechanicDropdown(),
+
               const SizedBox(height: 20),
 
-              // ส่วนเลือกวันที่แบบจิ้มปฏิทิน
-              const Text(
-                'Select Date',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: () => _selectDate(context),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.calendar_today),
-                  ),
-                  child: Text(
-                    _pickedDate == null
-                        ? 'กดเพื่อเลือกวันที่'
-                        : DateFormat('dd/MM/yyyy').format(_pickedDate!),
-                  ),
-                ),
-              ),
+              _datePicker(),
+
               const SizedBox(height: 20),
 
-              // ส่วนเลือกเวลาแบบจิ้มนาฬิกา
-              const Text(
-                'Select Time',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: () => _selectTime(context),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    prefixIcon: const Icon(Icons.access_time),
-                  ),
-                  child: Text(
-                    _pickedTime == null
-                        ? 'กดเพื่อเลือกเวลา'
-                        : _pickedTime!.format(context),
-                  ),
-                ),
-              ),
+              _timePicker(),
+
               const SizedBox(height: 40),
 
-              Center(
-                child: SizedBox(
-                  width: 200,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate() &&
-                          _pickedDate != null &&
-                          _pickedTime != null) {
-                        // 1. Fetch User Email
-                        final String email =
-                            FirebaseAuth.instance.currentUser?.email ??
-                            'Unknown User';
+              _submitButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                        final DateTime requestDateTime = DateTime(
-                          _pickedDate!.year,
-                          _pickedDate!.month,
-                          _pickedDate!.day,
-                          _pickedTime!.hour,
-                          _pickedTime!.minute,
-                        );
+  Widget _descriptionField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
 
-                        // Save to Mock Data Store (optional, keeping for UI backward compatibility if needed)
-                        final String requestId = DateTime.now()
-                            .millisecondsSinceEpoch
-                            .toString();
-                        final newRequest = {
-                          'request_id': requestId,
-                          'email': email,
-                          'machine_id': widget.machineID,
-                          'machine_name': widget.machineName,
-                          'description': _description,
-                          'selectedMechanic': _selectedMechanic,
-                          'pickedDate': DateFormat(
-                            'yyyy-MM-dd',
-                          ).format(_pickedDate!),
-                          'pickedTime': _pickedTime!.format(context),
-                          'status': 'pending',
-                          'timestamp': DateTime.now().toIso8601String(),
-                        };
-                        RequestMockData.addRequest(newRequest);
+        const Text(
+          'Problem Description',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
 
-                        try {
-                          // 2. Save to Data Connect
-                          final result = await ConnectorConnector.instance
-                              .createRequest(
-                                userEmail: email,
-                                machineId: widget.machineID,
-                                description: _description,
-                                requestDate: Timestamp.fromJson(
-                                  requestDateTime.toUtc().toIso8601String(),
-                                ),
-                                mechanicEmail: _selectedMechanic!,
-                              )
-                              .execute();
-                          final String generatedRequestId =
-                              result.data.request_insert.id;
+        const SizedBox(height: 8),
 
-                          // Create MaintainLog with isDone: false indicating ticket is open
-                          await ConnectorConnector.instance
-                              .createMaintainLog(
-                                title: 'Created Request: $_description',
-                                isDone: false,
-                                machineId: widget.machineID,
-                              )
-                              .execute();
+        TextFormField(
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Enter problem details...',
+            hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.white, width: 2),
+            ),
+          ),
+          style: const TextStyle(color: Colors.white),
+          validator: (value) =>
+          value == null || value.isEmpty
+              ? 'Please enter a description'
+              : null,
+          onChanged: (value) => _description = value,
+        ),
+      ],
+    );
+  }
 
-                          // Send FCM Notification via Cloud Function
-                          try {
-                            await FirebaseFunctions.instance
-                                .httpsCallable('notifyMechanic')
-                                .call({
-                                  'mechanicEmail': _selectedMechanic!,
-                                  'requestId': generatedRequestId,
-                                });
-                          } catch (e) {
-                            debugPrint('Failed to send notification: $e');
-                          }
-
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'ส่งข้อมูลการแจ้งซ่อมเรียบร้อยแล้ว',
-                              ),
-                            ),
-                          );
-                          Navigator.pop(context);
-                        } catch (e) {
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
-                          );
-                        }
-                      } else if (_pickedDate == null || _pickedTime == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('กรุณาเลือกวันและเวลาให้ครบถ้วน'),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepOrange,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Submit Request',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
+  Widget _mechanicDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Select Mechanic',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 8),
+        _isLoadingMechanics
+            ? DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Colors.white,
+                width: 2,
+              ),
+            ),
+            prefixIcon: const Icon(
+              Icons.person,
+              color: Colors.grey,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 16,
+            ),
+          ),
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 16,
+          ),
+          items: const [
+            DropdownMenuItem(
+              value: 'loading',
+              child: Text(
+                'Loading mechanics...',
+                style: TextStyle(
+                    color: Colors.grey
                 ),
               ),
-            ],
+            ),
+          ],
+          value: 'loading',
+          onChanged: null,
+        )
+            : DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Colors.white,
+                width: 2,
+              ),
+            ),
+            prefixIcon: Icon(
+              Icons.person,
+              color: _selectedMechanic != null ? Colors.white : Colors.grey,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 16,
+            ),
+          ),
+          isExpanded: true,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+          dropdownColor: Colors.white,
+          menuMaxHeight: 300,
+          hint: Text(
+            _mechanics.isEmpty ? 'No mechanics found' : 'Select mechanic',
+            style: const TextStyle(
+              color: Colors.grey,
+              fontSize: 16,
+            ),
+          ),
+          value: _selectedMechanic,
+          items: _mechanics.isEmpty
+              ? []
+              : _mechanics
+              .map((m) => DropdownMenuItem(
+            value: m.email,
+            child: Text(
+              m.name ?? m.email,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+            ),
+          ))
+              .toList(),
+          selectedItemBuilder: (BuildContext context) {
+            return _mechanics.map((m) {
+              return Text(
+                m.name ?? m.email,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              );
+            }).toList();
+          },
+          onChanged: _mechanics.isEmpty
+              ? null
+              : (val) => setState(() => _selectedMechanic = val),
+          validator: (val) => val == null ? 'Please select a mechanic' : null,
+        ),
+      ],
+    );
+  }
+
+  Widget _datePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Select Date',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () => _selectDate(context),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.white, width: 2),
+              ),
+              prefixIcon: Icon(
+                Icons.calendar_today,
+                color: _pickedDate == null ? Colors.grey : Colors.white,
+              ),
+            ),
+            child: Text(
+              _pickedDate == null
+                  ? 'Please select a date'
+                  : DateFormat('dd/MM/yyyy').format(_pickedDate!),
+              style: TextStyle(
+                color: _pickedDate == null ? Colors.grey : Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _timePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Select Time',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () => _selectTime(context),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.white, width: 2),
+              ),
+              prefixIcon: Icon(
+                Icons.access_time,
+                color: _pickedTime == null ? Colors.grey : Colors.white,
+              ),
+            ),
+            child: Text(
+              _pickedTime == null
+                  ? 'Please select a time'
+                  : _pickedTime!.format(context),
+              style: TextStyle(
+                color: _pickedTime == null ? Colors.grey : Colors.white,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+
+  Widget _submitButton() {
+    return Center(
+      child: SizedBox(
+        width: 200,
+        height: 50,
+        child: ElevatedButton(
+          onPressed: _isSubmitting ? null : _submitRequest,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.deepOrange,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: _isSubmitting
+              ? const SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: Colors.white,
+            ),
+          )
+              : const Text(
+            'Submit Request',
+            style: TextStyle(fontSize: 16),
           ),
         ),
       ),
