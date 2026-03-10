@@ -5,6 +5,7 @@ import 'package:s_factory/features/profile/profile.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../services/secure_storage_service.dart';
 
+import '../widgets/nav_bar.dart';
 import 'appbar_config.dart'; // Import the new config file
 
 /// A configuration-based AppBar that changes its title and actions
@@ -72,7 +73,10 @@ class _SFactoryAppBarState extends State<SFactoryAppBar> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Profile(user: _currentUser),
+              builder: (context) => Scaffold(
+                appBar: const NavBar(title: 'Profile', leadingText: 'Back'),
+                body: Profile(user: _currentUser),
+              )
             ),
           );
         } else if (value == 'logout') {
