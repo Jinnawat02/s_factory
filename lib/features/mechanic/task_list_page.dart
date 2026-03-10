@@ -47,7 +47,7 @@ class _TaskListPageState extends State<TaskListPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Match modern clean theme
+      backgroundColor: Colors.grey[900],
       body:
           FutureBuilder<
             QueryResult<
@@ -96,7 +96,7 @@ class _TaskListPageState extends State<TaskListPage> {
                     EdgeInsets.zero, // Clean edge-to-edge look like wireframe
                 itemCount: sortedTasks.length,
                 separatorBuilder: (context, index) =>
-                    const Divider(height: 1, thickness: 1, color: Colors.grey),
+                    const Divider(height: 1, color: Colors.grey),
                 itemBuilder: (context, index) {
                   final task = sortedTasks[index];
 
@@ -118,50 +118,39 @@ class _TaskListPageState extends State<TaskListPage> {
 
                   // Format date nicely like "14/10 14:30"
                   final dateText = DateFormat(
-                    'dd/MM HH:mm',
+                    'dd/MM/yyyy HH:mm',
                   ).format(task.requestDate.toDateTime().toLocal());
 
                   return Container(
-                    color: Colors.white,
+                    color: Colors.grey[850],
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
-                        vertical: 12,
+                        vertical: 8,
                       ),
-                      leading: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(
-                            25,
-                          ), // Fully rounded like wireframe
-                          image: imageUrl != null
-                              ? DecorationImage(
-                                  image: NetworkImage(imageUrl),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
-                        ),
+                      leading: CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Colors.grey[800],
+                        backgroundImage: imageUrl != null
+                            ? NetworkImage(imageUrl)
+                            : null,
                         child: imageUrl == null
-                            ? const Icon(
-                                Icons.image_outlined,
-                                color: Colors.grey,
-                              )
+                            ? const Icon(Icons.image_outlined, color: Colors.grey)
                             : null,
                       ),
                       title: Text(
                         title,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
                         ),
                       ),
                       subtitle: Text(
                         task.description ?? 'No description provided.',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: const TextStyle(color: Colors.grey),
                       ),
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
