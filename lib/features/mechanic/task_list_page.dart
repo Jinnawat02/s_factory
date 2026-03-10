@@ -203,6 +203,7 @@ class _TaskListPageState extends State<TaskListPage> {
                               machineName: machineName,
                               description:
                                   task.description ?? mockDescription ?? 'N/A',
+                              imageUrl: task.machine.imageUrl ?? imageUrl,
                             ),
                           ),
                         );

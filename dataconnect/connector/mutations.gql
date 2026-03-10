@@ -229,4 +229,20 @@ mutation UpdateRequest(
     }
   )
 }
+
+# TaskItem Mutations
+mutation CreateTaskItem(
+  $requestId: UUID!
+  $itemId: UUID!
+  $quantity: Int!
+) @auth(level: PUBLIC) {
+  taskItem_insert(
+    data: { requestId: $requestId, itemId: $itemId, quantity: $quantity }
+  )
+}
+
+mutation DeleteTaskItem($id: UUID!) @auth(level: PUBLIC) {
+  taskItem_delete(key: { id: $id })
+}
+
   

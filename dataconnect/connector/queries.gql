@@ -76,6 +76,7 @@ query GetRequest($id: UUID!) @auth(level: PUBLIC) {
     user {
       email
       name
+      imageUrl
     }
     machine {
       id
@@ -103,6 +104,7 @@ query ListRequests($email: String!) @auth(level: PUBLIC) {
     machine {
       id
       name
+      imageUrl
     }
     mechanic {
       email
@@ -124,6 +126,7 @@ query GetRequestsByMechanicEmail($email: String!) @auth(level: PUBLIC) {
     machine {
       id
       name
+      imageUrl
     }
     requestDate
     description
@@ -252,5 +255,18 @@ query ListNotificationsByMechanic($mechanicEmail: String!)
         name
       }
     }
+  }
+}
+
+# TaskItem Queries
+query GetTaskItemsByRequestId($requestId: UUID!) @auth(level: PUBLIC) {
+  taskItems(where: { requestId: { eq: $requestId } }) {
+    id
+    item {
+      id
+      name
+      imageUrl
+    }
+    quantity
   }
 }
