@@ -79,3 +79,12 @@ type Notification @table(key: "id") {
   isRead: Boolean @default(value: false)
   createdAt: Timestamp! @default(expr: "request.time")
 }
+
+type TaskItem @table(key: "id") {
+  id: UUID! @default(expr: "uuidV4()")
+  request: Request!
+  item: Item!
+  quantity: Int!
+  createdAt: Timestamp @default(expr: "request.time")
+  updatedAt: Timestamp @default(expr: "request.time")
+}
