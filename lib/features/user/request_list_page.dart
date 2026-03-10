@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
@@ -11,10 +12,18 @@ class RequestListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+
+    if (currentUserEmail == null) {
+      return const Scaffold(body: Center(child: Text('User not logged in.')));
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: FutureBuilder<QueryResult<ListRequestsData, void>>(
-        future: ConnectorConnector.instance.listRequests().execute(),
+      body: FutureBuilder<QueryResult<ListRequestsData, ListRequestsVariables>>(
+        future: ConnectorConnector.instance
+            .listRequests(email: currentUserEmail)
+            .execute(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

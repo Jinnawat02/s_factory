@@ -93,8 +93,8 @@ query GetRequest($id: UUID!) @auth(level: PUBLIC) {
   }
 }
 
-query ListRequests @auth(level: PUBLIC) {
-  requests {
+query ListRequests($email: String!) @auth(level: PUBLIC) {
+  requests(where: { userEmail: { eq: $email } }) {
     id
     user {
       email
