@@ -119,7 +119,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               'No description';
           final imageUrl =
               widget.machineData['imageUrl'] ??
-              'https://via.placeholder.com/400x250?text=Machine';
+              'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=0D47A1&color=fff&size=200&bold=true';
 
           return FutureBuilder<
             QueryResult<
