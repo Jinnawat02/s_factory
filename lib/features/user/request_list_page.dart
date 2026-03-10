@@ -4,6 +4,7 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
 import '../../mock/machine_mock_data.dart';
+import 'request_detail.dart';
 
 class RequestListPage extends StatelessWidget {
   const RequestListPage({super.key});
@@ -106,7 +107,13 @@ class RequestListPage extends StatelessWidget {
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   onTap: () {
-                    // Optional: Navigate to a detail view of the request
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RequestDetailPage(requestId: request.id),
+                      ),
+                    );
                   },
                 ),
               );

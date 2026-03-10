@@ -80,6 +80,12 @@ query GetRequest($id: UUID!) @auth(level: PUBLIC) {
     machine {
       id
       name
+      description
+      imageUrl
+    }
+    mechanic {
+      email
+      name
     }
     requestDate
     description
