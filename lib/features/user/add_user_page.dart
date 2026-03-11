@@ -6,6 +6,8 @@ import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+
 class AddUserPage extends StatefulWidget {
   const AddUserPage({super.key});
 
@@ -84,20 +86,17 @@ class _AddUserPageState extends State<AddUserPage> {
     try {
       String? uploadedImageUrl;
       if (_pickedImage != null) {
-        uploadedImageUrl = await StorageService.uploadImage(
-          _pickedImage!,
-          'users',
-        );
+        uploadedImageUrl = await StorageService.uploadImage(_pickedImage!, 'users');
       }
 
       await ConnectorConnector.instance
           .createUser(
-            email: _email,
-            password: _password,
-            name: _name,
-            role: _selectedRole ?? '',
-            tel: _tel,
-          )
+        email: _email,
+        password: _password,
+        name: _name,
+        role: _selectedRole ?? '',
+        tel: _tel,
+      )
           .imageUrl(uploadedImageUrl)
           .execute();
 
@@ -105,19 +104,28 @@ class _AddUserPageState extends State<AddUserPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Employee added successfully')),
         );
-        Navigator.pop(context, true); // true = user was created
+        Navigator.pop(context, true);
+      }
+    } on FirebaseAuthException catch (e) {
+      // Specific Firebase Error Handling
+      String message = 'An error occurred';
+      if (e.code == 'weak-password') {
+        message = 'The password is too weak.';
+      } else if (e.code == 'email-already-in-use') {
+        message = 'Account already exists.';
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
