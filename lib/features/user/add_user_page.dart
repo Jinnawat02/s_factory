@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -40,9 +41,7 @@ class _AddUserPageState extends State<AddUserPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Cannot pick image: $e')));
+        SnackBarUtils.showError(context, 'Cannot pick image: $e');
       }
     }
   }
@@ -101,13 +100,10 @@ class _AddUserPageState extends State<AddUserPage> {
           .execute();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Employee added successfully')),
-        );
+        SnackBarUtils.showSuccess(context, 'Employee added successfully');
         Navigator.pop(context, true);
       }
     } on FirebaseAuthException catch (e) {
-      // Specific Firebase Error Handling
       String message = 'An error occurred';
       if (e.code == 'weak-password') {
         message = 'The password is too weak.';
@@ -116,11 +112,11 @@ class _AddUserPageState extends State<AddUserPage> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+        SnackBarUtils.showError(context, message);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        SnackBarUtils.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

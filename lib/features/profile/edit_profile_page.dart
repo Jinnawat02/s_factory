@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class EditProfilePage extends StatefulWidget {
   final dynamic user;
@@ -43,9 +44,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Cannot pick image: $e')));
+        SnackBarUtils.showError(context, 'Cannot pick image: $e');
       }
     }
   }
@@ -103,16 +102,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .execute();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
-        );
+        SnackBarUtils.showSuccess(context, 'Profile updated successfully');
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        SnackBarUtils.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

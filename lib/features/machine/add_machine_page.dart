@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class AddMachinePage extends StatefulWidget {
   const AddMachinePage({super.key});
@@ -34,9 +35,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Cannot pick image: $e')));
+        SnackBarUtils.showError(context, 'Cannot pick image: $e');
       }
     }
   }
@@ -98,16 +97,12 @@ class _AddMachinePageState extends State<AddMachinePage> {
           .execute();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Machine added successfully')),
-        );
+        SnackBarUtils.showSuccess(context, 'Machine added successfully');
         Navigator.pop(context, true); // true = machine was created
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        SnackBarUtils.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
