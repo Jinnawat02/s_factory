@@ -35,23 +35,6 @@ class _UserListPageState extends State<UserListPage> {
       length: 2,
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        floatingActionButton: widget.role == 'admin'
-            ? FloatingActionButton(
-                onPressed: () async {
-                  final added = await Navigator.push<bool?>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddUserPage(),
-                    ),
-                  );
-                  if (added == true) {
-                    _loadUsers();
-                  }
-                },
-                tooltip: 'Add Employee',
-                child: const Icon(Icons.add),
-              )
-            : null,
         body: Column(
           children: [
             Container(
@@ -109,7 +92,10 @@ class _UserListPageState extends State<UserListPage> {
   }
 
   Widget _buildUserList(List<ListUsersUsers> users, String emptyMessageRole) {
-    if (users.isEmpty) {
+    final bool isAdmin = widget.role == 'admin';
+    final int itemCount = users.length + (isAdmin ? 1 : 0);
+
+    if (itemCount == 0) {
       return Center(
         child: Text(
           'No $emptyMessageRole found.',
@@ -121,9 +107,13 @@ class _UserListPageState extends State<UserListPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListView.builder(
-        itemCount: users.length,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
-          final user = users[index];
+          if (isAdmin && index == 0) {
+            return _buildAddUserButton(context, emptyMessageRole);
+          }
+          final userIndex = isAdmin ? index - 1 : index;
+          final user = users[userIndex];
           final name = user.name ?? user.email;
           final imgUrl =
               user.imageUrl ??
@@ -131,6 +121,58 @@ class _UserListPageState extends State<UserListPage> {
 
           return _userContainer(context, name, imgUrl, user);
         },
+      ),
+    );
+  }
+
+  Widget _buildAddUserButton(BuildContext context, String role) {
+    final String displayName = role == 'mechanic' ? 'Mechanic' : 'Staff';
+
+    return Card(
+      color: Colors.transparent,
+      elevation: 0,
+      child: InkWell(
+        onTap: () async {
+          final added = await Navigator.push<bool?>(
+            context,
+            MaterialPageRoute(builder: (context) => const AddUserPage()),
+          );
+          if (added == true && mounted) {
+            _loadUsers();
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5.0),
+            color: Colors.white.withOpacity(0.1),
+            border: Border.all(color: Colors.white.withOpacity(0.5)),
+          ),
+          width: double.infinity,
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(2.5),
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.white,
+                  child: const Icon(Icons.add, color: Colors.black, size: 20),
+                ),
+              ),
+              const SizedBox(width: 2),
+              Text(
+                'Add $displayName',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.0,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
