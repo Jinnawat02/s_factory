@@ -4,6 +4,7 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/widgets/nav_bar.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class RequestDetailPage extends StatefulWidget {
   final String requestId;
@@ -75,19 +76,13 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
         setState(() {
           _isLoading = false;
         });
-        _showSnackBar('Request not found');
+        SnackBarUtils.showError(context, 'Request not found');
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      _showSnackBar('Error loading data: $e');
+      SnackBarUtils.showError(context, 'Error loading data: $e');
     }
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -116,7 +111,7 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
     if (_isSaving) return;
     if (!_formKey.currentState!.validate()) return;
     if (_pickedDate == null || _pickedTime == null) {
-      _showSnackBar('Please select date and time');
+      SnackBarUtils.showError(context, 'Please select date and time');
       return;
     }
 
@@ -143,11 +138,11 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
           .execute();
 
       if (!mounted) return;
-      _showSnackBar('Request updated successfully');
+      SnackBarUtils.showSuccess(context, 'Request updated successfully');
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      _showSnackBar('Error saving data: $e');
+      SnackBarUtils.showError(context, 'Error saving data: $e');
       setState(() {
         _isSaving = false;
       });

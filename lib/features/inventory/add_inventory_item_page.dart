@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class AddInventoryItemPage extends StatefulWidget {
   const AddInventoryItemPage({super.key});
@@ -43,9 +44,7 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
+        SnackBarUtils.showError(context, 'Failed to pick image: $e');
       }
     }
   }
@@ -107,16 +106,12 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
           .execute();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Item added successfully')),
-        );
+        SnackBarUtils.showSuccess(context, 'Item added successfully');
         Navigator.pop(context, true); // true = item was created
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        SnackBarUtils.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

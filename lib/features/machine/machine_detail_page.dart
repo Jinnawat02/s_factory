@@ -7,6 +7,7 @@ import 'package:s_factory/features/machine/request_form_page.dart';
 import 'package:s_factory/features/machine/add_routine_page.dart';
 
 import '../../shared/widgets/nav_bar.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class MachineDetailPage extends StatefulWidget {
   final Map<String, String> machineData;
@@ -93,17 +94,61 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
             )
             .execute();
       }
+      if (mounted) {
+        SnackBarUtils.showSuccess(context, 'Routines saved successfully');
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarUtils.showError(context, 'Error saving routines: $e');
+      }
     } finally {
       if (mounted) setState(() => _isSavingRoutines = false);
     }
   }
 
+  Future<void> _confirmDeleteMachine(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E22),
+        title: const Text('Delete Machine', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Are you sure you want to delete this machine? This action cannot be undone.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        await ConnectorConnector.instance
+            .deleteMachine(id: widget.machineData['id']!)
+            .execute();
+
+        if (mounted) {
+          SnackBarUtils.showSuccess(context, 'Machine deleted successfully');
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
+        if (mounted) {
+          SnackBarUtils.showError(context, 'Error deleting machine: $e');
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // if (widget.role == 'mechanic') {
-    //   return _buildMechanicView(context);
-    // }
-
     return Scaffold(
       appBar: NavBar(title: widget.machineData['name']!, leadingText: 'Cancel'),
       body: FutureBuilder<QueryResult<GetMachineData, GetMachineVariables>>(
@@ -136,7 +181,6 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
           >(
             future: _routinesFuture,
             builder: (context, routineSnapshot) {
-              // Initialise local checklist state once
               if (routineSnapshot.hasData) {
                 _initRoutinesFromSnapshot(routineSnapshot.data!.data.routines);
               }
@@ -145,7 +189,6 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Machine Image
                     Center(
                       child: Image.network(
                         imageUrl,
@@ -207,7 +250,6 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                             _buildActionButtons(context, name: name),
                           ],
 
-                          // ── Routine Checklist Section ──
                           if (widget.role == 'mechanic' ||
                               widget.role == 'admin') ...[
                             const SizedBox(height: 30),
@@ -234,7 +276,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     return SizedBox(
       child: ElevatedButton.icon(
         icon: const Icon(Icons.qr_code),
-        label: Text("QR Code", style: TextStyle(color: Colors.black)),
+        label: const Text("QR Code", style: TextStyle(color: Colors.black)),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           iconColor: Colors.black,
@@ -253,7 +295,6 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
-  /// Builds different action buttons depending on the user's role (for non-mechanic users).
   Widget _buildActionButtons(BuildContext context, {String? name}) {
     if (widget.role == 'staff') {
       return Center(
@@ -355,211 +396,89 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
         ],
       );
     }
-
-    // Fallback if role is unknown
     return const SizedBox.shrink();
-  }
-
-  Future<void> _confirmDeleteMachine(BuildContext context) async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Machine'),
-        content: Text(
-          'Are you sure you want to delete ${widget.machineData['name']}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true && mounted) {
-      try {
-        await ConnectorConnector.instance
-            .deleteMachine(id: widget.machineData['id']!)
-            .execute();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Machine deleted successfully')),
-          );
-          Navigator.pop(context, true);
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting machine: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
   }
 
   Widget _buildRoutineChecklistSection(
     BuildContext context,
-    AsyncSnapshot<
-      QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
-    >
-    routineSnapshot,
+    AsyncSnapshot snapshot,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildRoutineHeader(context),
-        const SizedBox(height: 8),
-        _buildRoutineContent(context, routineSnapshot),
-        const SizedBox(height: 40),
-      ],
-    );
-  }
-
-  Widget _buildRoutineHeader(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Routine Checklist',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        if (_checklistItems.isNotEmpty)
-          _isSavingRoutines
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : TextButton.icon(
-                  onPressed: () async {
-                    await _saveRoutines();
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Checklist saved!'),
-                          backgroundColor: Colors.green,
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.save_outlined,
-                    size: 18,
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    'Save',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-      ],
-    );
-  }
-
-  Widget _buildRoutineContent(
-    BuildContext context,
-    AsyncSnapshot<
-      QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
-    >
-    snapshot,
-  ) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
+    if (snapshot.connectionState == ConnectionState.waiting &&
+        _checklistItems.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (snapshot.hasError) {
-      return Text(
-        'Error loading routines: ${snapshot.error}',
-        style: const TextStyle(color: Colors.red),
-      );
-    }
-
     if (_checklistItems.isEmpty) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: const Text(
-          'No routines yet. Tap "Add Routine Checklist" above to create one.',
-          style: TextStyle(color: Colors.grey),
-          textAlign: TextAlign.center,
+      return const Center(
+        child: Text(
+          'No routine checklist items found.',
+          style: TextStyle(color: Colors.white70),
         ),
       );
     }
 
-    return _buildRoutineList();
-  }
-
-  Widget _buildRoutineList() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: List.generate(_checklistItems.length, (index) {
-          final item = _checklistItems[index];
-          final isLast = index == _checklistItems.length - 1;
-
-          return Column(
-            children: [
-              CheckboxListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                title: Text(
-                  item['title'],
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                subtitle: (item['subtitle'] as String).isNotEmpty
-                    ? Text(
-                        item['subtitle'],
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                        ),
-                      )
-                    : null,
-                value: item['isDone'],
-                activeColor: Colors.indigo,
-                checkboxShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _checklistItems[index]['isDone'] = value ?? false;
-                  });
-                },
-                controlAffinity: ListTileControlAffinity.trailing,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Routine Checklist',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-              if (!isLast) const Divider(height: 1, indent: 16, endIndent: 16),
-            ],
+            ),
+            if (widget.role == 'admin')
+              _buildActionButtons(context, name: widget.machineData['name']),
+          ],
+        ),
+        const SizedBox(height: 16),
+        ..._checklistItems.map((item) {
+          return CheckboxListTile(
+            title: Text(item['title'], style: const TextStyle(color: Colors.white)),
+            subtitle: Text(item['subtitle'], style: const TextStyle(color: Colors.white70)),
+            value: item['isDone'],
+            activeColor: Colors.deepOrange,
+            checkColor: Colors.white,
+            side: const BorderSide(color: Colors.white70),
+            onChanged: (bool? val) {
+              setState(() {
+                item['isDone'] = val ?? false;
+              });
+            },
           );
-        }),
-      ),
+        }).toList(),
+        const SizedBox(height: 20),
+        Center(
+          child: SizedBox(
+            width: 150,
+            height: 45,
+            child: ElevatedButton(
+              onPressed: _isSavingRoutines ? null : _saveRoutines,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: _isSavingRoutines
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text('Save Progress'),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

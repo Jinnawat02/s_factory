@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../dataconnect_generated/generated.dart';
 
 import '../../shared/widgets/nav_bar.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class InventoryItemDetailPage extends StatelessWidget {
   final Map<String, dynamic> itemData;
@@ -97,12 +98,9 @@ class InventoryItemDetailPage extends StatelessWidget {
                       height: 50,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Update Stock clicked (Placeholder)',
-                              ),
-                            ),
+                          SnackBarUtils.showSuccess(
+                            context,
+                            'Update Stock clicked (Placeholder)',
                           );
                         },
                         icon: const Icon(Icons.edit_document),
@@ -184,9 +182,7 @@ class InventoryItemDetailPage extends StatelessWidget {
             .deleteItem(id: itemData['id'])
             .execute();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Item deleted successfully')),
-          );
+          SnackBarUtils.showSuccess(context, 'Item deleted successfully');
           Navigator.pop(
             context,
             true,
@@ -194,12 +190,7 @@ class InventoryItemDetailPage extends StatelessWidget {
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting item: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          SnackBarUtils.showError(context, 'Error deleting item: $e');
         }
       }
     }

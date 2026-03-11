@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 /// Admin-only page to create a new Routine checklist item for a machine.
 class AddRoutinePage extends StatefulWidget {
@@ -37,19 +38,12 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
           .execute();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Routine added successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        SnackBarUtils.showSuccess(context, 'Routine added successfully');
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        SnackBarUtils.showError(context, 'Error: $e');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
