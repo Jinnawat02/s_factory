@@ -53,6 +53,14 @@ class AuthGate extends StatelessWidget {
               providers: [
                 EmailAuthProvider(),
               ],
+              actions: [
+                ForgotPasswordAction((context, email) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password resets are managed by Admins.'))
+                  );
+                }),
+              ],
+              showPasswordVisibilityToggle: true,
               showAuthActionSwitch: false,
               headerBuilder: (context, constraints, shrinkOffset) {
                 return Padding(
