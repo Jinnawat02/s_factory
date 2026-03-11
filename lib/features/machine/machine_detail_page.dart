@@ -8,6 +8,8 @@ import 'package:s_factory/features/machine/add_routine_page.dart';
 
 import '../../shared/widgets/nav_bar.dart';
 
+import 'update_machine_page.dart';
+
 class MachineDetailPage extends StatefulWidget {
   final Map<String, String> machineData;
   final String role; // Require the role argument
@@ -106,6 +108,9 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
     return Scaffold(
       appBar: NavBar(title: widget.machineData['name']!, leadingText: 'Cancel'),
+      bottomNavigationBar: widget.role == 'admin'
+          ? _buildAdminBottomBar()
+          : null,
       body: FutureBuilder<QueryResult<GetMachineData, GetMachineVariables>>(
         future: _machineFuture,
         builder: (context, machineSnapshot) {
@@ -230,6 +235,70 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
+  Widget _buildAdminBottomBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          UpdateMachinePage(machineData: widget.machineData),
+                    ),
+                  );
+                  if (result == true && mounted) {
+                    _loadMachine();
+                  }
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Update'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _confirmDeleteMachine(context),
+                icon: const Icon(Icons.delete),
+                label: const Text('Delete'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildMachineQRCode(BuildContext context, {String? machineID}) {
     return SizedBox(
       child: ElevatedButton.icon(
@@ -328,30 +397,6 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               ),
             ),
           ),
-          if (widget.machineData['id'] != null) ...[
-            const SizedBox(height: 16),
-            Center(
-              child: SizedBox(
-                width: 250,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: () => _confirmDeleteMachine(context),
-                  icon: const Icon(Icons.delete),
-                  label: const Text(
-                    'Delete Machine',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ],
       );
     }
