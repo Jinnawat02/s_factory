@@ -1,101 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 import '../../shared/widgets/nav_bar.dart';
 import 'update_inventory_item_page.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
-class InventoryItemDetailPage extends StatelessWidget {
+class InventoryItemDetailPage extends StatefulWidget {
   final Map<String, dynamic> itemData;
   final String? role;
 
   const InventoryItemDetailPage({super.key, required this.itemData, this.role});
 
   @override
+  State<InventoryItemDetailPage> createState() =>
+      _InventoryItemDetailPageState();
+}
+
+class _InventoryItemDetailPageState extends State<InventoryItemDetailPage> {
+  Future<QueryResult<GetItemData, GetItemVariables>>? _itemFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadItem();
+  }
+
+  void _loadItem() {
+    setState(() {
+      _itemFuture = widget.itemData['id'] == null
+          ? null
+          : ConnectorConnector.instance
+                .getItem(id: widget.itemData['id']!)
+                .execute();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: NavBar(title: itemData['name'], leadingText: 'Back'),
-      // Matching the Machine Detail footbar pattern
-      bottomNavigationBar: role == 'admin'
-          ? _buildAdminBottomBar(context)
-          : null,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (itemData['imageUrl'] != null)
-              Image.network(
-                itemData['imageUrl'],
-                width: double.infinity,
-                height: 250,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    _buildPlaceholder(),
-              )
-            else
-              _buildPlaceholder(),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Item Details',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    itemData['description'] ?? 'No description available.',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.5,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildInfoRow(
-                          'Stock Available',
-                          '${itemData['stock']} units',
+    return FutureBuilder<QueryResult<GetItemData, GetItemVariables>>(
+      future: _itemFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: NavBar(title: widget.itemData['name'], leadingText: 'Back'),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: NavBar(title: widget.itemData['name'], leadingText: 'Back'),
+            body: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        }
+
+        final item = snapshot.data?.data.item;
+        final name = item?.name ?? widget.itemData['name'] ?? 'Unknown Item';
+        final description =
+            item?.description ??
+            widget.itemData['description'] ??
+            'No description available.';
+        final stock = item?.quantity ?? widget.itemData['stock'] ?? 0;
+        final imageUrl = item?.imageUrl ?? widget.itemData['imageUrl'];
+
+        final currentItemData = {
+          ...widget.itemData,
+          'name': name,
+          'description': description,
+          'stock': stock,
+          if (imageUrl != null) 'imageUrl': imageUrl,
+        };
+
+        return Scaffold(
+          appBar: NavBar(title: name, leadingText: 'Back'),
+          bottomNavigationBar: widget.role == 'admin'
+              ? _buildAdminBottomBar(currentItemData)
+              : null,
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (imageUrl != null)
+                  Image.network(
+                    imageUrl,
+                    width: double.infinity,
+                    height: 250,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _buildPlaceholder(),
+                  )
+                else
+                  _buildPlaceholder(),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Item Details',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        const Divider(height: 24),
-                        _buildInfoRow(
-                          'Location',
-                          itemData['location'] ?? 'N/A',
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        description,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          height: 1.5,
+                          color: Colors.white,
                         ),
-                        const Divider(height: 24),
-                        _buildInfoRow(
-                          'Category',
-                          itemData['category'] ?? 'N/A',
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
-                    ),
+                        child: Column(
+                          children: [
+                            _buildInfoRow('Stock Available', '$stock units'),
+                            const Divider(height: 24),
+                            _buildInfoRow(
+                              'Location',
+                              currentItemData['location'] ?? 'N/A',
+                            ),
+                            const Divider(height: 24),
+                            _buildInfoRow(
+                              'Category',
+                              currentItemData['category'] ?? 'N/A',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  // Updated Footer Bar to match Machine Detail template exactly
-  Widget _buildAdminBottomBar(BuildContext context) {
+  Widget _buildAdminBottomBar(Map<String, dynamic> currentItemData) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[900], // Match template color
+        color: Colors.grey[900],
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -107,7 +163,6 @@ class InventoryItemDetailPage extends StatelessWidget {
       child: SafeArea(
         child: Row(
           children: [
-            // Update Button - flex 1, blue background
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () async {
@@ -115,11 +170,11 @@ class InventoryItemDetailPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          UpdateInventoryItemPage(itemData: itemData),
+                          UpdateInventoryItemPage(itemData: currentItemData),
                     ),
                   );
-                  if (result == true && context.mounted) {
-                    Navigator.pop(context, true); // Refresh list on return
+                  if (result == true && mounted) {
+                    _loadItem();
                   }
                 },
                 icon: const Icon(Icons.edit),
@@ -135,10 +190,9 @@ class InventoryItemDetailPage extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            // Delete Button - flex 1, red background
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () => _confirmDeleteItem(context),
+                onPressed: () => _confirmDeleteItem(context, currentItemData),
                 icon: const Icon(Icons.delete),
                 label: const Text('Delete'),
                 style: ElevatedButton.styleFrom(
@@ -186,7 +240,10 @@ class InventoryItemDetailPage extends StatelessWidget {
     );
   }
 
-  Future<void> _confirmDeleteItem(BuildContext context) async {
+  Future<void> _confirmDeleteItem(
+    BuildContext context,
+    Map<String, dynamic> itemData,
+  ) async {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -205,20 +262,17 @@ class InventoryItemDetailPage extends StatelessWidget {
       ),
     );
 
-    if (confirm == true && context.mounted) {
+    if (confirm == true && mounted) {
       try {
         await ConnectorConnector.instance
             .deleteItem(id: itemData['id'])
             .execute();
-        if (context.mounted) {
+        if (mounted) {
           SnackBarUtils.showSuccess(context, 'Item deleted successfully');
-          Navigator.pop(
-            context,
-            true,
-          ); // Pop the detail page, optionally returning true to refresh
+          Navigator.pop(context, true);
         }
       } catch (e) {
-        if (context.mounted) {
+        if (mounted) {
           SnackBarUtils.showError(context, 'Error deleting item: $e');
         }
       }

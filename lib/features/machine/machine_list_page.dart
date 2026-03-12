@@ -99,7 +99,7 @@ class _MachineListPageState extends State<MachineListPage> {
                                 'No description available',
                             imageUrl: machineImage,
                             onTap: () async {
-                              final deleted = await Navigator.push<bool>(
+                              await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => MachineDetailPage(
@@ -118,7 +118,7 @@ class _MachineListPageState extends State<MachineListPage> {
                                   ),
                                 ),
                               );
-                              if (deleted == true && context.mounted) {
+                              if (context.mounted) {
                                 _loadMachines();
                               }
                             },

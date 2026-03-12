@@ -113,7 +113,7 @@ class _InventoryPageState extends State<InventoryPage> {
                             ),
                             child: InkWell(
                               onTap: () async {
-                                final deleted = await Navigator.push<bool>(
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
@@ -131,7 +131,7 @@ class _InventoryPageState extends State<InventoryPage> {
                                         ),
                                   ),
                                 );
-                                if (deleted == true && context.mounted) {
+                                if (context.mounted) {
                                   _loadItems();
                                 }
                               },

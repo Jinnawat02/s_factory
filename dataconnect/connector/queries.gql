@@ -36,6 +36,7 @@ query GetMachine($id: UUID!) @auth(level: PUBLIC) {
     name
     serialNumber
     description
+    imageUrl
   }
 }
 
@@ -56,6 +57,7 @@ query GetItem($id: UUID!) @auth(level: PUBLIC) {
     name
     quantity
     description
+    imageUrl
   }
 }
 

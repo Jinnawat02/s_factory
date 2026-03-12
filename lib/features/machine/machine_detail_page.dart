@@ -45,11 +45,13 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
   }
 
   void _loadMachine() {
-    _machineFuture = widget.machineData['id'] == null
-        ? null
-        : ConnectorConnector.instance
-              .getMachine(id: widget.machineData['id']!)
-              .execute();
+    setState(() {
+      _machineFuture = widget.machineData['id'] == null
+          ? null
+          : ConnectorConnector.instance
+                .getMachine(id: widget.machineData['id']!)
+                .execute();
+    });
   }
 
   void _loadRoutines() {
@@ -154,135 +156,165 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: NavBar(title: widget.machineData['name']!, leadingText: 'Cancel'),
-      bottomNavigationBar: widget.role == 'admin'
-          ? _buildAdminBottomBar()
-          : null,
-      body: FutureBuilder<QueryResult<GetMachineData, GetMachineVariables>>(
-        future: _machineFuture,
-        builder: (context, machineSnapshot) {
-          if (machineSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return FutureBuilder<QueryResult<GetMachineData, GetMachineVariables>>(
+      future: _machineFuture,
+      builder: (context, machineSnapshot) {
+        if (machineSnapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(
+            appBar: NavBar(
+              title: widget.machineData['name']!,
+              leadingText: 'Cancel',
+            ),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
 
-          if (machineSnapshot.hasError) {
-            return Center(child: Text('Error: ${machineSnapshot.error}'));
-          }
+        if (machineSnapshot.hasError) {
+          return Scaffold(
+            appBar: NavBar(
+              title: widget.machineData['name']!,
+              leadingText: 'Cancel',
+            ),
+            body: Center(child: Text('Error: ${machineSnapshot.error}')),
+          );
+        }
 
-          final machine = machineSnapshot.data?.data.machine;
-          final name =
-              machine?.name ?? widget.machineData['name'] ?? 'Unknown machine';
-          final description =
-              machine?.description ??
-              widget.machineData['description'] ??
-              'No description';
-          final imageUrl =
-              widget.machineData['imageUrl'] ??
-              'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=0D47A1&color=fff&size=200&bold=true';
+        final machine = machineSnapshot.data?.data.machine;
+        final name =
+            machine?.name ?? widget.machineData['name'] ?? 'Unknown machine';
+        final description =
+            machine?.description ??
+            widget.machineData['description'] ??
+            'No description';
+        final imageUrl =
+            machine?.imageUrl ??
+            widget.machineData['imageUrl'] ??
+            'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=0D47A1&color=fff&size=200&bold=true';
+        final serialNumber =
+            machine?.serialNumber ?? widget.machineData['serialNumber'];
 
-          return FutureBuilder<
-            QueryResult<
-              GetRoutinesByMachineIdData,
-              GetRoutinesByMachineIdVariables
-            >
-          >(
-            future: _routinesFuture,
-            builder: (context, routineSnapshot) {
-              // Initialise local checklist state once
-              if (routineSnapshot.connectionState == ConnectionState.done &&
-                  routineSnapshot.hasData) {
-                _initRoutinesFromSnapshot(routineSnapshot.data!.data.routines);
-              }
+        // Create an updated map for child pages
+        final currentMachineData = {
+          ...widget.machineData,
+          'name': name,
+          'description': description,
+          if (machine?.imageUrl != null) 'imageUrl': machine?.imageUrl,
+          if (serialNumber != null) 'serialNumber': serialNumber,
+        };
 
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Image.network(
-                        imageUrl,
-                        width: double.infinity,
-                        height: 250,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const Icon(Icons.image_not_supported, size: 100),
-                      ),
-                    ),
+        return Scaffold(
+          appBar: NavBar(title: name, leadingText: 'Cancel'),
+          bottomNavigationBar: widget.role == 'admin'
+              ? _buildAdminBottomBar(currentMachineData)
+              : null,
+          body:
+              FutureBuilder<
+                QueryResult<
+                  GetRoutinesByMachineIdData,
+                  GetRoutinesByMachineIdVariables
+                >
+              >(
+                future: _routinesFuture,
+                builder: (context, routineSnapshot) {
+                  // Initialise local checklist state once
+                  if (routineSnapshot.connectionState == ConnectionState.done &&
+                      routineSnapshot.hasData) {
+                    _initRoutinesFromSnapshot(
+                      routineSnapshot.data!.data.routines,
+                    );
+                  }
 
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Image.network(
+                            imageUrl,
+                            width: double.infinity,
+                            height: 250,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.image_not_supported,
+                              size: 100,
+                            ),
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  name,
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      name,
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
+                                  if (widget.machineData['id'] != null)
+                                    _buildMachineQRCode(
+                                      context,
+                                      machineID: widget.machineData['id']!,
+                                    ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 10),
+                              const Text(
+                                'Machine Details',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
-                              if (widget.machineData['id'] != null)
-                                _buildMachineQRCode(
-                                  context,
-                                  machineID: widget.machineData['id']!,
+                              const SizedBox(height: 10),
+                              Text(
+                                description,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  height: 1.5,
+                                  color: Colors.white,
                                 ),
+                              ),
+
+                              if (widget.role == 'staff') ...[
+                                const SizedBox(height: 30),
+                                _buildActionButtons(context, name: name),
+                              ],
+
+                              if (widget.role == 'mechanic' ||
+                                  widget.role == 'admin') ...[
+                                const SizedBox(height: 30),
+                                _buildRoutineChecklistSection(
+                                  context,
+                                  routineSnapshot,
+                                ),
+                              ],
+                              const SizedBox(height: 40),
                             ],
                           ),
-
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Machine Details',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            description,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.5,
-                              color: Colors.white,
-                            ),
-                          ),
-
-                          if (widget.role == 'staff') ...[
-                            const SizedBox(height: 30),
-                            _buildActionButtons(context, name: name),
-                          ],
-
-                          if (widget.role == 'mechanic' ||
-                              widget.role == 'admin') ...[
-                            const SizedBox(height: 30),
-                            _buildRoutineChecklistSection(
-                              context,
-                              routineSnapshot,
-                            ),
-                          ],
-                          const SizedBox(height: 40),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ),
+                  );
+                },
+              ),
+        );
+      },
     );
   }
 
-  Widget _buildAdminBottomBar() {
+  Widget _buildAdminBottomBar(Map<String, dynamic> currentMachineData) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -304,8 +336,9 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          UpdateMachinePage(machineData: widget.machineData),
+                      builder: (context) => UpdateMachinePage(
+                        machineData: currentMachineData.cast<String, dynamic>(),
+                      ),
                     ),
                   );
                   if (result == true && mounted) {
@@ -615,7 +648,10 @@ class _RoutineTile extends StatelessWidget {
         child: InkWell(
           onTap: () => onChanged(!(item['isDone'] as bool)),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 Expanded(
