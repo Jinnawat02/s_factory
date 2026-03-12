@@ -27,6 +27,7 @@ class _UpdateInventoryItemPageState extends State<UpdateInventoryItemPage> {
     _quantityStr = widget.itemData['stock']?.toString() ?? '0';
     _description = widget.itemData['description'] ?? '';
     _existingImageUrl = widget.itemData['imageUrl'];
+    _stockController.text = _quantityStr;
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -112,15 +113,10 @@ class _UpdateInventoryItemPageState extends State<UpdateInventoryItemPage> {
         );
       }
 
-      int parsedQty = 0;
-      try {
-        parsedQty = int.parse(_quantityStr);
-      } catch (_) {}
-
       await ConnectorConnector.instance
           .updateItem(id: widget.itemData['id']!)
           .name(_name)
-          .quantity(parsedQty)
+          .quantity(quantity)
           .description(_description)
           .imageUrl(uploadedImageUrl)
           .execute();

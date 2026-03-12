@@ -142,7 +142,8 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
             future: _routinesFuture,
             builder: (context, routineSnapshot) {
               // Initialise local checklist state once
-              if (routineSnapshot.hasData) {
+              if (routineSnapshot.connectionState == ConnectionState.done &&
+                  routineSnapshot.hasData) {
                 _initRoutinesFromSnapshot(routineSnapshot.data!.data.routines);
               }
 
@@ -269,8 +270,8 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                 label: const Text('Update'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -599,6 +600,15 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                   });
                 },
                 controlAffinity: ListTileControlAffinity.trailing,
+                secondary: widget.role == 'admin'
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
+                        onPressed: () => _confirmDeleteRoutine(context, item),
+                      )
+                    : null,
               ),
               if (!isLast) const Divider(height: 1, indent: 16, endIndent: 16),
             ],
@@ -606,5 +616,53 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
         }),
       ),
     );
+  }
+
+  Future<void> _confirmDeleteRoutine(
+    BuildContext context,
+    Map<String, dynamic> item,
+  ) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Routine'),
+        content: Text('Are you sure you want to delete "${item['title']}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      // Optimistic update for instant UI feedback
+      setState(() {
+        _checklistItems.removeWhere((element) => element['id'] == item['id']);
+      });
+      try {
+        await ConnectorConnector.instance
+            .deleteRoutine(id: item['id'])
+            .execute();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Routine deleted successfully')),
+          );
+          _loadRoutines(); // Reload to sync with server
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+          _loadRoutines(); // Reload to restore item if deletion failed
+        }
+      }
+    }
   }
 }
