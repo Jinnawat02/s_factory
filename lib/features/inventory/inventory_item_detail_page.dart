@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../../dataconnect_generated/generated.dart';
-
 import '../../shared/widgets/nav_bar.dart';
+import 'update_inventory_item_page.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
 class InventoryItemDetailPage extends StatelessWidget {
@@ -15,6 +14,10 @@ class InventoryItemDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NavBar(title: itemData['name'], leadingText: 'Back'),
+      // Matching the Machine Detail footbar pattern
+      bottomNavigationBar: role == 'admin'
+          ? _buildAdminBottomBar(context)
+          : null,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,28 +28,11 @@ class InventoryItemDetailPage extends StatelessWidget {
                 width: double.infinity,
                 height: 250,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: double.infinity,
-                  height: 250,
-                  color: Colors.grey[300],
-                  child: const Icon(
-                    Icons.image_not_supported,
-                    size: 100,
-                    color: Colors.grey,
-                  ),
-                ),
+                errorBuilder: (context, error, stackTrace) =>
+                    _buildPlaceholder(),
               )
             else
-              Container(
-                width: double.infinity,
-                height: 250,
-                color: Colors.grey[300],
-                child: const Icon(
-                  Icons.inventory_2,
-                  size: 100,
-                  color: Colors.grey,
-                ),
-              ),
+              _buildPlaceholder(),
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -73,9 +59,7 @@ class InventoryItemDetailPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(
-                        0.1,
-                      ), // Adjusted for dark background
+                      color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -85,75 +69,120 @@ class InventoryItemDetailPage extends StatelessWidget {
                           '${itemData['stock']} units',
                         ),
                         const Divider(height: 24),
-                        _buildInfoRow('Location', itemData['location']),
+                        _buildInfoRow(
+                          'Location',
+                          itemData['location'] ?? 'N/A',
+                        ),
                         const Divider(height: 24),
-                        _buildInfoRow('Category', itemData['category']),
+                        _buildInfoRow(
+                          'Category',
+                          itemData['category'] ?? 'N/A',
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: SizedBox(
-                      width: 250,
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          SnackBarUtils.showSuccess(
-                            context,
-                            'Update Stock clicked (Placeholder)',
-                          );
-                        },
-                        icon: const Icon(Icons.edit_document),
-                        label: const Text(
-                          'Update Stock',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepOrange,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (role == 'admin' && itemData['id'] != null) ...[
-                    const SizedBox(height: 16),
-                    Center(
-                      child: SizedBox(
-                        width: 250,
-                        height: 50,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _confirmDeleteItem(context),
-                          icon: const Icon(Icons.delete),
-                          label: const Text(
-                            'Delete Item',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // Updated Footer Bar to match Machine Detail template exactly
+  Widget _buildAdminBottomBar(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[900], // Match template color
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            // Update Button - flex 1, blue background
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          UpdateInventoryItemPage(itemData: itemData),
+                    ),
+                  );
+                  if (result == true && context.mounted) {
+                    Navigator.pop(context, true); // Refresh list on return
+                  }
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Update'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Delete Button - flex 1, red background
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _confirmDeleteItem(context),
+                icon: const Icon(Icons.delete),
+                label: const Text('Delete'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 250,
+      color: Colors.grey[300],
+      child: const Icon(Icons.inventory_2, size: 100, color: Colors.grey),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, color: Colors.white70),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ],
     );
   }
 
@@ -194,29 +223,5 @@ class InventoryItemDetailPage extends StatelessWidget {
         }
       }
     }
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white70, // Matched for dark background
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    );
   }
 }
