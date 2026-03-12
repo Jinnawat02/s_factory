@@ -59,11 +59,11 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.black, width: 2),
+        borderSide: const BorderSide(color: Colors.grey, width: 2),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.black, width: 2),
+        borderSide: const BorderSide(color: Colors.grey, width: 2),
       ),
     );
   }
@@ -71,7 +71,7 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[900],
       appBar: NavBar(
         title: 'Add Routine — ${widget.machineName}',
         leadingText: 'Back',
@@ -85,11 +85,12 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
             children: [
               const Text(
                 'ROUTINE TITLE',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 decoration: _inputDecoration('e.g. Daily Oil Check'),
+                style: const TextStyle(color: Colors.white),
                 validator: (value) => value == null || value.trim().isEmpty
                     ? 'Please enter a title'
                     : null,
@@ -99,7 +100,7 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
 
               const Text(
                 'DESCRIPTION (optional)',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -107,6 +108,7 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
                 decoration: _inputDecoration(
                   'Steps or notes for this routine...',
                 ),
+                style: const TextStyle(color: Colors.white),
                 onChanged: (value) => _description = value,
               ),
               const SizedBox(height: 48),
@@ -123,7 +125,7 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
-                        side: const BorderSide(color: Colors.black, width: 2),
+                        side: const BorderSide(color: Colors.white, width: 2),
                       ),
                     ),
                     child: _isLoading

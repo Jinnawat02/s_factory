@@ -6,8 +6,32 @@ import '../../../dataconnect_generated/generated.dart';
 
 import 'request_detail.dart';
 
-class RequestListPage extends StatelessWidget {
+class RequestListPage extends StatefulWidget {
   const RequestListPage({super.key});
+
+  @override
+  State<RequestListPage> createState() => _RequestListPageState();
+}
+
+class _RequestListPageState extends State<RequestListPage> {
+  late Future<QueryResult<ListRequestsData, ListRequestsVariables>> _requestsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _reloadsRequests();
+  }
+
+  void _reloadsRequests() {
+    final currentUserEmail = FirebaseAuth.instance.currentUser?.email;
+    if (currentUserEmail != null) {
+      setState(() {
+        _requestsFuture = ConnectorConnector.instance
+            .listRequests(email: currentUserEmail)
+            .execute();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +44,7 @@ class RequestListPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body: FutureBuilder<QueryResult<ListRequestsData, ListRequestsVariables>>(
-        future: ConnectorConnector.instance
-            .listRequests(email: currentUserEmail)
-            .execute(),
+        future: _requestsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -108,14 +130,15 @@ class RequestListPage extends StatelessWidget {
                     dateText,
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
                             RequestDetailPage(requestId: request.id),
                       ),
                     );
+                    _reloadsRequests();
                   },
                 ),
               );
