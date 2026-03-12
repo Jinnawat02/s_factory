@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
-import '../../mock/machine_mock_data.dart'; // Fallback for images if needed
 import 'task_detail.dart'; // Navigate to detail
 
 class TaskListPage extends StatefulWidget {
@@ -100,20 +99,14 @@ class _TaskListPageState extends State<TaskListPage> {
                 itemBuilder: (context, index) {
                   final task = sortedTasks[index];
 
-                  // Try to find the machine's image from mock data (fallback since imageUrl not in Connect yet)
-                  final machineId = task.machine.id;
-                  final machineMap = MachineMockData.machines.firstWhere(
-                    (m) => m['id'] == machineId,
-                    orElse: () => {
-                      'imageUrl': 'https://picsum.photos/200?random=$machineId',
-                      'description': 'N/A',
-                    },
-                  );
-                  final imageUrl = machineMap['imageUrl'];
-                  final mockDescription = machineMap['description'];
+                  final machineName = task.machine.name ?? 'Unknown Machine';
+
+                  // Use machine's imageUrl or fallback to UI avatar
+                  final imageUrl =
+                      task.machine.imageUrl ??
+                      'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machineName)}&background=0D47A1&color=fff&size=200&bold=true';
 
                   // Format labels
-                  final machineName = task.machine.name ?? 'Unknown Machine';
                   final title = 'Request $machineName';
 
                   // Format date nicely like "14/10 14:30"
@@ -131,12 +124,7 @@ class _TaskListPageState extends State<TaskListPage> {
                       leading: CircleAvatar(
                         radius: 25,
                         backgroundColor: Colors.grey[800],
-                        backgroundImage: imageUrl != null
-                            ? NetworkImage(imageUrl)
-                            : null,
-                        child: imageUrl == null
-                            ? const Icon(Icons.image_outlined, color: Colors.grey)
-                            : null,
+                        backgroundImage: NetworkImage(imageUrl),
                       ),
                       title: Text(
                         title,
@@ -202,8 +190,8 @@ class _TaskListPageState extends State<TaskListPage> {
                               machineId: task.machine.id,
                               machineName: machineName,
                               description:
-                                  task.description ?? mockDescription ?? 'N/A',
-                              imageUrl: task.machine.imageUrl ?? imageUrl,
+                                  task.description ?? 'N/A',
+                              imageUrl: imageUrl,
                             ),
                           ),
                         );

@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
-import '../../mock/machine_mock_data.dart';
 import 'request_detail.dart';
 
 class RequestListPage extends StatelessWidget {
@@ -64,18 +63,14 @@ class RequestListPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final request = sortedRequests[index];
 
-              // Try to find the machine's image from mock data (fallback since imageUrl not in Connect yet)
-              final machineId = request.machine.id;
-              final machineMap = MachineMockData.machines.firstWhere(
-                (m) => m['id'] == machineId,
-                orElse: () => {
-                  'imageUrl': 'https://picsum.photos/200?random=$machineId',
-                },
-              );
-              final imageUrl = machineMap['imageUrl'];
+              final machineName = request.machine.name ?? 'Unknown Machine';
+
+              // Use machine's imageUrl or fallback to UI avatar
+              final imageUrl =
+                  request.machine.imageUrl ??
+                  'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machineName)}&background=0D47A1&color=fff&size=200&bold=true';
 
               // Format the displayed title
-              final machineName = request.machine.name ?? 'Unknown Machine';
               final title = 'Request $machineName';
 
               // Format the displayed date
@@ -93,12 +88,7 @@ class RequestListPage extends StatelessWidget {
                   leading: CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.grey[800],
-                    backgroundImage: imageUrl != null
-                        ? NetworkImage(imageUrl)
-                        : null,
-                    child: imageUrl == null
-                        ? const Icon(Icons.image_outlined, color: Colors.grey)
-                        : null,
+                    backgroundImage: NetworkImage(imageUrl),
                   ),
                   title: Text(
                     title,

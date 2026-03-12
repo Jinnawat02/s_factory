@@ -211,6 +211,12 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
 
   Widget _buildMachineImage() {
     final imageUrl = _request?.machine.imageUrl;
+    final machineName = _request?.machine.name ?? 'Machine';
+
+    final effectiveImageUrl = (imageUrl != null && imageUrl.isNotEmpty)
+        ? imageUrl
+        : 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machineName)}&background=0D47A1&color=fff&size=200&bold=true';
+
     return Container(
       width: double.infinity,
       height: 200,
@@ -219,17 +225,14 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
         borderRadius: BorderRadius.circular(12),
       ),
       clipBehavior: Clip.antiAlias,
-      child: imageUrl != null && imageUrl.isNotEmpty
-          ? Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => const Center(
-                child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
-              ),
-            )
-          : const Center(
-              child: Icon(Icons.settings, size: 50, color: Colors.grey),
+      child: Image.network(
+        effectiveImageUrl,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) => const Center(
+              child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
             ),
+      ),
     );
   }
 
