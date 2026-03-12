@@ -1,7 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../../shared/services/secure_storage_service.dart';
 
 class NavBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;

@@ -7,6 +7,7 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 import '../../mock/request_mock_data.dart';
 import '../../shared/widgets/nav_bar.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class RequestFormPage extends StatefulWidget {
   final String machineName;
@@ -64,7 +65,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
       setState(() => _isLoadingMechanics = false);
 
-      _showSnackBar('Error loading mechanics: $e');
+      SnackBarUtils.showError(context, 'Error loading mechanics: $e');
     }
   }
 
@@ -94,11 +95,6 @@ class _RequestFormPageState extends State<RequestFormPage> {
     }
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-  }
-
   Future<void> _submitRequest() async {
 
     if (_isSubmitting) return;
@@ -106,7 +102,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_pickedDate == null || _pickedTime == null) {
-      _showSnackBar('กรุณาเลือกวันและเวลาให้ครบถ้วน');
+      SnackBarUtils.showError(context, 'Please select both date and time.');
       return;
     }
 
@@ -171,7 +167,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
       if (!mounted) return;
 
-      _showSnackBar('ส่งข้อมูลการแจ้งซ่อมเรียบร้อยแล้ว');
+      SnackBarUtils.showSuccess(context, 'Repair request submitted successfully.');
 
       Navigator.pop(context);
 
@@ -179,7 +175,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
       if (!mounted) return;
 
-      _showSnackBar('เกิดข้อผิดพลาด: $e');
+      SnackBarUtils.showError(context, 'An error occurred: $e');
 
     } finally {
 

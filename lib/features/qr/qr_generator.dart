@@ -6,6 +6,8 @@ import 'package:flutter/rendering.dart';
 import 'package:gal/gal.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../shared/utils/snackbar_utils.dart';
+
 class QRGeneratorPage extends StatefulWidget {
   final String machineID;
 
@@ -59,17 +61,10 @@ class _QRGeneratorPageState extends State<QRGeneratorPage> {
       await Gal.putImageBytes(pngBytes);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('QR Code saved to Gallery successfully!'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      SnackBarUtils.showSuccess(context, 'QR Code saved to Gallery successfully!');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving QR code: $e')),
-      );
+      SnackBarUtils.showError(context, 'Error saving QR code: $e');
     } finally {
       if (mounted) {
         setState(() => _isDownloading = false);

@@ -4,6 +4,7 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
 import 'package:s_factory/features/user/add_user_page.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class UserListPage extends StatefulWidget {
   final String? role;
@@ -273,19 +274,12 @@ class _UserListPageState extends State<UserListPage> {
             .deleteUser(email: user.email)
             .execute();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User deleted successfully')),
-          );
+          SnackBarUtils.showSuccess(context, 'User deleted successfully');
           _loadUsers();
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting user: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          SnackBarUtils.showError(context, 'Error deleting user: $e');
         }
       }
     }

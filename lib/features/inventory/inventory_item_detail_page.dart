@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../dataconnect_generated/generated.dart';
 import '../../shared/widgets/nav_bar.dart';
 import 'update_inventory_item_page.dart';
+import '../../shared/utils/snackbar_utils.dart';
 
 class InventoryItemDetailPage extends StatelessWidget {
   final Map<String, dynamic> itemData;
@@ -80,9 +81,6 @@ class InventoryItemDetailPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 100,
-                  ), // Space so content isn't hidden by footbar
                 ],
               ),
             ),
@@ -213,16 +211,15 @@ class InventoryItemDetailPage extends StatelessWidget {
             .deleteItem(id: itemData['id'])
             .execute();
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Item deleted successfully')),
-          );
-          Navigator.pop(context, true);
+          SnackBarUtils.showSuccess(context, 'Item deleted successfully');
+          Navigator.pop(
+            context,
+            true,
+          ); // Pop the detail page, optionally returning true to refresh
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-          );
+          SnackBarUtils.showError(context, 'Error deleting item: $e');
         }
       }
     }

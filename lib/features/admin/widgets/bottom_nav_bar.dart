@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:s_factory/features/inventory/inventory_page.dart';
 
 class BottomNavBar extends StatelessWidget implements PreferredSizeWidget {
   const BottomNavBar({super.key});
