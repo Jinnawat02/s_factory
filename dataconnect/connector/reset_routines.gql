@@ -1,0 +1,3 @@
+mutation ResetAllRoutines @auth(level: NO_ACCESS) {
+  routine_updateMany(data: { isCheck: false })
+}
