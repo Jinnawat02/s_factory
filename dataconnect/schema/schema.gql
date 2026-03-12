@@ -13,7 +13,7 @@ type User @table(key: "email") {
 type Machine @table(key: "id") {
   id: UUID! @default(expr: "uuidV4()")
   name: String
-  serialNumber: Int
+  serialNumber: String
   description: String
   imageUrl: String
   createdAt: Timestamp @default(expr: "request.time")

@@ -74,8 +74,6 @@ class _AddMachinePageState extends State<AddMachinePage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final serialInt = int.tryParse(_serialNumber) ?? 0;
-
     setState(() => _isLoading = true);
 
     try {
@@ -90,7 +88,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
       await ConnectorConnector.instance
           .createMachine(
             name: _name,
-            serialNumber: serialInt,
+            serialNumber: _serialNumber,
             description: _description,
           )
           .imageUrl(uploadedImageUrl)
@@ -172,10 +170,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   hintStyle: const TextStyle(color: Colors.white54),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    borderSide: const BorderSide(color: Colors.white, width: 2),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -203,17 +198,14 @@ class _AddMachinePageState extends State<AddMachinePage> {
               const SizedBox(height: 8),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.text,
+                // inputFormatters: ,
                 decoration: InputDecoration(
-                  hintText: 'Serial Number (numbers only)',
+                  hintText: 'Serial Number',
                   hintStyle: const TextStyle(color: Colors.white54),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    borderSide: const BorderSide(color: Colors.white, width: 2),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -244,10 +236,7 @@ class _AddMachinePageState extends State<AddMachinePage> {
                   hintStyle: const TextStyle(color: Colors.white54),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    borderSide: const BorderSide(color: Colors.white, width: 2),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),

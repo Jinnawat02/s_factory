@@ -87,8 +87,6 @@ class _UpdateMachinePageState extends State<UpdateMachinePage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final serialInt = int.tryParse(_serialNumber) ?? 0;
-
     setState(() => _isLoading = true);
 
     try {
@@ -103,7 +101,7 @@ class _UpdateMachinePageState extends State<UpdateMachinePage> {
       await ConnectorConnector.instance
           .updateMachine(id: widget.machineData['id']!)
           .name(_name)
-          .serialNumber(serialInt)
+          .serialNumber(_serialNumber)
           .description(_description)
           .imageUrl(finalImageUrl)
           .execute();

@@ -46,7 +46,7 @@ mutation DeleteUser($email: String!) @auth(level: PUBLIC) {
 # Machine Mutations
 mutation CreateMachine(
   $name: String!
-  $serialNumber: Int!
+  $serialNumber: String!
   $description: String!
   $imageUrl: String
 ) @auth(level: PUBLIC) {
@@ -63,7 +63,7 @@ mutation CreateMachine(
 mutation UpdateMachine(
   $id: UUID!
   $name: String
-  $serialNumber: Int
+  $serialNumber: String
   $description: String
   $imageUrl: String
   $updatedAt: Timestamp

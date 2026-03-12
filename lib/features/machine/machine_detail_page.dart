@@ -453,6 +453,28 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     BuildContext context,
     AsyncSnapshot snapshot,
   ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Routine Checklist',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (widget.role == 'admin') ...[
+          _buildActionButtons(context, name: widget.machineData['name']),
+          const SizedBox(height: 16),
+        ],
+        _buildRoutineContent(snapshot),
+      ],
+    );
+  }
+
+  Widget _buildRoutineContent(AsyncSnapshot snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting &&
         _checklistItems.isEmpty) {
       return const Center(child: CircularProgressIndicator());

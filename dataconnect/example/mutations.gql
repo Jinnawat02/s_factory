@@ -36,7 +36,7 @@ mutation CreateItem($name: String!, $quantity: Int!, $description: String!)
 
 mutation CreateMachine(
   $name: String!
-  $serialNumber: Int!
+  $serialNumber: String!
   $description: String!
 ) @auth(level: PUBLIC) {
   machine_insert(
