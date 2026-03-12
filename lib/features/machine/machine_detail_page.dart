@@ -497,31 +497,15 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ..._checklistItems.map((item) {
-          return CheckboxListTile(
-            title: Text(
-              item['title'],
-              style: const TextStyle(color: Colors.white),
-            ),
-            subtitle: Text(
-              item['subtitle'],
-              style: const TextStyle(color: Colors.white70),
-            ),
-            value: item['isDone'],
-            activeColor: Colors.deepOrange,
-            checkColor: Colors.white,
-            side: const BorderSide(color: Colors.white70),
-            controlAffinity: ListTileControlAffinity.trailing,
-            secondary: widget.role == 'admin'
-                ? IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => _confirmDeleteRoutine(context, item),
-                  )
-                : null,
+          return _RoutineTile(
+            item: item,
+            role: widget.role,
             onChanged: (bool? val) {
               setState(() {
                 item['isDone'] = val ?? false;
               });
             },
+            onDelete: () => _confirmDeleteRoutine(context, item),
           );
         }).toList(),
         const SizedBox(height: 20),
@@ -603,5 +587,79 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
         }
       }
     }
+  }
+}
+
+class _RoutineTile extends StatelessWidget {
+  final Map<String, dynamic> item;
+  final String role;
+  final ValueChanged<bool?> onChanged;
+  final VoidCallback onDelete;
+
+  const _RoutineTile({
+    required this.item,
+    required this.role,
+    required this.onChanged,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      // Use InkWell to make the entire container tappable
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => onChanged(!(item['isDone'] as bool)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title'],
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (item['subtitle']?.isNotEmpty == true) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          item['subtitle'],
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (role == 'admin')
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: onDelete,
+                  ),
+                Checkbox(
+                  value: item['isDone'],
+                  onChanged: onChanged,
+                  activeColor: Colors.deepOrange,
+                  checkColor: Colors.white,
+                  side: const BorderSide(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
