@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../dataconnect_generated/generated.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app.dart';
+import '../../features/mechanic/task_detail.dart';
 
 class FcmService {
   static final FcmService _instance = FcmService._internal();
@@ -88,16 +89,16 @@ class FcmService {
       final requestId = message.data['requestId'];
       if (kDebugMode) print('Tapped notification with requestId: $requestId');
 
-      // We need just the Machine ID or to construct the view.
-      // The push notification only sends requestId. We'll navigate to a generic
-      // requests view or we can look up the request and go to machine.
-      // Since we don't have a RequestDetailPage, we'll navigate to the Home Page
-      // and let the user tap it, or we try to push if we can resolve the route.
       final context = navigatorKey.currentContext;
       if (context != null) {
-        // Ideally we would fetch the request details here to get the machine ID
-        // For now, let's just pop back to the root so they see their task list.
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        // Navigate to TaskDetailPage with the requestId
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => TaskDetailPage(
+              requestId: requestId,
+            ),
+          ),
+        );
       }
     }
   }

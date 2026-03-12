@@ -131,16 +131,6 @@ class _ProfileState extends State<Profile> {
                   'https://ui-avatars.com/api/?name=${Uri.encodeComponent(user.name)}&background=0D47A1&color=fff&size=200&bold=true',
             ),
           ),
-          if (_currentRole == 'admin')
-            const Positioned(
-              bottom: 0,
-              right: 0,
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.blueAccent,
-                child: Icon(Icons.edit, size: 18, color: Colors.white),
-              ),
-            ),
         ],
       ),
     );

@@ -7,17 +7,17 @@ import '../../shared/utils/snackbar_utils.dart';
 
 class TaskDetailPage extends StatefulWidget {
   final String requestId;
-  final String machineId;
-  final String machineName;
-  final String description;
+  final String? machineId;
+  final String? machineName;
+  final String? description;
   final String? imageUrl;
 
   const TaskDetailPage({
     super.key,
     required this.requestId,
-    required this.machineId,
-    required this.machineName,
-    required this.description,
+    this.machineId,
+    this.machineName,
+    this.description,
     this.imageUrl,
   });
 
@@ -34,11 +34,21 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   List<Map<String, dynamic>> _selectedParts = [];
   List<String> _initialSavedPartIds = [];
 
+  // State to hold request/machine details if not passed in
+  String? _machineId;
+  String? _machineName;
+  String? _description;
+  String? _imageUrl;
+
   Key _autocompleteKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
+    _machineId = widget.machineId;
+    _machineName = widget.machineName;
+    _description = widget.description;
+    _imageUrl = widget.imageUrl;
     _fetchData();
   }
 
@@ -50,17 +60,33 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           .getTaskItemsByRequestId(requestId: widget.requestId)
           .execute();
 
+      // If we don't have basic details, fetch the request itself
+      QueryResult<GetRequestData, GetRequestVariables>? requestResult;
+      if (_machineId == null || _machineName == null || _description == null) {
+        requestResult = await ConnectorConnector.instance
+            .getRequest(id: widget.requestId)
+            .execute();
+      }
+
       final results = await Future.wait([itemsFuture, taskItemsFuture]);
 
       final itemsResult = results[0] as QueryResult<ListItemsData, void>;
       final taskItemsResult = results[1] as QueryResult<
-        GetTaskItemsByRequestIdData,
-        GetTaskItemsByRequestIdVariables
-      >;
+          GetTaskItemsByRequestIdData,
+          GetTaskItemsByRequestIdVariables
+          >;
 
       if (!mounted) return;
 
       setState(() {
+        if (requestResult != null && requestResult.data.request != null) {
+          final r = requestResult.data.request!;
+          _machineId ??= r.machine.id;
+          _machineName ??= r.machine.name;
+          _description ??= r.description;
+          _imageUrl ??= r.machine.imageUrl;
+        }
+
         _allItems = itemsResult.data.items;
 
         _selectedParts = taskItemsResult.data.taskItems.map((ti) {
@@ -155,11 +181,13 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         }
       }
 
-      await RequestService().completeRequest(
-        requestId: widget.requestId,
-        machineId: widget.machineId,
-        machineName: widget.machineName,
-      );
+      if (_machineId != null && _machineName != null) {
+        await RequestService().completeRequest(
+          requestId: widget.requestId,
+          machineId: _machineId!,
+          machineName: _machineName!,
+        );
+      }
 
       if (mounted) {
         SnackBarUtils.showSuccess(context, 'Task saved successfully!');
@@ -200,7 +228,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   }
 
   Widget _buildMachineImage() {
-    final imageUrl = widget.imageUrl;
+    final imageUrl = _imageUrl;
     return Container(
       width: double.infinity,
       height: 200,
@@ -228,7 +256,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.machineName,
+          _machineName ?? 'Loading...',
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -237,7 +265,7 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          widget.description,
+          _description ?? 'Loading...',
           style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
       ],

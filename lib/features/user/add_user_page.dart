@@ -83,11 +83,21 @@ class _AddUserPageState extends State<AddUserPage> {
     setState(() => _isLoading = true);
 
     try {
+      // 1. Upload Image
       String? uploadedImageUrl;
       if (_pickedImage != null) {
         uploadedImageUrl = await StorageService.uploadImage(_pickedImage!, 'users');
       }
 
+      // 2. Create Firebase Authentication User
+      // We do this first to get the UID if needed, or just to ensure auth works
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _email.trim(),
+        password: _password.trim(),
+      );
+
+      // 3. Create user in your custom backend/database
+      // Note: It's good practice to pass userCredential.user!.uid to your backend here
       await ConnectorConnector.instance
           .createUser(
         email: _email,
@@ -122,6 +132,7 @@ class _AddUserPageState extends State<AddUserPage> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
