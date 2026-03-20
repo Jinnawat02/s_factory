@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -40,52 +41,55 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCy5HtnpEH10OsJ_lUW21WlTzLLoNr9WM8',
-    appId: '1:954777026389:web:fbcd5b68cd888f6d6d79dc',
-    messagingSenderId: '954777026389',
-    projectId: 'fir-factory-45cec',
-    authDomain: 'fir-factory-45cec.firebaseapp.com',
-    storageBucket: 'fir-factory-45cec.firebasestorage.app',
-  );
+  static FirebaseOptions get web => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY_WEB'] ?? '',
+        appId: '1:954777026389:web:fbcd5b68cd888f6d6d79dc',
+        messagingSenderId: '954777026389',
+        projectId: 'fir-factory-45cec',
+        authDomain: 'fir-factory-45cec.firebaseapp.com',
+        storageBucket: 'fir-factory-45cec.firebasestorage.app',
+      );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBtwGeXVjFGfmT8G8Cyw8AnysTrpd2tyEM',
-    appId: '1:954777026389:android:804c6e7d6c821fc06d79dc',
-    messagingSenderId: '954777026389',
-    projectId: 'fir-factory-45cec',
-    storageBucket: 'fir-factory-45cec.firebasestorage.app',
-  );
+  static FirebaseOptions get android => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY_ANDROID'] ?? '',
+        appId: '1:954777026389:android:804c6e7d6c821fc06d79dc',
+        messagingSenderId: '954777026389',
+        projectId: 'fir-factory-45cec',
+        storageBucket: 'fir-factory-45cec.firebasestorage.app',
+      );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB9kdGr95X7FlZwDcDVFvUb0jk2lXprEAo',
-    appId: '1:954777026389:ios:357c6105f0d8a8c46d79dc',
-    messagingSenderId: '954777026389',
-    projectId: 'fir-factory-45cec',
-    storageBucket: 'fir-factory-45cec.firebasestorage.app',
-    androidClientId: '954777026389-g83fmevk1jqb0ad37ps0oe587h89k4fn.apps.googleusercontent.com',
-    iosClientId: '954777026389-jq5t9f3baapsv45je0qgd47e3lqr13f4.apps.googleusercontent.com',
-    iosBundleId: 'com.example.sFactory',
-  );
+  static FirebaseOptions get ios => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY_IOS'] ?? '',
+        appId: '1:954777026389:ios:357c6105f0d8a8c46d79dc',
+        messagingSenderId: '954777026389',
+        projectId: 'fir-factory-45cec',
+        storageBucket: 'fir-factory-45cec.firebasestorage.app',
+        androidClientId:
+            '954777026389-g83fmevk1jqb0ad37ps0oe587h89k4fn.apps.googleusercontent.com',
+        iosClientId:
+            '954777026389-jq5t9f3baapsv45je0qgd47e3lqr13f4.apps.googleusercontent.com',
+        iosBundleId: 'com.example.sFactory',
+      );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyB9kdGr95X7FlZwDcDVFvUb0jk2lXprEAo',
-    appId: '1:954777026389:ios:357c6105f0d8a8c46d79dc',
-    messagingSenderId: '954777026389',
-    projectId: 'fir-factory-45cec',
-    storageBucket: 'fir-factory-45cec.firebasestorage.app',
-    androidClientId: '954777026389-g83fmevk1jqb0ad37ps0oe587h89k4fn.apps.googleusercontent.com',
-    iosClientId: '954777026389-jq5t9f3baapsv45je0qgd47e3lqr13f4.apps.googleusercontent.com',
-    iosBundleId: 'com.example.sFactory',
-  );
+  static FirebaseOptions get macos => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY_MACOS'] ?? '',
+        appId: '1:954777026389:ios:357c6105f0d8a8c46d79dc',
+        messagingSenderId: '954777026389',
+        projectId: 'fir-factory-45cec',
+        storageBucket: 'fir-factory-45cec.firebasestorage.app',
+        androidClientId:
+            '954777026389-g83fmevk1jqb0ad37ps0oe587h89k4fn.apps.googleusercontent.com',
+        iosClientId:
+            '954777026389-jq5t9f3baapsv45je0qgd47e3lqr13f4.apps.googleusercontent.com',
+        iosBundleId: 'com.example.sFactory',
+      );
 
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCy5HtnpEH10OsJ_lUW21WlTzLLoNr9WM8',
-    appId: '1:954777026389:web:a7f1740c3f68e5936d79dc',
-    messagingSenderId: '954777026389',
-    projectId: 'fir-factory-45cec',
-    authDomain: 'fir-factory-45cec.firebaseapp.com',
-    storageBucket: 'fir-factory-45cec.firebasestorage.app',
-  );
-
+  static FirebaseOptions get windows => FirebaseOptions(
+        apiKey: dotenv.env['FIREBASE_API_KEY_WINDOWS'] ?? '',
+        appId: '1:954777026389:web:a7f1740c3f68e5936d79dc',
+        messagingSenderId: '954777026389',
+        projectId: 'fir-factory-45cec',
+        authDomain: 'fir-factory-45cec.firebaseapp.com',
+        storageBucket: 'fir-factory-45cec.firebasestorage.app',
+      );
 }
