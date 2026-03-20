@@ -1,3 +1,6 @@
+/// Inventory item detail page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
@@ -5,10 +8,31 @@ import '../../shared/widgets/nav_bar.dart';
 import 'update_inventory_item_page.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A detail page for a single inventory item.
+///
+/// Fetches live item data from Firebase Data Connect using [itemData]'s `id`
+/// field and displays name, description, stock count, location, and category.
+///
+/// Admin users see an **Update** and a **Delete** button in the bottom bar.
+///
+/// Example usage:
+/// ```dart
+/// InventoryItemDetailPage(
+///   itemData: {'id': '123', 'name': 'Bearing'},
+///   role: 'admin',
+/// )
+/// ```
 class InventoryItemDetailPage extends StatefulWidget {
+  /// A map containing at minimum the `id` and `name` of the item.
+  /// Additional fields (`description`, `stock`, `imageUrl`, etc.) are used
+  /// as fallback values while the network request is in-flight.
   final Map<String, dynamic> itemData;
+
+  /// The role of the currently logged-in user.
+  /// Pass `'admin'` to show the Update/Delete bottom bar.
   final String? role;
 
+  /// Creates an [InventoryItemDetailPage].
   const InventoryItemDetailPage({super.key, required this.itemData, this.role});
 
   @override
@@ -25,6 +49,10 @@ class _InventoryItemDetailPageState extends State<InventoryItemDetailPage> {
     _loadItem();
   }
 
+  /// Fetches the latest item data from Firebase Data Connect.
+  ///
+  /// If [itemData]`['id']` is `null` the future is set to `null` and the page
+  /// renders using the values already present in [itemData].
   void _loadItem() {
     setState(() {
       _itemFuture = widget.itemData['id'] == null
@@ -147,6 +175,11 @@ class _InventoryItemDetailPageState extends State<InventoryItemDetailPage> {
     );
   }
 
+  /// Returns a bottom action bar with **Update** and **Delete** buttons.
+  ///
+  /// Only rendered when [role] is `'admin'`.
+  /// Tapping **Update** navigates to [UpdateInventoryItemPage];
+  /// tapping **Delete** opens a confirmation dialog via [_confirmDeleteItem].
   Widget _buildAdminBottomBar(Map<String, dynamic> currentItemData) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -211,6 +244,7 @@ class _InventoryItemDetailPageState extends State<InventoryItemDetailPage> {
     );
   }
 
+  /// Builds a grey placeholder box shown when the item has no image.
   Widget _buildPlaceholder() {
     return Container(
       width: double.infinity,
@@ -220,6 +254,9 @@ class _InventoryItemDetailPageState extends State<InventoryItemDetailPage> {
     );
   }
 
+  /// Builds a single key-value row used inside the info panel.
+  ///
+  /// [label] is displayed in light grey on the left; [value] is bold-white on the right.
   Widget _buildInfoRow(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,6 +277,10 @@ class _InventoryItemDetailPageState extends State<InventoryItemDetailPage> {
     );
   }
 
+  /// Shows a confirmation dialog before permanently deleting the item.
+  ///
+  /// On confirmation, calls `ConnectorConnector.deleteItem` and pops the route
+  /// with `true` so the parent list can refresh.
   Future<void> _confirmDeleteItem(
     BuildContext context,
     Map<String, dynamic> itemData,

@@ -1,3 +1,6 @@
+/// Add machine page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -8,7 +11,31 @@ import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A form page that allows admins to register a new machine in the system.
+///
+/// Users can:
+/// - Enter the machine **name** (required)
+/// - Enter the **serial number**
+/// - Write a free-text **description**
+/// - Attach an **image** from the camera or gallery
+///
+/// On submission the machine is created in Firebase Data Connect via
+/// `ConnectorConnector.createMachine` and the optional image is uploaded to
+/// Firebase Storage with [StorageService.uploadImage].
+///
+/// Returns `true` to the caller (via `Navigator.pop`) when creation succeeds
+/// so the parent list can refresh.
+///
+/// Example usage:
+/// ```dart
+/// final created = await Navigator.push<bool>(
+///   context,
+///   MaterialPageRoute(builder: (_) => const AddMachinePage()),
+/// );
+/// if (created == true) _reloadList();
+/// ```
 class AddMachinePage extends StatefulWidget {
+  /// Creates an [AddMachinePage].
   const AddMachinePage({super.key});
 
   @override
@@ -24,6 +51,11 @@ class _AddMachinePageState extends State<AddMachinePage> {
   bool _isLoading = false;
   XFile? _pickedImage;
 
+  /// Opens the device gallery or camera and stores the chosen file in
+  /// [_pickedImage].
+  ///
+  /// [source] must be [ImageSource.gallery] or [ImageSource.camera].
+  /// Images are compressed to 85 % quality before being stored locally.
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? image = await ImagePicker().pickImage(
@@ -40,6 +72,8 @@ class _AddMachinePageState extends State<AddMachinePage> {
     }
   }
 
+  /// Shows a bottom sheet letting the user choose between **Gallery** and
+  /// **Camera** as the image source.
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
@@ -71,6 +105,17 @@ class _AddMachinePageState extends State<AddMachinePage> {
     );
   }
 
+  /// Validates the form, uploads the image (if any), and creates the machine
+  /// record in Firebase Data Connect.
+  ///
+  /// Fields submitted:
+  /// - [_name] — required machine name
+  /// - [_serialNumber] — optional serial number
+  /// - [_description] — optional free-text description
+  /// - image URL — optional, uploaded to Firebase Storage under `machines/`
+  ///
+  /// Shows a success [SnackBar] and pops the route with `true` on success,
+  /// or an error [SnackBar] if anything fails.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 

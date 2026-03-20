@@ -1,3 +1,6 @@
+/// Add inventory item page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -8,7 +11,31 @@ import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A form page that allows admins to add a new inventory item.
+///
+/// Users can:
+/// - Enter the item **name** (required)
+/// - Set the **quantity** using increment / decrement buttons
+/// - Write a free-text **description**
+/// - Attach an **image** from the camera or gallery
+///
+/// On submission the item is created in Firebase Data Connect via
+/// `ConnectorConnector.createItem` and the optional image is uploaded to
+/// Firebase Storage with [StorageService.uploadImage].
+///
+/// Returns `true` to the caller (via `Navigator.pop`) when creation succeeds
+/// so the parent list can refresh.
+///
+/// Example usage:
+/// ```dart
+/// final created = await Navigator.push<bool>(
+///   context,
+///   MaterialPageRoute(builder: (_) => const AddInventoryItemPage()),
+/// );
+/// if (created == true) _reloadList();
+/// ```
 class AddInventoryItemPage extends StatefulWidget {
+  /// Creates an [AddInventoryItemPage].
   const AddInventoryItemPage({super.key});
 
   @override
@@ -33,6 +60,11 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
     super.dispose();
   }
 
+  /// Opens the device gallery or camera and stores the chosen file in
+  /// [_pickedImage].
+  ///
+  /// [source] must be [ImageSource.gallery] or [ImageSource.camera].
+  /// Images are compressed to 85 % quality before being stored locally.
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? image = await ImagePicker().pickImage(
@@ -49,6 +81,8 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
     }
   }
 
+  /// Presents a bottom sheet so the user can choose between **Gallery** and
+  /// **Camera** as the image source.
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
@@ -80,6 +114,11 @@ class _AddInventoryItemPageState extends State<AddInventoryItemPage> {
     );
   }
 
+  /// Validates the form, uploads the image (if any), and creates the item
+  /// in Firebase Data Connect.
+  ///
+  /// Shows a [SnackBar] on success or failure, then pops the route with
+  /// `true` on success.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
