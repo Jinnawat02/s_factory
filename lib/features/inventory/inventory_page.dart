@@ -1,6 +1,6 @@
 /// Inventory list page for the s_factory application.
 ///
-/// @author Siwakorn Soemchatchroenkan
+/// @author Siwakorn Soemchatchroenkan — Individual feature on inventory function
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../dataconnect_generated/generated.dart';

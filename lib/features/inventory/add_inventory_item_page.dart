@@ -1,6 +1,6 @@
 /// Add inventory item page for the s_factory application.
 ///
-/// @author Siwakorn Soemchatchroenkan
+/// @author Siwakorn Soemchatchroenkan — Individual feature on inventory function
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';

@@ -1,3 +1,6 @@
+/// Update inventory item page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan — Individual feature on inventory function
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -7,9 +10,38 @@ import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
 
+/// A form page that allows admins to edit an existing inventory item.
+///
+/// Pre-fills all fields with values from [itemData] so the admin only needs
+/// to change what requires updating.
+///
+/// Supports editing:
+/// - **Name** (required)
+/// - **Quantity** — via increment / decrement stepper or direct input
+/// - **Description**
+/// - **Image** — replaces the existing image by uploading a new one to
+///   Firebase Storage under `inventory/`
+///
+/// Returns `true` to the caller (via `Navigator.pop`) when the update
+/// succeeds so [InventoryItemDetailPage] can reload the latest data.
+///
+/// Example usage:
+/// ```dart
+/// final result = await Navigator.push<bool>(
+///   context,
+///   MaterialPageRoute(
+///     builder: (_) => UpdateInventoryItemPage(itemData: currentItemData),
+///   ),
+/// );
+/// if (result == true) _loadItem();
+/// ```
 class UpdateInventoryItemPage extends StatefulWidget {
+  /// A map containing the item's current values.
+  ///
+  /// Expected keys: `id`, `name`, `stock`, `description`, `imageUrl`.
   final Map<String, dynamic> itemData;
 
+  /// Creates an [UpdateInventoryItemPage] pre-filled with [itemData].
   const UpdateInventoryItemPage({super.key, required this.itemData});
 
   @override
@@ -48,6 +80,11 @@ class _UpdateInventoryItemPageState extends State<UpdateInventoryItemPage> {
     super.dispose();
   }
 
+  /// Opens the device camera or photo gallery and stores the chosen file
+  /// in [_pickedImage].
+  ///
+  /// [source] must be [ImageSource.gallery] or [ImageSource.camera].
+  /// Images are compressed to 85 % quality before being stored locally.
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? image = await ImagePicker().pickImage(
@@ -66,6 +103,8 @@ class _UpdateInventoryItemPageState extends State<UpdateInventoryItemPage> {
     }
   }
 
+  /// Shows a bottom sheet so the user can choose between **Gallery** and
+  /// **Camera** as the image source.
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
@@ -97,6 +136,17 @@ class _UpdateInventoryItemPageState extends State<UpdateInventoryItemPage> {
     );
   }
 
+  /// Validates the form, uploads a new image if one was picked, then calls
+  /// `ConnectorConnector.updateItem` to persist all changes.
+  ///
+  /// Fields submitted:
+  /// - [_name] — required item name
+  /// - quantity — parsed from [_stockController] (defaults to `0`)
+  /// - [_description] — optional free-text description
+  /// - image URL — new upload if [_pickedImage] is set, otherwise
+  ///   keeps [_existingImageUrl] unchanged
+  ///
+  /// Pops with `true` on success or shows a [SnackBar] error on failure.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
