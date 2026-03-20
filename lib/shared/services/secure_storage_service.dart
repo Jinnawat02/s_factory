@@ -1,22 +1,28 @@
+/// Service for managing securely stored local data.
+///
+/// Provides a wrapper around Flutter Secure Storage to persist user
+/// session data across app restarts.
+///
+/// @author Thanat Phadinkaew
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+/// A service that reads and writes the user's role to encrypted local storage.
 class SecureStorageService {
   final _storage = const FlutterSecureStorage();
 
-  // คีย์สำหรับเก็บข้อมูล
   final String _roleKey = 'user_role';
 
-  // 1. บันทึก Role ลงเครื่อง
+  /// Persists the user's role to secure storage.
   Future<void> saveRole(String role) async {
     await _storage.write(key: _roleKey, value: role);
   }
 
-  // 2. ดึง Role จากเครื่อง
+  /// Retrieves the user's role from secure storage.
   Future<String?> getRole() async {
     return await _storage.read(key: _roleKey);
   }
 
-  // 3. ลบ Role ออกจากเครื่อง (สำคัญมาก: ต้องเรียกใช้ตอน Logout)
+  /// Removes the user's role from secure storage.
   Future<void> clearRole() async {
     await _storage.delete(key: _roleKey);
   }

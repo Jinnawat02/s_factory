@@ -1,3 +1,10 @@
+/// Screen for mechanics to execute and record tasks.
+///
+/// Allows mechanics to view task instructions, examine machine details,
+/// and manage inventory parts utilized during the maintenance. It interacts
+/// with the backend to synchronize inventory levels and complete the task.
+///
+/// @author Thanat Phadinkaew
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
@@ -5,13 +12,24 @@ import '../../../shared/services/request_service.dart';
 import '../../../shared/widgets/nav_bar.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A screen that displays detailed instructions and part management controls for a task.
 class TaskDetailPage extends StatefulWidget {
+  /// Identifier for the root task to request related items.
   final String requestId;
+
+  /// Identifier of the machine being serviced.
   final String? machineId;
+
+  /// Label of the machine for immediate UI rendering before background loads.
   final String? machineName;
+
+  /// Additional instructions or problems reported in the assigned task.
   final String? description;
+
+  /// Remote path to a photo showing the issue.
   final String? imageUrl;
 
+  /// Creates a [TaskDetailPage].
   const TaskDetailPage({
     super.key,
     required this.requestId,
@@ -34,7 +52,6 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   List<Map<String, dynamic>> _selectedParts = [];
   List<String> _initialSavedPartIds = [];
 
-  // State to hold request/machine details if not passed in
   String? _machineId;
   String? _machineName;
   String? _description;
@@ -60,7 +77,6 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           .getTaskItemsByRequestId(requestId: widget.requestId)
           .execute();
 
-      // If we don't have basic details, fetch the request itself
       QueryResult<GetRequestData, GetRequestVariables>? requestResult;
       if (_machineId == null || _machineName == null || _description == null) {
         requestResult = await ConnectorConnector.instance
@@ -71,10 +87,12 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
       final results = await Future.wait([itemsFuture, taskItemsFuture]);
 
       final itemsResult = results[0] as QueryResult<ListItemsData, void>;
-      final taskItemsResult = results[1] as QueryResult<
-          GetTaskItemsByRequestIdData,
-          GetTaskItemsByRequestIdVariables
-          >;
+      final taskItemsResult =
+          results[1]
+              as QueryResult<
+                GetTaskItemsByRequestIdData,
+                GetTaskItemsByRequestIdVariables
+              >;
 
       if (!mounted) return;
 
@@ -90,9 +108,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         _allItems = itemsResult.data.items;
 
         _selectedParts = taskItemsResult.data.taskItems.map((ti) {
-          // Find the original item to get description and inventory quantity
-          final originalItem =
-              _allItems.where((i) => i.id == ti.item.id).firstOrNull;
+          final originalItem = _allItems
+              .where((i) => i.id == ti.item.id)
+              .firstOrNull;
           return {
             'taskItemId': ti.id,
             'itemId': ti.item.id,
@@ -105,8 +123,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           };
         }).toList();
 
-        _initialSavedPartIds =
-            _selectedParts.map((p) => p['taskItemId'] as String).toList();
+        _initialSavedPartIds = _selectedParts
+            .map((p) => p['taskItemId'] as String)
+            .toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -132,8 +151,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
         await ConnectorConnector.instance.deleteTaskItem(id: id).execute();
       }
 
-      final newParts =
-          _selectedParts.where((p) => p['isSaved'] == false).toList();
+      final newParts = _selectedParts
+          .where((p) => p['isSaved'] == false)
+          .toList();
       for (var part in newParts) {
         if ((part['taskItemId'] as String).isNotEmpty) {
           await ConnectorConnector.instance
@@ -166,9 +186,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
   Future<void> _saveMainTask() async {
     setState(() => _isSavingMain = true);
     try {
-      // Deduct stock for all saved parts
-      final savedParts =
-          _selectedParts.where((p) => p['isSaved'] == true).toList();
+      final savedParts = _selectedParts
+          .where((p) => p['isSaved'] == true)
+          .toList();
       for (var part in savedParts) {
         final currentStock = part['inventoryQuantity'] as int;
         final usedStock = part['quantity'] as int;
@@ -318,9 +338,9 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
               return _allItems;
             }
             return _allItems.where(
-              (item) => (item.name ?? '')
-                  .toLowerCase()
-                  .contains(textEditingValue.text.toLowerCase()),
+              (item) => (item.name ?? '').toLowerCase().contains(
+                textEditingValue.text.toLowerCase(),
+              ),
             );
           },
           onSelected: (option) {
@@ -332,33 +352,33 @@ class _TaskDetailPageState extends State<TaskDetailPage> {
           },
           fieldViewBuilder:
               (context, controller, focusNode, onEditingComplete) {
-            return TextField(
-              controller: controller,
-              focusNode: focusNode,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Search parts...',
-                hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.grey),
-                  onPressed: () {
-                    controller.clear();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    setState(() {
-                      _autocompleteKey = UniqueKey();
-                    });
-                  },
-                ),
-                filled: true,
-                fillColor: Colors.grey[850],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            );
-          },
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Search parts...',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                      onPressed: () {
+                        controller.clear();
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        setState(() {
+                          _autocompleteKey = UniqueKey();
+                        });
+                      },
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                );
+              },
           optionsViewBuilder: (context, onSelected, options) {
             return Align(
               alignment: Alignment.topLeft,

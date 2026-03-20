@@ -1,6 +1,14 @@
+/// Utilities for displaying standardized notification banners.
+///
+/// Provides consistent styling for success and error messages across
+/// the entire application.
+///
+/// @author Thanat Phadinkaew
 import 'package:flutter/material.dart';
 
+/// A collection of static helper methods for showing styled snackbars.
 class SnackBarUtils {
+  /// Displays a green snackbar indicating a successful operation.
   static void showSuccess(BuildContext context, String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -17,6 +25,7 @@ class SnackBarUtils {
     );
   }
 
+  /// Displays a red snackbar indicating an error or failure.
   static void showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(

@@ -1,3 +1,9 @@
+/// Service for handling Firebase Cloud Messaging push notifications.
+///
+/// Contains logic for requesting user permissions, retrieving device tokens,
+/// and routing the user to specific screens when notifications are tapped.
+///
+/// @author Thanat Phadinkaew
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../app.dart';
 import '../../features/mechanic/task_detail.dart';
 
+/// A singleton service that manages push notification permissions and foreground/background messaging.
 class FcmService {
   static final FcmService _instance = FcmService._internal();
   factory FcmService() => _instance;
@@ -13,14 +20,13 @@ class FcmService {
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
+  /// Requests notification permissions and sets up listeners for incoming messages and token refreshes.
   Future<void> initialize(BuildContext context) async {
-    // Web push notifications are explicitly disabled.
     if (kIsWeb) {
       if (kDebugMode) print('FCM is disabled on Web.');
       return;
     }
 
-    // 1. Request permission
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       badge: true,
@@ -32,33 +38,25 @@ class FcmService {
         print('User granted permission for notifications');
       }
 
-      // 2. Get the token
       String? token = await _messaging.getToken();
 
       if (token != null) {
         await saveTokenToDatabase(token);
       }
 
-      // 3. Listen to token updates
       _messaging.onTokenRefresh.listen(saveTokenToDatabase);
 
-      // 4. Handle messages while app is in foreground
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         if (kDebugMode) {
           print('Got a message whilst in the foreground!');
           print('Message data: \${message.data}');
         }
-        // Since the prompt asks to NOT do foreground notifications for now:
-        // "ณ ตอนนี้ให้ทำเป็นแบบแจ้งเตือนขณะที่ไม่ได้เปิดแอปก็พอยังไม่ต้องทำแจ้งเตือนขณะเปิดแอป"
-        // We will just log it and do nothing visible.
       });
 
-      // 5. Handle tapping on a background message
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
         _handleNotificationTap(context, message);
       });
 
-      // 6. Handle app launched from terminated state via notification
       RemoteMessage? initialMessage = await _messaging.getInitialMessage();
       if (initialMessage != null) {
         _handleNotificationTap(context, initialMessage);
@@ -66,6 +64,7 @@ class FcmService {
     }
   }
 
+  /// Updates the authenticated user's device token in the backend database.
   Future<void> saveTokenToDatabase(String token) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && user.email != null) {
@@ -94,9 +93,7 @@ class FcmService {
         // Navigate to TaskDetailPage with the requestId
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => TaskDetailPage(
-              requestId: requestId,
-            ),
+            builder: (context) => TaskDetailPage(requestId: requestId),
           ),
         );
       }

@@ -1,12 +1,21 @@
+/// Screen displaying a list of tasks assigned to the current mechanic.
+///
+/// Fetches the authenticated user's email and retrieves their assigned
+/// task requests from the backend. Sorts them chronologically and routes
+/// to the detailed task view.
+///
+/// @author Thanat Phadinkaew
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../../dataconnect_generated/generated.dart';
 
-import 'task_detail.dart'; // Navigate to detail
+import 'task_detail.dart';
 
+/// A screen that retrieves and lists all pending and completed maintenance tasks.
 class TaskListPage extends StatefulWidget {
+  /// Creates a [TaskListPage].
   const TaskListPage({super.key});
 
   @override
@@ -108,8 +117,6 @@ class _TaskListPageState extends State<TaskListPage> {
 
                   // Format labels
                   final title = 'Request $machineName';
-
-                  // Format date nicely like "14/10 14:30"
                   final dateText = DateFormat(
                     'dd/MM/yyyy HH:mm',
                   ).format(task.requestDate.toDateTime().toLocal());
@@ -189,8 +196,7 @@ class _TaskListPageState extends State<TaskListPage> {
                               requestId: task.id,
                               machineId: task.machine.id,
                               machineName: machineName,
-                              description:
-                                  task.description ?? 'N/A',
+                              description: task.description ?? 'N/A',
                               imageUrl: imageUrl,
                             ),
                           ),

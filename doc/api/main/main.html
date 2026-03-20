@@ -77,15 +77,6 @@
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  &#47;&#47; if (kDebugMode) {
-  &#47;&#47;   &#47;&#47; 10.0.2.2 is the &#39;localhost&#39; for Android Emulators
-  &#47;&#47;   &#47;&#47; 127.0.0.1 or localhost works for iOS&#47;Web
-  &#47;&#47;   String host = defaultTargetPlatform == TargetPlatform.android
-  &#47;&#47;       ? &#39;10.0.2.2&#39;
-  &#47;&#47;       : &#39;localhost&#39;;
-  &#47;&#47;   ConnectorConnector.instance.dataConnect.useDataConnectEmulator(host, 9399);
-  &#47;&#47; }
-
   runApp(MyApp(clientId: clientId));
 }</code></pre>
 </section>

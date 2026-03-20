@@ -1,3 +1,9 @@
+/// Screen displaying all pending and historical maintenance requests for the user.
+///
+/// Periodically fetches the authenticated user's requests and presents them
+/// in a scrollable, chronologically ordered list.
+///
+/// @author Thanat Phadinkaew
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,7 +12,9 @@ import '../../../dataconnect_generated/generated.dart';
 
 import 'request_detail.dart';
 
+/// A screen that retrieves and lists maintenance requests tied to the current user.
 class RequestListPage extends StatefulWidget {
+  /// Creates a [RequestListPage].
   const RequestListPage({super.key});
 
   @override

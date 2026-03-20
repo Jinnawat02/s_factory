@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">s_factory</a></li>
-    <li><a href="../../shared_services_fcm_service/">shared\services\fcm_service.dart</a></li>
+    <li><a href="../../shared_services_fcm_service/">shared&#47;services&#47;fcm_service.dart</a></li>
     <li><a href="../../shared_services_fcm_service/FcmService-class.html">FcmService</a></li>
     <li class="self-crumb">initialize method</li>
   </ol>
@@ -62,19 +62,20 @@
 
     </section>
     
+<section class="desc markdown">
+  <p>Requests notification permissions and sets up listeners for incoming messages and token refreshes.</p>
+</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; initialize(BuildContext context) async {
-  &#47;&#47; Web push notifications are explicitly disabled.
   if (kIsWeb) {
     if (kDebugMode) print(&#39;FCM is disabled on Web.&#39;);
     return;
   }
 
-  &#47;&#47; 1. Request permission
   NotificationSettings settings = await _messaging.requestPermission(
     alert: true,
     badge: true,
@@ -86,33 +87,25 @@
       print(&#39;User granted permission for notifications&#39;);
     }
 
-    &#47;&#47; 2. Get the token
     String? token = await _messaging.getToken();
 
     if (token != null) {
       await saveTokenToDatabase(token);
     }
 
-    &#47;&#47; 3. Listen to token updates
     _messaging.onTokenRefresh.listen(saveTokenToDatabase);
 
-    &#47;&#47; 4. Handle messages while app is in foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (kDebugMode) {
         print(&#39;Got a message whilst in the foreground!&#39;);
         print(&#39;Message data: \${message.data}&#39;);
       }
-      &#47;&#47; Since the prompt asks to NOT do foreground notifications for now:
-      &#47;&#47; &quot;ณ ตอนนี้ให้ทำเป็นแบบแจ้งเตือนขณะที่ไม่ได้เปิดแอปก็พอยังไม่ต้องทำแจ้งเตือนขณะเปิดแอป&quot;
-      &#47;&#47; We will just log it and do nothing visible.
     });
 
-    &#47;&#47; 5. Handle tapping on a background message
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleNotificationTap(context, message);
     });
 
-    &#47;&#47; 6. Handle app launched from terminated state via notification
     RemoteMessage? initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       _handleNotificationTap(context, initialMessage);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'nav_config.dart'; // Import the config file
+import 'nav_config.dart';
 
 /// A configuration-based BottomNavigationBar that changes its items
 /// based on the user's role.

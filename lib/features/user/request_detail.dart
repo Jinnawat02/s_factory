@@ -1,3 +1,9 @@
+/// Screen for administrators and staff to examine and edit a maintenance request.
+///
+/// Displays details about a specific request and allows reassignment to a
+/// mechanic or updating the scheduled maintenance date and time.
+///
+/// @author Thanat Phadinkaew
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
@@ -6,9 +12,12 @@ import '../../dataconnect_generated/generated.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A screen that displays and allows editing of a maintenance request timeline and assignment.
 class RequestDetailPage extends StatefulWidget {
+  /// Identifier for the request to be loaded from the backend.
   final String requestId;
 
+  /// Creates a [RequestDetailPage].
   const RequestDetailPage({super.key, required this.requestId});
 
   @override

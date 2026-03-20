@@ -1,3 +1,10 @@
+/// Screen for administrators to onboard new employees.
+///
+/// Provides a form to capture user details, assign a role, and optionally
+/// upload a profile image. It submits this data to Firebase Authentication
+/// and Data Connect.
+///
+/// @author Thanat Phadinkaew
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -9,7 +16,9 @@ import '../../shared/utils/snackbar_utils.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+/// A screen that captures new user information and registers them in the system.
 class AddUserPage extends StatefulWidget {
+  /// Creates an [AddUserPage].
   const AddUserPage({super.key});
 
   @override
@@ -83,29 +92,28 @@ class _AddUserPageState extends State<AddUserPage> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Upload Image
       String? uploadedImageUrl;
       if (_pickedImage != null) {
-        uploadedImageUrl = await StorageService.uploadImage(_pickedImage!, 'users');
+        uploadedImageUrl = await StorageService.uploadImage(
+          _pickedImage!,
+          'users',
+        );
       }
 
-      // 2. Create Firebase Authentication User
-      // We do this first to get the UID if needed, or just to ensure auth works
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _email.trim(),
-        password: _password.trim(),
-      );
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _email.trim(),
+            password: _password.trim(),
+          );
 
-      // 3. Create user in your custom backend/database
-      // Note: It's good practice to pass userCredential.user!.uid to your backend here
       await ConnectorConnector.instance
           .createUser(
-        email: _email,
-        password: _password,
-        name: _name,
-        role: _selectedRole ?? '',
-        tel: _tel,
-      )
+            email: _email,
+            password: _password,
+            name: _name,
+            role: _selectedRole ?? '',
+            tel: _tel,
+          )
           .imageUrl(uploadedImageUrl)
           .execute();
 

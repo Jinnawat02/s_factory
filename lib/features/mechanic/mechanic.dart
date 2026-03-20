@@ -1,3 +1,10 @@
+/// Home screen for mechanics to navigate the application.
+/// 
+/// Provides a bottom navigation bar to switch between the
+/// machine list, QR scanner, task list, and user profile.
+/// Fetches the current user's profile and role to configure the UI.
+///
+/// @author Thanat Phadinkaew
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/machine/machine_list_page.dart';
@@ -10,7 +17,9 @@ import 'package:s_factory/shared/navigation/navbar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/services/secure_storage_service.dart';
 
+/// A screen that manages tabbed navigation and role-based access for mechanics.
 class MechanicHomeScreen extends StatefulWidget {
+  /// Creates a [MechanicHomeScreen].
   const MechanicHomeScreen({super.key});
 
   @override
@@ -18,10 +27,12 @@ class MechanicHomeScreen extends StatefulWidget {
 }
 
 class _MechanicHomeScreenState extends State<MechanicHomeScreen> {
-  // State to keep track of the selected tab index
   int _selectedIndex = 0;
+  
   String? _currentRole;
+  
   bool _isLoading = true;
+  
   dynamic _currentUser;
 
   @override
@@ -36,8 +47,9 @@ class _MechanicHomeScreenState extends State<MechanicHomeScreen> {
 
     if (user != null && user.email != null) {
       try {
-        // 1. เรียกใช้ .execute() เพื่อดึงข้อมูลจริงออกมา
-        final response = await ConnectorConnector.instance.getUser(email: user.email!).execute();
+        final response = await ConnectorConnector.instance
+            .getUser(email: user.email!)
+            .execute();
 
         if (mounted) {
           setState(() {
@@ -58,7 +70,6 @@ class _MechanicHomeScreenState extends State<MechanicHomeScreen> {
     final role = await SecureStorageService().getRole();
     if (mounted) {
       if (role == null || role.isEmpty) {
-        // หากไม่มี Role ใน Storage ให้เตะออกหรือจัดการ Error ตามเหมาะสม
         throw Exception('Role not found in secure storage');
       }
       setState(() {
@@ -68,18 +79,21 @@ class _MechanicHomeScreenState extends State<MechanicHomeScreen> {
     }
   }
 
-  // A list of pages to be displayed for each tab
-  // TODO: Replace these with your actual screen widgets
   List<Widget> _getWidgetOptions() {
     return [
       Center(child: MachineListPage(role: _currentRole!)),
       const Center(child: QRScannerPage()),
       const Center(child: TaskListPage()),
-      Center(child: Profile(user: _currentUser, isOwnProfile: true, isShowOnlyCalendar: true,)), // use Profile(user: currentUser)
+      Center(
+        child: Profile(
+          user: _currentUser,
+          isOwnProfile: true,
+          isShowOnlyCalendar: true,
+        ),
+      ), // use Profile(user: currentUser)
     ];
   }
 
-  // Callback function when a tab is tapped
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -93,11 +107,8 @@ class _MechanicHomeScreenState extends State<MechanicHomeScreen> {
     }
 
     return Scaffold(
-      // Use the new configuration-based AppBar
       appBar: SFactoryAppBar(role: _currentRole!),
-      // Display the page corresponding to the selected tab
       body: _getWidgetOptions().elementAt(_selectedIndex),
-      // Use the new configuration-based BottomNavigationBar
       bottomNavigationBar: SFactoryBottomNavbar(
         role: _currentRole!,
         currentIndex: _selectedIndex,
