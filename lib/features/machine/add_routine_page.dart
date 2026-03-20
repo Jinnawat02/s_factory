@@ -1,13 +1,42 @@
+/// Add routine page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan
 import 'package:flutter/material.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
-/// Admin-only page to create a new Routine checklist item for a machine.
+/// An admin-only form page for adding a new maintenance routine checklist
+/// item to a specific machine.
+///
+/// A routine represents a single repeatable check that mechanics must
+/// complete during their maintenance rounds (e.g. *"Daily Oil Check"*).
+///
+/// On submission the routine is persisted via `ConnectorConnector.createRoutine`
+/// and linked to the given [machineId]. Returns `true` to the caller so the
+/// parent [MachineDetailPage] can refresh its checklist.
+///
+/// Example usage:
+/// ```dart
+/// final result = await Navigator.push<bool>(
+///   context,
+///   MaterialPageRoute(
+///     builder: (_) => AddRoutinePage(
+///       machineId: 'abc123',
+///       machineName: 'Lathe Machine A1',
+///     ),
+///   ),
+/// );
+/// if (result == true) _loadRoutines();
+/// ```
 class AddRoutinePage extends StatefulWidget {
+  /// The unique ID of the machine this routine belongs to.
   final String machineId;
+
+  /// The display name of the machine, shown in the app bar title.
   final String machineName;
 
+  /// Creates an [AddRoutinePage] for the machine identified by [machineId].
   const AddRoutinePage({
     super.key,
     required this.machineId,
@@ -24,6 +53,13 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
   String _description = '';
   bool _isLoading = false;
 
+  /// Validates the form then submits a new routine to Firebase Data Connect.
+  ///
+  /// Fields submitted:
+  /// - [_title] — required, trimmed routine title
+  /// - [_description] — optional, trimmed description / steps
+  ///
+  /// Pops with `true` on success or shows an error [SnackBar] on failure.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
@@ -50,6 +86,10 @@ class _AddRoutinePageState extends State<AddRoutinePage> {
     }
   }
 
+  /// Returns a consistent [InputDecoration] used by both form fields,
+  /// with rounded borders in grey (enabled) and white (focused).
+  ///
+  /// [hint] sets the placeholder text shown inside the field.
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,

@@ -1,3 +1,6 @@
+/// Inventory list page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../dataconnect_generated/generated.dart';
@@ -5,9 +8,24 @@ import '../../dataconnect_generated/generated.dart';
 import 'inventory_item_detail_page.dart';
 import 'add_inventory_item_page.dart';
 
+/// A page that displays the full list of inventory items.
+///
+/// Shows a responsive grid of [InventoryItemDetailPage] cards.
+/// Admins see an **Add Item** button at the top to navigate to
+/// [AddInventoryItemPage].
+///
+/// Example usage:
+/// ```dart
+/// InventoryPage(role: 'admin')
+/// ```
 class InventoryPage extends StatefulWidget {
+  /// The role of the currently logged-in user (e.g. `'admin'`, `'staff'`).
+  /// Controls whether the Add-Item button is visible.
   final String? role;
 
+  /// Creates an [InventoryPage].
+  ///
+  /// [role] is optional; when omitted the page renders in read-only mode.
   const InventoryPage({super.key, this.role});
 
   @override
@@ -23,6 +41,8 @@ class _InventoryPageState extends State<InventoryPage> {
     _loadItems();
   }
 
+  /// Triggers a fresh fetch of all inventory items from Firebase Data Connect
+  /// and rebuilds the widget tree once the [Future] resolves.
   void _loadItems() {
     setState(() {
       _futureItems = ConnectorConnector.instance.listItems().execute();
@@ -219,6 +239,10 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
+  /// Builds the **Add Item** floating action button shown only to admins.
+  ///
+  /// Navigates to [AddInventoryItemPage] and reloads the list when an item
+  /// is successfully created.
   Widget _buildAddInventoryItemButton(BuildContext context) {
     return Card(
       color: Colors.transparent,

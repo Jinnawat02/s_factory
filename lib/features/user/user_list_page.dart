@@ -1,3 +1,6 @@
+/// User list page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/profile/profile.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
@@ -6,9 +9,25 @@ import '../../../dataconnect_generated/generated.dart';
 import 'package:s_factory/features/user/add_user_page.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A tabbed list page that displays all system users grouped by role.
+///
+/// Presents two tabs — **Mechanics** and **Staff** — each showing a scrollable
+/// list of user cards. Admins additionally see an **Add User** button at the
+/// top of each tab and a delete icon on every card.
+///
+/// Tapping a card navigates to the [Profile] page for that user.
+/// Admin users can delete a user via [_confirmDeleteUser].
+///
+/// Example usage:
+/// ```dart
+/// UserListPage(role: 'admin')
+/// ```
 class UserListPage extends StatefulWidget {
+  /// The role of the currently logged-in user.
+  /// Pass `'admin'` to enable the Add and Delete controls.
   final String? role;
 
+  /// Creates a [UserListPage].
   const UserListPage({super.key, this.role});
 
   @override
@@ -24,6 +43,8 @@ class _UserListPageState extends State<UserListPage> {
     _loadUsers();
   }
 
+  /// Fetches all users from Firebase Data Connect and stores the [Future]
+  /// in [_futureUsers], triggering a rebuild of the [FutureBuilder].
   void _loadUsers() {
     setState(() {
       _futureUsers = ConnectorConnector.instance.listUsers().execute();
@@ -92,6 +113,13 @@ class _UserListPageState extends State<UserListPage> {
     );
   }
 
+  /// Builds a scrollable [ListView] of user cards for the given [users] list.
+  ///
+  /// When [widget.role] is `'admin'`, an **Add User** button is inserted as
+  /// the first item in the list.
+  ///
+  /// [emptyMessageRole] is used in the empty-state message, e.g.
+  /// `'No mechanic found.'`
   Widget _buildUserList(List<ListUsersUsers> users, String emptyMessageRole) {
     final bool isAdmin = widget.role == 'admin';
     final int itemCount = users.length + (isAdmin ? 1 : 0);
@@ -126,6 +154,11 @@ class _UserListPageState extends State<UserListPage> {
     );
   }
 
+  /// Builds the **Add Mechanic** / **Add Staff** button shown only to admins.
+  ///
+  /// [role] determines the label text (`'mechanic'` → "Add Mechanic",
+  /// `'staff'` → "Add Staff"). Navigates to [AddUserPage] and reloads
+  /// the user list when a new user is successfully created.
   Widget _buildAddUserButton(BuildContext context, String role) {
     final String displayName = role == 'mechanic' ? 'Mechanic' : 'Staff';
 
@@ -178,6 +211,11 @@ class _UserListPageState extends State<UserListPage> {
     );
   }
 
+  /// Builds a single user card row showing the user's avatar and name.
+  ///
+  /// Tapping the card pushes [Profile] with `isOwnProfile: false`.
+  /// Admin users see a red delete icon on the right that triggers
+  /// [_confirmDeleteUser].
   Widget _userContainer(
     BuildContext context,
     String name,
@@ -247,6 +285,10 @@ class _UserListPageState extends State<UserListPage> {
     );
   }
 
+  /// Shows a confirmation dialog before permanently deleting a user.
+  ///
+  /// On confirmation, calls `ConnectorConnector.deleteUser` with the user's
+  /// email, then refreshes the list via [_loadUsers].
   Future<void> _confirmDeleteUser(BuildContext context, dynamic user) async {
     final bool? confirm = await showDialog<bool>(
       context: context,

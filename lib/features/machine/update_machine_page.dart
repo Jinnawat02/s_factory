@@ -1,3 +1,6 @@
+/// Update machine page for the s_factory application.
+///
+/// @author Siwakorn Soemchatchroenkan
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -7,9 +10,38 @@ import '../../shared/widgets/nav_bar.dart';
 import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
 
+/// A form page that allows admins to edit an existing machine's details.
+///
+/// Pre-fills the form with values from [machineData] so the admin only needs
+/// to change the fields that require updating.
+///
+/// Supports updating:
+/// - **Machine name** (required)
+/// - **Serial number** (digits only)
+/// - **Description**
+/// - **Image** — replaces the existing image by uploading a new one to
+///   Firebase Storage under `machines/`
+///
+/// Returns `true` to the caller (via `Navigator.pop`) when the update succeeds
+/// so [MachineDetailPage] can reload the latest data.
+///
+/// Example usage:
+/// ```dart
+/// final result = await Navigator.push<bool>(
+///   context,
+///   MaterialPageRoute(
+///     builder: (_) => UpdateMachinePage(machineData: currentMachineData),
+///   ),
+/// );
+/// if (result == true) _loadMachine();
+/// ```
 class UpdateMachinePage extends StatefulWidget {
+  /// A map containing the machine's current values.
+  ///
+  /// Expected keys: `id`, `name`, `serialNumber`, `description`, `imageUrl`.
   final Map<String, dynamic> machineData;
 
+  /// Creates an [UpdateMachinePage] pre-filled with [machineData].
   const UpdateMachinePage({super.key, required this.machineData});
 
   @override
@@ -35,6 +67,11 @@ class _UpdateMachinePageState extends State<UpdateMachinePage> {
     _existingImageUrl = widget.machineData['imageUrl'];
   }
 
+  /// Opens the device camera or photo gallery and stores the chosen file
+  /// in [_pickedImage].
+  ///
+  /// [source] must be [ImageSource.gallery] or [ImageSource.camera].
+  /// Images are compressed to 85 % quality before being stored locally.
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? image = await ImagePicker().pickImage(
@@ -53,6 +90,8 @@ class _UpdateMachinePageState extends State<UpdateMachinePage> {
     }
   }
 
+  /// Shows a bottom sheet so the user can choose between **Gallery** and
+  /// **Camera** as the image source.
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
@@ -84,6 +123,15 @@ class _UpdateMachinePageState extends State<UpdateMachinePage> {
     );
   }
 
+  /// Validates the form, uploads a new image if one was picked, then calls
+  /// `ConnectorConnector.updateMachine` to persist all changes.
+  ///
+  /// Image logic:
+  /// - If [_pickedImage] is set → uploads to Firebase Storage and uses the
+  ///   new URL.
+  /// - Otherwise → keeps the existing [_existingImageUrl] unchanged.
+  ///
+  /// Pops with `true` on success or shows a [SnackBar] error on failure.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
