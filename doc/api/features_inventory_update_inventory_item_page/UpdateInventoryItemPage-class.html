@@ -53,6 +53,30 @@
 </h1></div>
 
     
+<section class="desc markdown">
+  <p>A form page that allows admins to edit an existing inventory item.</p>
+<p>Pre-fills all fields with values from <a href="../features_inventory_update_inventory_item_page/UpdateInventoryItemPage/itemData.html">itemData</a> so the admin only needs
+to change what requires updating.</p>
+<p>Supports editing:</p>
+<ul>
+<li><strong>Name</strong> (required)</li>
+<li><strong>Quantity</strong> — via increment / decrement stepper or direct input</li>
+<li><strong>Description</strong></li>
+<li><strong>Image</strong> — replaces the existing image by uploading a new one to
+Firebase Storage under <code>inventory/</code></li>
+</ul>
+<p>Returns <code>true</code> to the caller (via <code>Navigator.pop</code>) when the update
+succeeds so <a href="../features_inventory_inventory_item_detail_page/InventoryItemDetailPage-class.html">InventoryItemDetailPage</a> can reload the latest data.</p>
+<p>Example usage:</p>
+<pre class="language-dart"><code class="language-dart">final result = await Navigator.push&lt;bool&gt;(
+  context,
+  MaterialPageRoute(
+    builder: (_) =&gt; UpdateInventoryItemPage(itemData: currentItemData),
+  ),
+);
+if (result == true) _loadItem();
+</code></pre>
+</section>
 
 
     <section>
@@ -88,7 +112,7 @@
           <span class="name"><a href="../features_inventory_update_inventory_item_page/UpdateInventoryItemPage/UpdateInventoryItemPage.html">UpdateInventoryItemPage.new</a></span><span class="signature">({<span class="parameter" id="-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="-param-itemData"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">itemData</span></span>})</span>
         </dt>
         <dd>
-          
+          Creates an <a href="../features_inventory_update_inventory_item_page/UpdateInventoryItemPage-class.html">UpdateInventoryItemPage</a> pre-filled with <code>itemData</code>.
             <div class="constructor-modifier features">const</div>
         </dd>
     </dl>
@@ -118,7 +142,7 @@
 
 </dt>
 <dd>
-  
+  A map containing the item's current values.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
