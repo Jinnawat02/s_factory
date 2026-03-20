@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">s_factory</a></li>
-    <li><a href="../../features_auth_auth_gate/">features&#47;auth&#47;auth_gate.dart</a></li>
+    <li><a href="../../features_auth_auth_gate/">features\auth\auth_gate.dart</a></li>
     <li><a href="../../features_auth_auth_gate/AuthGate-class.html">AuthGate</a></li>
     <li class="self-crumb">build method</li>
   </ol>
@@ -112,6 +112,7 @@ Widget build(BuildContext context) {
   return StreamBuilder&lt;User?&gt;(
     stream: FirebaseAuth.instance.authStateChanges(),
     builder: (context, snapshot) {
+      &#47;&#47; If the snapshot has no data, the user is not authenticated.
       if (!snapshot.hasData) {
         return Theme(
           data: ThemeData(
@@ -204,6 +205,7 @@ Widget build(BuildContext context) {
         );
       }
 
+      &#47;&#47; Proceed to RoleWrapper once authenticated.
       return const RoleWrapper();
     },
   );

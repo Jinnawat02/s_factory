@@ -1,3 +1,14 @@
+/// Profile editing screen for the s_factory application.
+///
+/// Allows users to update their personal information, including:
+/// - Display Name
+/// - Phone Number
+/// - Profile Picture (via Camera or Gallery)
+///
+/// Changes are persisted to both Firebase Storage (images) and the 
+/// Data Connect database.
+///
+/// @author Jinnawat Janngam
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -7,9 +18,12 @@ import '../../dataconnect_generated/generated.dart';
 import '../../shared/utils/storage_service.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A stateful widget providing a form to edit user profile details.
 class EditProfilePage extends StatefulWidget {
+  /// The user object whose profile is being edited.
   final dynamic user;
 
+  /// Creates an [EditProfilePage].
   const EditProfilePage({super.key, required this.user});
 
   @override
@@ -28,11 +42,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+    // Initialize form fields with current user data.
     _name = widget.user.name ?? '';
     _tel = widget.user.tel ?? '';
     _currentImageUrl = widget.user.imageUrl;
   }
 
+  /// Triggers the image picker to select a new profile photo.
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? image = await ImagePicker().pickImage(
@@ -49,6 +65,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  /// Displays a bottom sheet to choose between Camera and Gallery for image selection.
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
@@ -80,6 +97,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  /// Validates the form and submits the updated profile data.
+  ///
+  /// This includes uploading a new image to storage if one was picked,
+  /// and updating the user record in the database.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -88,12 +109,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       String? uploadedImageUrl = _currentImageUrl;
       if (_pickedImage != null) {
+        // Upload new image and get the public URL.
         uploadedImageUrl = await StorageService.uploadImage(
           _pickedImage!,
           'users',
         );
       }
 
+      // Update database record.
       await ConnectorConnector.instance
           .updateUser(email: widget.user.email)
           .name(_name)
@@ -103,7 +126,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       if (mounted) {
         SnackBarUtils.showSuccess(context, 'Profile updated successfully');
-        Navigator.pop(context, true);
+        Navigator.pop(context, true); // Return true to indicate a refresh is needed.
       }
     } catch (e) {
       if (mounted) {
@@ -120,7 +143,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final imageSize = screenWidth * 0.25;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1E1E22), // Matched dark theme
+      backgroundColor: const Color(0xFF1E1E22),
       appBar: const NavBar(title: 'Edit Profile', leadingText: 'Back'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -129,6 +152,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Profile Image Selector
               Center(
                 child: GestureDetector(
                   onTap: _showImageSourceSheet,
@@ -181,6 +205,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 48),
 
+              // Save Button
               Center(
                 child: SizedBox(
                   width: 100,
@@ -221,6 +246,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  /// Section label widget.
   Widget _buildLabel(String text) {
     return Text(
       text,
@@ -228,6 +254,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
+  /// Helper to display either the picked image, current image, or a placeholder.
   Widget _buildImageWidget() {
     if (_pickedImage != null) {
       return kIsWeb
@@ -240,6 +267,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return const Icon(Icons.person_outline, size: 60, color: Colors.white70);
   }
 
+  /// Reusable input decoration style.
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,

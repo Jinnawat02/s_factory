@@ -1,9 +1,23 @@
+/// Authentication gate for the s_factory application.
+///
+/// Determines whether to show the sign-in screen or the application's
+/// main content ([RoleWrapper]) based on the user's current authentication state.
+///
+/// @author Jinnawat Janngam
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/auth/role_wrapper.dart';
 
+/// A widget that listens to the Firebase authentication state.
+///
+/// If the user is not authenticated, it renders a customized [SignInScreen]
+/// with project-specific branding and theme. Once the user signs in, it
+/// returns the [RoleWrapper] to handle role-based navigation.
 class AuthGate extends StatelessWidget {
+  /// Creates an [AuthGate].
+  ///
+  /// The [clientId] is required for certain authentication providers (e.g., Google).
   const AuthGate({super.key, required this.clientId});
 
   final String clientId;
@@ -13,6 +27,7 @@ class AuthGate extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        // If the snapshot has no data, the user is not authenticated.
         if (!snapshot.hasData) {
           return Theme(
             data: ThemeData(
@@ -105,6 +120,7 @@ class AuthGate extends StatelessWidget {
           );
         }
 
+        // Proceed to RoleWrapper once authenticated.
         return const RoleWrapper();
       },
     );

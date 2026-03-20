@@ -1,3 +1,13 @@
+/// Screen displaying detailed information about a specific factory machine.
+///
+/// This page allows users to:
+/// - View machine details (name, description, serial number).
+/// - Submit repair requests (Staff).
+/// - View and complete routine maintenance checklists (Mechanics and Admins).
+/// - Update or Delete the machine (Admins).
+/// - Generate and view the machine's QR code.
+///
+/// @author Jinnawat Janngam
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:s_factory/features/qr/qr_generator.dart';
@@ -11,10 +21,15 @@ import '../../shared/utils/snackbar_utils.dart';
 
 import 'update_machine_page.dart';
 
+/// A stateful widget that manages the display and interaction logic for machine details.
 class MachineDetailPage extends StatefulWidget {
+  /// Initial machine data passed from the list page.
   final Map<String, String> machineData;
-  final String role; // Require the role argument
+  
+  /// The user's role, which determines available actions on the page.
+  final String role;
 
+  /// Creates a [MachineDetailPage].
   const MachineDetailPage({
     super.key,
     required this.machineData,
@@ -26,15 +41,22 @@ class MachineDetailPage extends StatefulWidget {
 }
 
 class _MachineDetailPageState extends State<MachineDetailPage> {
+  /// List of items for the routine maintenance checklist.
   List<Map<String, dynamic>> _checklistItems = [];
+  
+  /// Ensures checklist state is only initialized once from the snapshot.
   bool _routinesInitialized = false;
+  
+  /// Tracks if routine checklist changes are currently being saved.
   bool _isSavingRoutines = false;
 
+  /// Future for fetching routine checklist items for this machine.
   late Future<
     QueryResult<GetRoutinesByMachineIdData, GetRoutinesByMachineIdVariables>
   >
   _routinesFuture;
 
+  /// Future for fetching the latest machine details from the database.
   Future<QueryResult<GetMachineData, GetMachineVariables>>? _machineFuture;
 
   @override
@@ -44,6 +66,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     _loadRoutines();
   }
 
+  /// Initiates the fetch for complete machine details.
   void _loadMachine() {
     setState(() {
       _machineFuture = widget.machineData['id'] == null
@@ -54,6 +77,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     });
   }
 
+  /// Initiates the fetch for the machine's routine checklist.
   void _loadRoutines() {
     setState(() {
       _routinesInitialized = false;
@@ -64,6 +88,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     });
   }
 
+  /// populates the local checklist state from the database snapshot.
   void _initRoutinesFromSnapshot(
     List<GetRoutinesByMachineIdRoutines> routines,
   ) {
@@ -81,6 +106,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
         .toList();
   }
 
+  /// Saves the current state of the routine checklist back to the database.
   Future<void> _saveRoutines() async {
     setState(() => _isSavingRoutines = true);
     try {
@@ -89,7 +115,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
             .updateRoutine(id: item['id'], isCheck: item['isDone'])
             .execute();
 
-        // Auto-create a RoutineLog for this check
+        // Log the maintenance action for audit trails.
         await ConnectorConnector.instance
             .createRoutineLog(
               title: 'Checked: ${item['title']}',
@@ -110,6 +136,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     }
   }
 
+  /// Displays a confirmation dialog before deleting the machine.
   Future<void> _confirmDeleteMachine(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -193,7 +220,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
         final serialNumber =
             machine?.serialNumber ?? widget.machineData['serialNumber'];
 
-        // Create an updated map for child pages
+        // Prepare updated data map for child screens (Update/Request).
         final currentMachineData = {
           ...widget.machineData,
           'name': name,
@@ -216,7 +243,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
               >(
                 future: _routinesFuture,
                 builder: (context, routineSnapshot) {
-                  // Initialise local checklist state once
+                  // Initialize the checklist only once after data is fetched.
                   if (routineSnapshot.connectionState == ConnectionState.done &&
                       routineSnapshot.hasData) {
                     _initRoutinesFromSnapshot(
@@ -228,6 +255,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Large machine image header
                         Center(
                           child: Image.network(
                             imageUrl,
@@ -287,6 +315,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
                                 ),
                               ),
 
+                              // Conditional actions based on user role
                               if (widget.role == 'staff') ...[
                                 const SizedBox(height: 30),
                                 _buildActionButtons(context, name: name),
@@ -314,6 +343,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
+  /// Builds the sticky bottom bar for Admin users containing Update and Delete actions.
   Widget _buildAdminBottomBar(Map<String, dynamic> currentMachineData) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -379,6 +409,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
+  /// Builds the QR Code generator button.
   Widget _buildMachineQRCode(BuildContext context, {String? machineID}) {
     return SizedBox(
       child: ElevatedButton.icon(
@@ -402,6 +433,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
+  /// Builds primary action buttons (like Submit Request) based on roles.
   Widget _buildActionButtons(BuildContext context, {String? name}) {
     if (widget.role == 'staff') {
       return Center(
@@ -482,6 +514,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     return const SizedBox.shrink();
   }
 
+  /// Builds the section for routine maintenance checklists.
   Widget _buildRoutineChecklistSection(
     BuildContext context,
     AsyncSnapshot snapshot,
@@ -507,6 +540,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
+  /// Handles the conditional rendering of the routine list (loading/empty/content).
   Widget _buildRoutineContent(AsyncSnapshot snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting &&
         _checklistItems.isEmpty) {
@@ -525,6 +559,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     return _buildRoutineList();
   }
 
+  /// Renders the scrollable list of routine checklist items.
   Widget _buildRoutineList() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -574,6 +609,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
     );
   }
 
+  /// Displays a confirmation dialog before deleting a specific routine item.
   Future<void> _confirmDeleteRoutine(
     BuildContext context,
     Map<String, dynamic> item,
@@ -623,6 +659,7 @@ class _MachineDetailPageState extends State<MachineDetailPage> {
   }
 }
 
+/// A private tile widget for individual routine maintenance checklist items.
 class _RoutineTile extends StatelessWidget {
   final Map<String, dynamic> item;
   final String role;
@@ -640,7 +677,6 @@ class _RoutineTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
-      // Use InkWell to make the entire container tappable
       child: Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),

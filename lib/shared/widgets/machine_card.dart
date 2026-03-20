@@ -1,12 +1,29 @@
+/// UI component for displaying machine information in a card format.
+///
+/// This card includes an image, name, description, and optional trailing widget.
+/// It's used primarily in the [MachineListPage].
+///
+/// @author Jinnawat Janngam
 import 'package:flutter/material.dart';
 
+/// A reusable card widget for machine data.
 class MachineCard extends StatelessWidget {
+  /// The URL of the machine's image.
   final String imageUrl;
+  
+  /// The name of the machine.
   final String name;
+  
+  /// A brief description of the machine.
   final String description;
+  
+  /// Callback triggered when the card is tapped.
   final VoidCallback? onTap;
+  
+  /// An optional widget to display at the end of the title row.
   final Widget? trailing;
 
+  /// Creates a [MachineCard].
   const MachineCard({
     super.key,
     required this.imageUrl,
@@ -27,6 +44,7 @@ class MachineCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Machine Image Section
             AspectRatio(
               aspectRatio: 16 / 9,
               child: Image.network(
@@ -38,7 +56,8 @@ class MachineCard extends StatelessWidget {
                 ),
               ),
             ),
-            // ส่วนของข้อมูลด้านล่าง
+            
+            // Machine Information Section
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(

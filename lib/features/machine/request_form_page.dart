@@ -1,3 +1,9 @@
+/// Repair request form for the s_factory application.
+///
+/// This page allows staff members to submit a repair request for a specific machine.
+/// It includes fields for problem description, mechanic selection, and scheduled date/time.
+///
+/// @author Jinnawat Janngam
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,6 +15,9 @@ import '../../mock/request_mock_data.dart';
 import '../../shared/widgets/nav_bar.dart';
 import '../../shared/utils/snackbar_utils.dart';
 
+/// A widget that provides a form for creating a new repair request.
+///
+/// The [machineName] and [machineID] are required to identify the target machine.
 class RequestFormPage extends StatefulWidget {
   final String machineName;
   final String machineID;
@@ -35,6 +44,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
   bool _isLoadingMechanics = true;
   final List<GetMechanicsUsers> _mechanics = [];
 
+  /// Combines [_pickedDate] and [_pickedTime] into a single [DateTime] object.
   DateTime get _requestDateTime => DateTime(
     _pickedDate!.year,
     _pickedDate!.month,
@@ -49,6 +59,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     _fetchMechanics();
   }
 
+  /// Fetches the list of available mechanics from the database.
   Future<void> _fetchMechanics() async {
     try {
       final response =
@@ -69,6 +80,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     }
   }
 
+  /// Opens a date picker dialog to select the repair date.
   Future<void> _selectDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
@@ -83,6 +95,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     }
   }
 
+  /// Opens a time picker dialog to select the repair time.
   Future<void> _selectTime(BuildContext context) async {
     final picked = await showTimePicker(
       context: context,
@@ -95,6 +108,13 @@ class _RequestFormPageState extends State<RequestFormPage> {
     }
   }
 
+  /// Validates the form and submits the repair request to Firebase.
+  ///
+  /// This process includes:
+  /// 1. Saving to local mock data (for testing/history).
+  /// 2. Creating the request in the Data Connect database.
+  /// 3. Creating a maintenance log entry.
+  /// 4. Notifying the assigned mechanic via a Cloud Function.
   Future<void> _submitRequest() async {
 
     if (_isSubmitting) return;
@@ -119,6 +139,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
       final requestId = DateTime.now().millisecondsSinceEpoch.toString();
 
+      // Add to mock data
       RequestMockData.addRequest({
         'request_id': requestId,
         'email': email,
@@ -132,6 +153,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
         'timestamp': DateTime.now().toIso8601String(),
       });
 
+      // Create request in database
       final result = await ConnectorConnector.instance
           .createRequest(
         userEmail: email,
@@ -146,6 +168,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
 
       final requestIdGenerated = result.data.request_insert.id;
 
+      // Create maintenance log
       await ConnectorConnector.instance
           .createMaintainLog(
         title: 'Created Request: $_description',
@@ -154,6 +177,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
       )
           .execute();
 
+      // Notify mechanic via FCM
       try {
         await FirebaseFunctions.instance
             .httpsCallable('notifyMechanic')
@@ -227,6 +251,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     );
   }
 
+  /// Builds the description input field.
   Widget _descriptionField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,6 +289,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     );
   }
 
+  /// Builds the dropdown for selecting a mechanic.
   Widget _mechanicDropdown() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -386,6 +412,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     );
   }
 
+  /// Builds the date selector widget.
   Widget _datePicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,6 +453,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     );
   }
 
+  /// Builds the time selector widget.
   Widget _timePicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -466,7 +494,7 @@ class _RequestFormPageState extends State<RequestFormPage> {
     );
   }
 
-
+  /// Builds the submit button for the form.
   Widget _submitButton() {
     return Center(
       child: SizedBox(

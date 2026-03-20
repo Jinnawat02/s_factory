@@ -1,3 +1,9 @@
+/// Screen displaying a list of all machines in the factory.
+///
+/// This page provides a grid view of machines and allows admins to add new ones.
+/// Users can tap on a machine to see its details.
+///
+/// @author Jinnawat Janngam
 import 'package:flutter/material.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import '../../dataconnect_generated/generated.dart';
@@ -6,9 +12,12 @@ import '../../shared/widgets/machine_card.dart';
 import 'add_machine_page.dart';
 import 'machine_detail_page.dart';
 
+/// A stateful widget that manages and displays the list of machines.
 class MachineListPage extends StatefulWidget {
+  /// The user's role, used to determine if they can add machines.
   final String role;
 
+  /// Creates a [MachineListPage].
   const MachineListPage({super.key, required this.role});
 
   @override
@@ -16,6 +25,7 @@ class MachineListPage extends StatefulWidget {
 }
 
 class _MachineListPageState extends State<MachineListPage> {
+  /// Future that holds the list of machines from Data Connect.
   late Future<QueryResult<ListMachinesData, void>> _futureMachines;
 
   @override
@@ -24,6 +34,7 @@ class _MachineListPageState extends State<MachineListPage> {
     _loadMachines();
   }
 
+  /// Initiates the fetch request for the machine list.
   void _loadMachines() {
     setState(() {
       _futureMachines = ConnectorConnector.instance.listMachines().execute();
@@ -46,7 +57,6 @@ class _MachineListPageState extends State<MachineListPage> {
           }
 
           final allMachines = snapshot.data?.data.machines ?? [];
-
           final bool isAdmin = widget.role == 'admin';
 
           return Column(
@@ -87,7 +97,6 @@ class _MachineListPageState extends State<MachineListPage> {
                         itemCount: allMachines.length,
                         itemBuilder: (context, index) {
                           final machine = allMachines[index];
-
                           final machineImage =
                               machine.imageUrl ??
                               'https://ui-avatars.com/api/?name=${Uri.encodeComponent(machine.name!)}&background=0D47A1&color=fff&size=200&bold=true';
@@ -135,6 +144,7 @@ class _MachineListPageState extends State<MachineListPage> {
     );
   }
 
+  /// Builds the button used by admins to navigate to the Add Machine page.
   Widget _buildAddMachineButton(BuildContext context) {
     return Card(
       color: Colors.transparent,

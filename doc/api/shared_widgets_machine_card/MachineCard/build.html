@@ -25,7 +25,7 @@
   <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">s_factory</a></li>
-    <li><a href="../../shared_widgets_machine_card/">shared&#47;widgets&#47;machine_card.dart</a></li>
+    <li><a href="../../shared_widgets_machine_card/">shared\widgets\machine_card.dart</a></li>
     <li><a href="../../shared_widgets_machine_card/MachineCard-class.html">MachineCard</a></li>
     <li class="self-crumb">build method</li>
   </ol>
@@ -118,6 +118,7 @@ Widget build(BuildContext context) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          &#47;&#47; Machine Image Section
           AspectRatio(
             aspectRatio: 16 &#47; 9,
             child: Image.network(
@@ -129,7 +130,8 @@ Widget build(BuildContext context) {
               ),
             ),
           ),
-          &#47;&#47; ส่วนของข้อมูลด้านล่าง
+
+          &#47;&#47; Machine Information Section
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(

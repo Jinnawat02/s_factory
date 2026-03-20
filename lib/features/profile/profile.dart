@@ -1,3 +1,10 @@
+/// User profile screen for the s_factory application.
+///
+/// Displays user information such as name, email, role, and phone number.
+/// It also handles profile reloading and conditional display of the
+/// mechanic's calendar and edit options based on roles and ownership.
+///
+/// @author Jinnawat Janngam
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/profile/mechanic_calendar.dart';
 import 'package:s_factory/shared/widgets/nav_bar.dart';
@@ -5,11 +12,21 @@ import '../../dataconnect_generated/generated.dart';
 import '../../shared/services/secure_storage_service.dart';
 import 'edit_profile_page.dart';
 
+/// A stateful widget that displays a user's profile details.
+///
+/// It can be used to show the current user's profile or another user's profile
+/// (e.g., a mechanic's profile viewed by an admin).
 class Profile extends StatefulWidget {
+  /// The user object containing profile information.
   final dynamic user;
+  
+  /// Indicates if the profile belongs to the currently logged-in user.
   final bool isOwnProfile;
+  
+  /// If true, only the calendar will be displayed.
   final bool isShowOnlyCalendar;
 
+  /// Creates a [Profile] widget.
   const Profile({
     super.key,
     required this.user,
@@ -26,8 +43,6 @@ class _ProfileState extends State<Profile> {
   bool _isLoading = true;
   late dynamic _user;
 
-  // For calendar variable
-
   @override
   void initState() {
     super.initState();
@@ -35,12 +50,12 @@ class _ProfileState extends State<Profile> {
     _loadUserRole();
   }
 
+  /// Loads the current user's role from secure storage to determine permissions.
   Future<void> _loadUserRole() async {
     try {
       final role = await SecureStorageService().getRole();
       if (mounted) {
         if (role == null || role.isEmpty) {
-          // แทนที่จะ throw exception อาจจะตั้งเป็น 'N/A' หรือ 'Guest'
           setState(() {
             _currentRole = 'Unknown';
             _isLoading = false;
@@ -60,6 +75,7 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  /// Reloads the user data from the database to reflect recent updates.
   Future<void> _reloadUser() async {
     try {
       final response = await ConnectorConnector.instance
@@ -94,11 +110,11 @@ class _ProfileState extends State<Profile> {
                   if (showOnlyCalendar) ...[
                     MechanicCalendar(mechanicEmail: user.email),
                   ] else ... [
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     _buildAvatar(user),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _buildNameHeader(user),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     _buildInfoSection(user),
 
                     if (_currentRole == 'admin' || ownProfile) ...[
@@ -119,6 +135,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  /// Builds the user's avatar image.
   Widget _buildAvatar(dynamic user) {
     return Center(
       child: Stack(
@@ -136,6 +153,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  /// Builds the name and email header section.
   Widget _buildNameHeader(dynamic user) {
     return Column(
       children: [
@@ -155,6 +173,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  /// Builds the information tiles section (Role, Phone).
   Widget _buildInfoSection(dynamic user) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -171,6 +190,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  /// Builds the button to navigate to the profile editing page.
   Widget _buildEditButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -184,7 +204,7 @@ class _ProfileState extends State<Profile> {
             );
 
             if (result != null && mounted) {
-              await _reloadUser(); // 🔄 reload profile from database
+              await _reloadUser();
             }
           },
         style: OutlinedButton.styleFrom(
@@ -201,6 +221,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  /// Helper widget to build individual information tiles.
   Widget _buildInfoTile(IconData icon, String label, String value) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

@@ -1,3 +1,9 @@
+/// A widget that displays a list of mechanics or employees.
+/// 
+/// Fetches data from Firebase Data Connect and provides administrative 
+/// functionality like adding new users if the current user is an admin.
+///
+/// @author Jinnawat Janngam
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/profile/profile.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
@@ -5,7 +11,11 @@ import '../../../dataconnect_generated/generated.dart';
 
 import 'package:s_factory/features/user/add_user_page.dart';
 
+/// A stateful widget that renders a scrollable list of mechanics.
+/// 
+/// Requires a [role] to determine if the Add Employee FAB should be visible.
 class MechanicsList extends StatefulWidget {
+  /// The role of the currently logged-in user.
   final String? role;
 
   const MechanicsList({super.key, this.role});
@@ -15,6 +25,7 @@ class MechanicsList extends StatefulWidget {
 }
 
 class _MechanicsListState extends State<MechanicsList> {
+  /// Future that holds the result of the mechanics data query.
   late Future<QueryResult<GetMechanicsData, void>> _futureMechanics;
 
   @override
@@ -23,6 +34,7 @@ class _MechanicsListState extends State<MechanicsList> {
     _loadMechanics();
   }
 
+  /// Triggers a fetch of mechanics data via the Connector.
   void _loadMechanics() {
     setState(() {
       _futureMechanics = ConnectorConnector.instance.getMechanics().execute();
@@ -32,20 +44,22 @@ class _MechanicsListState extends State<MechanicsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Only show the Floating Action Button for administrators.
       floatingActionButton: widget.role == 'admin'
           ? FloatingActionButton(
-              onPressed: () async {
-                final added = await Navigator.push<bool?>(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddUserPage()),
-                );
-                if (added == true) {
-                  _loadMechanics();
-                }
-              },
-              tooltip: 'Add Employee',
-              child: const Icon(Icons.add),
-            )
+        onPressed: () async {
+          final added = await Navigator.push<bool?>(
+            context,
+            MaterialPageRoute(builder: (context) => const AddUserPage()),
+          );
+          // Refresh the list if a new user was successfully added.
+          if (added == true) {
+            _loadMechanics();
+          }
+        },
+        tooltip: 'Add Employee',
+        child: const Icon(Icons.add),
+      )
           : null,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -73,10 +87,11 @@ class _MechanicsListState extends State<MechanicsList> {
               itemBuilder: (context, index) {
                 final dynamic mechanic = mechanics[index];
                 final name = mechanic.name ?? mechanic.email;
-                // Generate a placeholder avatar based on the name
+
+                // Set up the profile image URL or use a dynamic placeholder based on the name.
                 final imgUrl =
                     mechanic.imageUrl ??
-                    'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=0D47A1&color=fff&size=200&bold=true';
+                        'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=0D47A1&color=fff&size=200&bold=true';
 
                 return mechanicsContainer(context, name, imgUrl, mechanic);
               },
@@ -87,12 +102,15 @@ class _MechanicsListState extends State<MechanicsList> {
     );
   }
 
+  /// Builds a card container representing an individual mechanic.
+  /// 
+  /// Tapping the container navigates to the mechanic's [Profile] page.
   Widget mechanicsContainer(
-    BuildContext context,
-    String name,
-    String imgUrl,
-    dynamic mechanic,
-  ) {
+      BuildContext context,
+      String name,
+      String imgUrl,
+      dynamic mechanic,
+      ) {
     return Card(
       child: InkWell(
         onTap: () async {
@@ -106,6 +124,7 @@ class _MechanicsListState extends State<MechanicsList> {
               ),
             ),
           );
+          // If a profile was deleted, refresh the list.
           if (deleted == true && mounted) {
             _loadMechanics();
           }

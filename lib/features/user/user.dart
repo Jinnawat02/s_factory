@@ -1,3 +1,9 @@
+/// Main home screen for users in the s_factory application.
+/// 
+/// This widget acts as a structural shell that manages top-level navigation,
+/// fetching the user's role and displaying the appropriate sub-pages.
+///
+/// @author Jinnawat Janngam
 import 'package:flutter/material.dart';
 import 'package:s_factory/features/machine/machine_list_page.dart';
 import 'package:s_factory/features/user/request_list_page.dart';
@@ -8,6 +14,10 @@ import 'package:s_factory/shared/navigation/navbar.dart';
 import '../../shared/services/secure_storage_service.dart';
 import '../qr/qr_scanner.dart';
 
+/// A stateful widget that displays the primary navigation interface.
+/// 
+/// It coordinates the [SFactoryAppBar], the main content area ([_pages]), 
+/// and the [SFactoryBottomNavbar].
 class UserHomeScreen extends StatefulWidget {
   const UserHomeScreen({super.key});
 
@@ -16,9 +26,13 @@ class UserHomeScreen extends StatefulWidget {
 }
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
-  // สร้างตัวแปรเก็บว่ากำลังเลือกแท็บไหนอยู่ (ค่าเริ่มต้นคือ 0)
+  /// Index of the currently selected tab in the bottom navigation bar.
   int _selectedIndex = 0;
+
+  /// The role of the current user (e.g., 'admin', 'user') fetched from secure storage.
   String? _currentRole;
+
+  /// Flag to track if the role is still being loaded from storage.
   bool _isLoading = true;
 
   @override
@@ -27,6 +41,10 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     _loadUserRole();
   }
 
+  /// Retrieves the user's role from [SecureStorageService].
+  /// 
+  /// Throws an [Exception] if no role is found. Once retrieved, updates 
+  /// the state to stop the loading indicator and render the UI.
   Future<void> _loadUserRole() async {
     final role = await SecureStorageService().getRole();
     if (mounted) {
@@ -40,6 +58,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     }
   }
 
+  /// A list of destination widgets available in the navigation bar.
   List<Widget> get _pages => [
     MachineListPage(role: _currentRole!),
     const QRScannerPage(),
@@ -47,6 +66,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     MechanicsList(role: _currentRole!),
   ];
 
+  /// Updates the [_selectedIndex] when a navigation item is tapped.
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -55,6 +75,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Show a loading spinner while waiting for the user role to be fetched.
     if (_isLoading || _currentRole == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }

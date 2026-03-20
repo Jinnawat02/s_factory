@@ -1,17 +1,28 @@
+/// Calendar view for mechanics in the s_factory application.
+///
+/// Displays a month-view calendar showing repair requests assigned to a mechanic.
+/// It uses the [SfCalendar] widget to visualize appointments, color-coded by
+/// their current status (Fixed, Pending, Cancelled).
+///
+/// @author Jinnawat Janngam
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import '../../dataconnect_generated/generated.dart';
 
+/// A widget that renders a visual calendar of a mechanic's assigned tasks.
 class MechanicCalendar extends StatelessWidget {
+  /// The email address of the mechanic whose calendar is being displayed.
   final String mechanicEmail;
 
+  /// Creates a [MechanicCalendar].
   const MechanicCalendar({
     super.key,
     required this.mechanicEmail,
   });
 
+  /// Maps a request status to a specific [Color] for calendar visualization.
   Color _getColorByStatus(String? status) {
     switch (status) {
       case 'Fixed':
@@ -25,6 +36,7 @@ class MechanicCalendar extends StatelessWidget {
     }
   }
 
+  /// Converts a Data Connect [Timestamp] into a standard Dart [DateTime].
   DateTime _convertTimestamp(Timestamp ts) {
     return DateTime.fromMillisecondsSinceEpoch(ts.seconds * 1000);
   }
@@ -42,6 +54,7 @@ class MechanicCalendar extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // Calendar Header
           Container(
             width: double.infinity,
             color: Colors.black,
@@ -53,6 +66,8 @@ class MechanicCalendar extends StatelessWidget {
               ),
             ),
           ),
+          
+          // Calendar Content
           Expanded(
             child: FutureBuilder<QueryResult<GetRequestsByMechanicEmailData, GetRequestsByMechanicEmailVariables>>(
               future: ConnectorConnector.instance
@@ -74,6 +89,7 @@ class MechanicCalendar extends StatelessWidget {
 
                 final requests = snapshot.data?.data.requests ?? [];
 
+                // Convert DB requests into calendar appointments.
                 final appointments = requests.map((request) {
                   final date = _convertTimestamp(request.requestDate);
                     return Appointment(
@@ -90,7 +106,7 @@ class MechanicCalendar extends StatelessWidget {
                   view: CalendarView.month,
                   timeZone: 'Asia/Bangkok',
                   dataSource: MechanicDataSource(appointments),
-                  todayTextStyle: TextStyle(
+                  todayTextStyle: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                   ),
@@ -117,7 +133,9 @@ class MechanicCalendar extends StatelessWidget {
   }
 }
 
+/// custom [CalendarDataSource] for the mechanic's repair appointments.
 class MechanicDataSource extends CalendarDataSource {
+  /// Creates a data source from a list of [Appointment]s.
   MechanicDataSource(List<Appointment> source) {
     appointments = source;
   }
